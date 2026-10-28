@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ศูนย์จำลองสถานการณ์ & GTFS-RT · OmniTransit v5</title>
+  <meta name="description" content="จำลองเหตุขัดข้อง: GPS ขาดเกิน 90 วินาที รถเสีย ฝนตก ชั่วโมงเร่งด่วน เซิร์ฟเวอร์ล่ม พร้อมดู GTFS Realtime Feed สด">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/css/app.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'></text></svg>">
+</head>
+<body>
+  <div id="ot-nav"></div>
+  <main id="main" class="layout">
+    <div class="card">
+      <h2> แผงควบคุมการจำลองสด (Chaos / Fallback Engine)</h2>
+      <p class="hint">ทุกเหตุการณ์จะกระทบ "ทั้งสองเวิลด์" (ก่อน/หลังทดลอง) เท่ากัน เพื่อให้การเทียบ KPI ยุติธรรม — เมื่อจำลองเหตุขัดข้อง ทุกโมดูลต้องสลับสู่โหมดสำรองทันทีตามกฎเหล็ก: <strong>ถอนเวลาสด แสดงแจ้งเตือน และสลับไปตารางจริง ห้ามแสดงเวลาปลอม</strong></p>
+      <div class="grid-3 mt">
+        <div>
+          <label class="fld">ความเร็วเวลาจำลอง</label>
+          <div class="flex" id="speed-btns">
+            <button class="btn small primary" data-speed="1">×1</button>
+            <button class="btn small" data-speed="10">×10</button>
+            <button class="btn small" data-speed="30">×30</button>
+            <button class="btn small" data-speed="60">×60</button>
+            <button class="btn small" data-speed="120">×120</button>
+          </div>
+          <div class="hint" id="clock-line">เวลาจำลอง –:–</div>
+        </div>
+        <div>
+          <label class="fld">สภาพแวดล้อม</label>
+          <div class="flex">
+            <label class="toggle"><input type="checkbox" id="t-rain"><span class="track" aria-hidden="true"></span>  ฝนตกหนัก (ถนนช้า จอดนาน)</label>
+            <label class="toggle"><input type="checkbox" id="t-rush"><span class="track" aria-hidden="true"></span>  ชั่วโมงเร่งด่วนเสริม</label>
+          </div>
+        </div>
+        <div>
+          <label class="fld">เหตุขัดข้อง</label>
+          <div class="flex">
+            <select id="chaos-bus" style="max-width:150px;" aria-label="เลือกรถสำหรับเหตุขัดข้อง"><option value="all">ทุกคัน</option></select>
+            <button class="btn warn" id="b-gps"> GPS ขาด > 90 วิ</button>
+            <button class="btn warn" id="b-break"> รถเสียกลางทาง</button>
+            <button class="btn" id="b-apc"> เซ็นเซอร์ APC ขัดข้อง</button>
+          </div>
+          <div class="flex mt">
+            <label class="toggle"><input type="checkbox" id="t-server"><span class="track" aria-hidden="true"></span>  เซิร์ฟเวอร์หลักขัดข้อง</label>
+            <button class="btn" id="b-reset">↺ รีเซ็ตการจำลอง</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <section class="card" aria-label="บันทึกเหตุการณ์ระบบ">
+        <h3> เหตุการณ์ระบบล่าสุด</h3>
+        <ul class="log-list" id="event-log" style="max-height:300px;"></ul>
+        <hr class="divider">
+        <h3> ขั้นตอน Graceful Degradation ที่ต้องเห็นเมื่อกดจำลอง</h3>
+        <ol class="small" style="line-height:1.9; margin:6px 0 0; padding-inline-start:20px;">
+          <li>รถที่ GPS ขาดเกิน <b>90 วินาที</b>  ถอน ETA สดของคันนั้นออกจากหน้าผู้โดยสาร/ป้ายทันที</li>
+          <li>ระดับความแน่นที่ไม่มีการนับใหม่  เปลี่ยนเป็น <b> ไม่มีข้อมูลปัจจุบัน</b> (หรือป้าย "สถานะเมื่อออกต้นทาง" ถ้านายท่ากดเอง)</li>
+          <li>หน้าสาธารณะขึ้นแบนเนอร์ <b>"ข้อมูลรถขาดช่วง"</b> + แจ้งข่าวเหตุ</li>
+          <li>สลับไป <b>ตารางเดินรถมาตรฐาน</b> พร้อมระบุชัดว่าเป็นตารางเวลา</li>
+          <li>หน้านายท่ายังทำงานด้วยช่องทางภายใน + บันทึกเหตุใน Audit Log</li>
+        </ol>
+      </section>
+
+      <section class="card" aria-label="GTFS Realtime Feed">
+        <div class="flex spread">
+          <h3 style="margin:0;"> GTFS Realtime Feed (JSON) — สด</h3>
+          <div class="flex">
+            <a class="btn small" href="/api/gtfs-rt" target="_blank" rel="noopener">เปิด endpoint</a>
+          </div>
+        </div>
+        <p class="hint">ตามมาตรฐาน GTFS Realtime: ตำแหน่งรถผ่าน <b>VehiclePosition</b> (รวม occupancy_status ซึ่งมาตรฐานยังระบุ experimental), เวลาเที่ยวผ่าน <b>TripUpdate</b>, ข่าวเหตุผ่าน <b>Alert</b> — แอปปลายทางอาจรองรับไม่เท่ากัน</p>
+        <div class="flex" id="gtfs-tabs" role="tablist">
+          <button class="btn small primary" data-tab="all" role="tab" aria-selected="true">ทั้งหมด</button>
+          <button class="btn small" data-tab="vehicle" role="tab" aria-selected="false">VehiclePosition</button>
+          <button class="btn small" data-tab="trip" role="tab" aria-selected="false">TripUpdate</button>
+          <button class="btn small" data-tab="alert" role="tab" aria-selected="false">Alert</button>
+        </div>
+        <pre class="json mt" id="gtfs-out" aria-live="off">กำลังโหลด…</pre>
+      </section>
+    </div>
+  </main>
+  <footer id="ot-footer"></footer>
+  <script src="/js/common.js"></script>
+  <script src="/js/sim.js"></script>
+</body>
+</html>

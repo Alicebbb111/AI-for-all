@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>กำกับโครงการ · Roadmap · งบ · Charter · OmniTransit v5</title>
+  <meta name="description" content="แผน 16 สัปดาห์พร้อมเกณฑ์ผ่านด่าน, เกณฑ์หยุดฉุกเฉิน (Kill Switch), เครื่องคำนวณงบประมาณ 846,400 บาท และแบบเริ่มโครงการหนึ่งหน้า">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/css/app.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'></text></svg>">
+</head>
+<body>
+  <div id="ot-nav"></div>
+  <main id="main" class="layout">
+    <div class="card">
+      <div class="flex spread">
+        <div>
+          <h2 style="margin:0;"> Project Governance — แผน 16 สัปดาห์ + เกณฑ์ผ่านด่าน (Stage Gate)</h2>
+          <span class="muted small">นับหลังเจ้าภาพพร้อมจริง — เวลาอนุมัติ/จัดซื้อ/สิทธิข้อมูลเป็นงานก่อนเริ่ม · เงื่อนไขไม่ผ่าน = หยุดไปด่านถัดไป</span>
+        </div>
+        <div class="flex">
+          <div id="killswitch-state"></div>
+          <button class="btn primary" id="btn-report"> ส่งออกรายงานสรุป (Executive Report)</button>
+        </div>
+      </div>
+      <div class="banner crit mt no-print" id="kill-banner" hidden>
+        <span class="ico" aria-hidden="true"></span>
+        <div class="grow"><strong>เกณฑ์หยุดฉุกเฉิน (Kill Switch)</strong> — เมื่อพบการฝ่าฝืนเงื่อนไขบริการ อันตราย การกีดกันผู้โดยสาร หรือข้อมูลรั่วไหล: กดเพื่อระงับคำแนะนำ AI ทั้งหมดทันที กลับแผนเดิมที่อนุมัติไว้ (รถยังให้บริการตามตาราง — การหยุดซอฟต์แวร์ไม่ใช่การหยุดรถทั้งสาย)</div>
+        <div style="min-width:230px;">
+          <input type="text" id="kill-reason" placeholder="เหตุผล (บันทึกใน Audit Log)">
+          <div class="flex mt">
+            <button class="btn danger small" id="kill-on">เปิด Kill Switch</button>
+            <button class="btn ok small" id="kill-off" disabled>ปิด / กลับมาทำงาน</button>
+          </div>
+        </div>
+      </div>
+      <div id="roadmap" class="mt"></div>
+    </div>
+
+    <section class="card" aria-label="เครื่องคำนวณงบประมาณ">
+      <h3> เครื่องคำนวณงบประมาณแบบปรับค่าได้ (กรอบตั้งต้น 846,400 บาท — ประมาณการ ต้องสืบราคาจริงก่อนตั้งงบ)</h3>
+      <p class="hint">แก้ตัวเลขในตารางได้ทันที · ไม่รวมรถใหม่ ค่าเดินรถประจำเดิม เซ็นเซอร์ใหม่ งานโยธา และเงินอุดหนุนค่าโดยสาร</p>
+      <div style="overflow-x:auto;">
+                <div class="table-wrap">
+          <table class="data" id="budget-table">
+          <thead><tr><th>รายการ</th><th class="num">ปัจจัย 1</th><th class="num">ปัจจัย 2</th><th class="num">ปัจจัย 3</th><th class="num right">เป็นเงิน (บาท)</th></tr></thead>
+          <tbody></tbody>
+          <tfoot><tr><td colspan="4" class="bold">รวมก่อนเผื่อ</td><td class="num bold" id="budget-sub">–</td></tr>
+          <tr><td colspan="4">เผื่อความไม่แน่นอน <input type="number" id="budget-cont" value="15" min="0" max="50" style="width:80px; display:inline-block;"> %</td><td class="num" id="budget-cont-amt">–</td></tr>
+          <tr><td colspan="4" class="bold">รวมทั้งสิ้น</td><td class="num bold" style="font-size:1.1rem;" id="budget-total">–</td></tr></tfoot>
+        </table>
+        </div>
+      </div>
+      <div class="grid-3 mt">
+        <div>
+          <label class="fld" for="budget-days">จำนวนวันให้บริการที่ใช้คิดประโยชน์</label>
+          <input type="number" id="budget-days" value="60" min="1" max="400">
+        </div>
+        <div class="stat-tile">
+          <div class="label">ต้นทุนต่อการเดินทางที่ได้รับประโยชน์</div>
+          <div class="value" id="cost-per-trip" style="font-size:1.5rem;">–</div>
+          <div class="delta flat" id="benefit-trips">จากผู้โดยสารจำลองชั่วโมงล่าสุด × วันบริการ</div>
+        </div>
+        <div class="stat-tile">
+          <div class="label">เวลารอที่ประหยัดได้ (รายงานแยกจากเงิน)</div>
+          <div class="value" id="saved-min" style="font-size:1.5rem;">–</div>
+          <div class="delta flat">นาทีรอที่ประหยัดได้ต่อชั่วโมงจำลอง (เวลาผู้โดยสารประหยัด ≠ เงินสด ต้องระบุผู้จ่ายต่อเนื่องให้ชัด)</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" aria-label="แบบเริ่มโครงการหนึ่งหน้า">
+      <div class="flex spread">
+        <h3 style="margin:0;"> ภาคผนวก: แบบเริ่มโครงการหนึ่งหน้า (1-Page Project Charter)</h3>
+        <div class="flex no-print">
+          <button class="btn" id="charter-save"> บันทึกลงระบบ</button>
+          <button class="btn" id="charter-download"> ส่งออกเป็นไฟล์ .md</button>
+          <button class="btn" id="charter-print"> พิมพ์</button>
+        </div>
+      </div>
+      <p class="hint">หมายเหตุศัพท์: "ผู้ควบคุมข้อมูลส่วนบุคคล" = หน่วยงานที่ตัดสินวัตถุประสงค์/วิธีประมวลผล · "เจ้าของข้อมูลส่วนบุคคล" = บุคคลที่ข้อมูลเกี่ยวข้อง — ต้องแยกสองบทบาทนี้ในเอกสารจริง</p>
+      <div class="grid-2" id="charter-form"></div>
+    </section>
+  </main>
+  <footer id="ot-footer"></footer>
+  <script src="/js/common.js"></script>
+  <script src="/js/governance.js"></script>
+</body>
+</html>

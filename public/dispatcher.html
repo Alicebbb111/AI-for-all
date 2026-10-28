@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>หน้านายท่า · OmniTransit</title>
+  <meta name="description" content="ศูนย์ควบคุมสำหรับนายท่า: นับถอยหลังปล่อยรถ การแจ้งเตือนรถวิ่งติดกันแบบกดปุ่มเดียว และสถานะรถทั้งสาย">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/css/app.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2316181d' stroke-width='2'%3E%3Cpath d='M5 3h14a1 1 0 0 1 1 1v13H4V4a1 1 0 0 1 1-1Z'/%3E%3C/svg%3E">
+</head>
+<body>
+  <div id="ot-nav"></div>
+  <main id="main" class="layout">
+    <div class="card" data-tour="countdown-area" id="countdown-area">
+      <div class="flex spread">
+        <div>
+          <h2 style="margin:0;">รอบปล่อยรถคันถัดไป</h2>
+          <span class="sub" style="display:block;">สายนำร่อง 1 · รอบประกาศ 8 นาที · พักอู่ขั้นต่ำ 6 นาที</span>
+        </div>
+        <div class="flex">
+          <label class="toggle" title="เสียงเตือนเมื่อมีรถวิ่งติดกันรอตัดสินใจ"><input type="checkbox" id="audio-alert" checked><span class="track" aria-hidden="true"></span> เสียงเตือน</label>
+          <label class="toggle" title="ระบบกดอนุมัติแทนอัตโนมัติสำหรับสาธิต"><input type="checkbox" id="auto-approve"><span class="track" aria-hidden="true"></span> อนุมัติอัตโนมัติ (สาธิต)</label>
+          <span class="chip" id="disp-clock">–:–</span>
+        </div>
+      </div>
+      <div class="countdown-wrap mt">
+        <div class="countdown">
+          <div class="cd-label">ขาไป · จตุจักร ไป หัวลำโพง</div>
+          <div class="cd-time" id="cd-1">--:--</div>
+          <div class="cd-sub" id="cd-1-sub">คำนวณจากเที่ยวล่าสุด + รอบ 8 นาที</div>
+        </div>
+        <div class="countdown">
+          <div class="cd-label">ขากลับ · หัวลำโพง ไป จตุจักร</div>
+          <div class="cd-time" id="cd--1">--:--</div>
+          <div class="cd-sub" id="cd--1-sub">คำนวณจากเที่ยวล่าสุด + รอบ 8 นาที</div>
+        </div>
+      </div>
+      <div id="dispatcher-alert" class="mt" aria-live="polite"></div>
+    </div>
+
+    <div id="rec-area" data-tour="rec-area" aria-label="การแจ้งเตือนและคำแนะนำ"></div>
+
+    <section class="card" aria-label="สถานะรถทั้งสาย" data-tour="fleet-table" id="fleet-table">
+      <div class="flex spread">
+        <h2 style="margin:0;">รถทั้งสาย 10 คัน</h2>
+        <span class="chip" id="fleet-adequacy">–</span>
+      </div>
+      <div class="table-wrap mt">
+        <table class="data" id="fleet-table-el">
+          <thead><tr>
+            <th>คัน</th><th>รุ่น</th><th>ตำแหน่งปัจจุบัน</th><th>สถานะ</th><th class="num">เวลาพัก</th><th class="num">ขับสะสม</th><th>ความแน่น</th><th>สัญญาณ</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <details class="card tight">
+      <summary style="cursor:pointer; font-weight:600; font-size:0.9rem;">บันทึกการตัดสินใจ (Audit Log) — ตรวจสอบย้อนหลัง</summary>
+      <ul class="log-list mt" id="audit-log"></ul>
+    </details>
+  </main>
+  <footer id="ot-footer"></footer>
+  <script src="/js/common.js"></script>
+  <script src="/js/dispatcher.js"></script>
+</body>
+</html>

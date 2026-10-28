@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ผู้สำรวจ & เซ็นเซอร์ประตู APC · OmniTransit v5</title>
+  <meta name="description" content="จำลองเซ็นเซอร์ลำแสงอินฟราเรดนับคนขึ้น-ลงที่ประตู และแผงบันทึกสำหรับผู้สำรวจภาคสนาม (Pass-up count รายป้าย)">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/css/app.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'></text></svg>">
+</head>
+<body>
+  <div id="ot-nav"></div>
+  <main id="main" class="layout">
+    <div class="card">
+      <h2> Spotter & APC Door Sensor Simulator</h2>
+      <div class="flex">
+        <label class="fld" for="bus-select" style="margin:0;">เลือกรถ (สายนำร่อง 1)</label>
+        <select id="bus-select" style="max-width:340px;"></select>
+        <span id="sel-bus-crowd"></span>
+        <span class="grow"></span>
+        <button class="btn small" id="btn-origin"> นายท่ากดสถานะต้นทาง</button>
+        <label class="toggle" title="จำลองเซ็นเซอร์ APC ขัดข้อง (ข้อมูลจะขึ้น 'ไม่มีข้อมูลปัจจุบัน' เมื่อผ่านหลายป้าย)">
+          <input type="checkbox" id="apc-fault"><span class="track" aria-hidden="true"></span> เซ็นเซอร์ APC ขัดข้อง
+        </label>
+      </div>
+      <p class="hint">หลักการ: ลำแสงอินฟราเรด 2 จุดที่ประตู — ตัดแสง 1 ไป 2 = คนเข้า (ขึ้นรถ), ตัดแสง 2 ไป 1 = คนออก (ลงรถ) ระบบสรุปด้วยสมการสมดุล <b>คนบนรถหลังป้าย = คนบนรถก่อนป้าย + คนขึ้น − คนลง</b> และรีเซ็ตเป็น 0 เมื่อถึงอู่ปลายทาง · การนับมีความคลาดเคลื่อนได้ จึงต้องมีผู้สำรวจและการตรวจยอดปลายสาย</p>
+      <div id="balance-line" class="mt" style="font-size:1.02rem;"></div>
+    </div>
+
+    <div class="grid-2">
+      <section class="card" aria-label="จำลองลำแสงประตู">
+        <h3> ลำแสงอินฟราเรดที่ประตู (Infrared Beam)</h3>
+        <div class="beam-visual">
+          <div style="text-align:center;"><div class="beam-lamp" id="beam1"></div><div class="small muted">ลำแสง 1<br>(ด้านนอก)</div></div>
+          <div class="beam-beam" id="beam-strip"></div>
+          <div style="text-align:center;"><div class="beam-lamp" id="beam2"></div><div class="small muted">ลำแสง 2<br>(ด้านใน)</div></div>
+        </div>
+        <div class="counter-panel mt">
+          <button class="btn primary" id="btn-in" style="flex:1;"> คนเข้า (1 ไป 2) = ขึ้น</button>
+          <div class="num" id="beam-count">0</div>
+          <button class="btn" id="btn-out" style="flex:1;"> คนออก (2 ไป 1) = ลง</button>
+        </div>
+        <p class="hint">แต่ละครั้งที่กด ระบบจะบันทึกเหตุการณ์ตัดแสงและปรับ "คนบนรถโดยประมาณ" ทันที — สถานะความแน่นจะไปขึ้นบนแผนที่สดทันที</p>
+        <hr class="divider">
+        <h3> เหตุการณ์ตัดแสงล่าสุด</h3>
+        <ul class="log-list" id="apc-log"></ul>
+      </section>
+
+      <section class="card" aria-label="แผงผู้สำรวจภาคสนาม">
+        <h3> แผงบันทึกผู้สำรวจภาคสนาม (Manual Spotter)</h3>
+        <div class="form-row">
+          <div>
+            <label class="fld" for="spot-stop">ป้ายที่สำรวจ</label>
+            <select id="spot-stop"></select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div><label class="fld" for="spot-board">คนขึ้น</label><input type="number" id="spot-board" min="0" max="200" value="0"></div>
+          <div><label class="fld" for="spot-alight">คนลง</label><input type="number" id="spot-alight" min="0" max="200" value="0"></div>
+          <div><label class="fld" for="spot-passup">ขึ้นไม่ได้ (Pass-up)</label><input type="number" id="spot-passup" min="0" max="200" value="0"></div>
+        </div>
+        <div class="mt flex">
+          <button class="btn ok" id="btn-spot-submit"> บันทึกรายป้าย</button>
+          <button class="btn" id="btn-csv"> ส่งออกข้อมูลสำรวจ (CSV)</button>
+          <span class="muted small">บันทึกแล้วระบบจะใช้ตัวเลขของผู้สำรวจปรับค่าประมาณการ (สดใหม่ 3 ป้าย) และนับ Pass-up เข้า KPI</span>
+        </div>
+        <div class="banner info mt">
+          <div class="grow"><b>ปุ่มลัดสำหรับหน้างาน</b> — คลิกที่พื้นหน้าจอก่อน แล้วใช้ได้เลย:
+          ลูกศรขึ้น/ลง = คนขึ้น ±1 (Shift ควบ = ±5) · ลูกศรขวา/ซ้าย = คนลง ±1 · ปุ่ม P = ขึ้นไม่ได้ +1 · Enter = บันทึกทันที</div>
+        </div>
+        <hr class="divider">
+        <h3> บันทึกผู้สำรวจล่าสุด</h3>
+        <div style="overflow-x:auto;">
+                    <div class="table-wrap">
+            <table class="data" id="spotter-table">
+            <thead><tr><th>เวลา</th><th>รถ</th><th>ป้าย</th><th class="num">ขึ้น</th><th class="num">ลง</th><th class="num">ขึ้นไม่ได้</th><th class="num">ก่อน / หลัง</th></tr></thead>
+            <tbody></tbody>
+          </table>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="card">
+      <h3> ภาพรวมคนรอทุกป้าย (สด)</h3>
+      <div style="overflow-x:auto;">
+                <div class="table-wrap">
+          <table class="data" id="stops-table">
+          <thead><tr><th>ป้าย</th><th>หมายเหตุ</th><th class="num">คนรอขาไป</th><th class="num">คนรอขากลับ</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        </div>
+      </div>
+      <p class="hint">Pass-up (คนที่พยายามขึ้นแต่รถเต็ม) จะถูกนับเข้าอัตรา "ขึ้นรถไม่ได้" ในหน้า KPI — เป้าหมายคือลดลง ≥ 15% เมื่อเทียบก่อนทดลอง</p>
+    </div>
+  </main>
+  <footer id="ot-footer"></footer>
+  <script src="/js/common.js"></script>
+  <script src="/js/spotter.js"></script>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ห้องทดสอบโมเดล AI · OmniTransit v5</title>
+  <meta name="description" content="เทียบความแม่น ETA ระหว่างวิธีค่าเฉลี่ยย้อนหลัง (Baseline) กับโมเดล AI แบบสด พร้อมเกณฑ์เปิดใช้ Shadow Mode / อนุมัติ / ย้อนกลับ">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/css/app.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'></text></svg>">
+</head>
+<body>
+  <div id="ot-nav"></div>
+  <main id="main" class="layout">
+    <div class="card">
+      <div class="flex spread">
+        <div>
+          <h2 style="margin:0;"> Pragmatic AI Evaluation Lab</h2>
+          <span class="muted small">ใช้ AI เมื่อพิสูจน์แล้วว่าช่วยมากกว่าวิธีง่าย — ทดสอบเงียบก่อน อนุมัติเป็นรุ่นที่ระบุได้ และย้อนกลับได้</span>
+        </div>
+        <span class="chip" id="phase-chip">เฟส: –</span>
+      </div>
+
+      <div class="grid-3 mt">
+        <div class="stat-tile">
+          <div class="label">สถานะรุ่นโมเดล ETA ที่ใช้แสดงต่อสาธารณะ</div>
+          <div class="value" id="release-value" style="font-size:1.5rem;">–</div>
+          <div class="flex mt">
+            <button class="btn small" id="btn-shadow"> ทดสอบเงียบ (Shadow)</button>
+            <button class="btn small ok" id="btn-approve"> อนุมัติขึ้นใช้จริง</button>
+            <button class="btn small warn" id="btn-rollback">↩ ย้อนกลับรุ่นเดิม</button>
+          </div>
+        </div>
+        <div class="stat-tile">
+          <div class="label">เฟสทดสอบปัจจุบัน (เวลาจำลอง: ฝึก 0–30 น. · ปรับค่า 30–60 น. · ทดสอบ 60+ น.)</div>
+          <div class="flex mt">
+            <button class="btn small" data-phase="train">เฟสฝึก</button>
+            <button class="btn small" data-phase="tune">เฟสปรับค่า</button>
+            <button class="btn small" data-phase="test">เฟสทดสอบ</button>
+            <button class="btn small" data-phase="auto">อัตโนมัติ</button>
+          </div>
+          <p class="hint">แยกวันฝึก/วันปรับค่า/วันทดสอบ — เกณฑ์เปิด AI ประเมินบน "เฟสทดสอบ" เท่านั้น (ห้ามใช้ข้อมูลอนาคตฝึก)</p>
+        </div>
+        <div class="stat-tile">
+          <div class="label">จำนวนตัวอย่าง ETA ที่วัดแล้ว (จริงทั้งคู่โมเดล)</div>
+          <div class="value" id="samples-value">–</div>
+          <div class="delta flat">Baseline และ AI พยากรณ์รถคันเดียวกัน ณ เวลาเดียวกัน — เทียบยุติธรรม</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <section class="card" aria-label="เกณฑ์เปิดใช้ AI">
+        <h3> เกณฑ์เปิดใช้ AI (ประเมินบนเฟสทดสอบ)</h3>
+        <div id="gate-panel"></div>
+        <p class="hint">กติกาตามพิมพ์เขียว: เปิดโมเดลต่อเมื่อ MAE เวลาถึงดีขึ้นอย่างน้อย 10% เมื่อเทียบวิธีง่าย และช่วงคาดการณ์ไม่กว้างจนใช้ตัดสินใจไม่ได้ · ยังไม่ผ่าน = ระบบแสดงค่าจากวิธีง่ายต่อสาธารณะ</p>
+      </section>
+
+      <section class="card" aria-label="MAE รายเฟส">
+        <h3> MAE เวลาถึง (นาที) — ยิ่งต่ำยิ่งแม่น</h3>
+        <div id="mae-chart"></div>
+        <p class="hint">ประเมินจากข้อผิดพลาดจริงเมื่อรถถึงป้าย (ทำนายล่วงหน้า 3 ป้าย) · ตัวเลขบนแท่ง = ค่าสูงสุดของกลุ่มนั้น</p>
+      </section>
+    </div>
+
+    <div class="grid-2">
+      <section class="card" aria-label="ความแม่นของการบอกระดับความแน่น">
+        <h3> ความแม่นของการบอกระดับความแน่น</h3>
+        <div class="grid-3">
+          <div class="stat-tile">
+            <div class="label">Macro-F1 (3 ระดับ · เกณฑ์ ≥ 0.85)</div>
+            <div class="value" id="f1-value">–</div>
+            <div class="meter" style="margin-top:8px;"><div class="fill" id="f1-meter" style="width:0%;"></div><div class="goal" style="left:85%;"></div></div>
+          </div>
+          <div class="stat-tile">
+            <div class="label">ข้อผิดพลาดร้ายแรง (บอกไม่แน่นแต่จริงแน่นขึ้นไม่ได้)</div>
+            <div class="value" id="serious-value">–</div>
+            <div class="delta flat" id="serious-ci">ขอบบน 95% CI: –</div>
+          </div>
+          <div class="stat-tile">
+            <div class="label">สัดส่วนที่ระบบตอบ "ไม่ทราบ" ()</div>
+            <div class="value" id="unknown-value">–</div>
+            <div class="delta flat">ต้องรายงานกันการ "หลบตอบแล้วดูแม่น"</div>
+          </div>
+        </div>
+        <h3 class="mt">เมทริกซ์ความสับสน (แถว = ทำนาย, คอลัมน์ = ของจริง)</h3>
+        <div id="confusion-box" style="overflow-x:auto;"></div>
+        <p class="hint">การนับอ้างอิง "ของจริงในการจำลอง" เพื่อประเมินเท่านั้น — ตามพิมพ์เขียว การนับจริงภาคสนามก็ผิดได้ จึงไม่เรียกว่า exact ground truth และต้องเก็บกรณีบังสายตา/ไม่แน่ใจ</p>
+      </section>
+
+      <section class="card" aria-label="ประวัติการเปลี่ยนรุ่น">
+        <h3> ประวัติการอนุมัติ/ย้อนกลับรุ่นโมเดล</h3>
+        <ul class="log-list" id="release-log"></ul>
+        <hr class="divider">
+        <h3> วิธีการ (โปร่งใสตรวจสอบได้)</h3>
+        <ul class="small" style="line-height:1.9; padding-inline-start:18px; margin:0;">
+          <li><b>Baseline:</b> ความเร็วเฉลี่ยย้อนหลังตามช่วงเวลา + เวลาจอดคงที่ (วิธีง่ายที่ต้องชนะให้ได้ก่อน)</li>
+          <li><b>โมเดล AI:</b> ความเร็วรายช่วงถนนแบบ EWMA + เวลาจอดเฉลี่ยที่เรียนรู้จากข้อมูลสด (ออนไลน์ ไม่ใช้ข้อมูลอนาคต)</li>
+          <li>ทั้งคู่พยากรณ์รถเดียวกัน ณ เวลาเดียวกัน เทียบกับเวลาถึงจริง แล้วคิด MAE เป็น "นาที"</li>
+          <li>ช่วงคาดการณ์ที่แสดง: Baseline ±(18%+90 วิ) · AI ±(10–14%+40 วิ) — AI ต้องแคบกว่าและแม่นกว่าจึงผ่าน</li>
+        </ul>
+      </section>
+    </div>
+  </main>
+  <footer id="ot-footer"></footer>
+  <script src="/js/common.js"></script>
+  <script src="/js/charts.js"></script>
+  <script src="/js/aieval.js"></script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ป้ายประจำจุดจอด (Public Stop Board) · OmniTransit v5</title>
+  <meta name="description" content="หน้าจอป้ายประกาศสาธารณะ ตัวอักษรใหญ่พิเศษ มีเสียงประกาศภาษาไทย และตารางเดินรถสำหรับพิมพ์ — ไม่ต้องมีสมาร์ทโฟนก็ใช้ได้">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/css/app.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'></text></svg>">
+</head>
+<body data-scope="public" class="kiosk kiosk-body">
+  <div id="ot-nav"></div>
+  <main id="main" class="layout">
+    <div class="card" style="text-align:center;">
+      <div class="flex spread" style="align-items:flex-start;">
+        <div style="text-align:left;">
+          <div class="muted small bold" style="letter-spacing:.08em;">ป้ายประจำจุดจอด · สายนำร่อง 1</div>
+          <div class="kiosk-stop-name" id="kiosk-stop-name">–</div>
+          <div class="chip warn" id="kiosk-survey" hidden> ป้ายสำรวจหลัก</div>
+        </div>
+        <div style="text-align:right;">
+          <div class="muted small bold">เวลา (จำลอง)</div>
+          <div class="kiosk-clock" id="kiosk-clock">--:--</div>
+        </div>
+      </div>
+      <div id="kiosk-alert" class="mt" aria-live="assertive"></div>
+    </div>
+
+    <div class="grid-2">
+      <section class="card" aria-label="รถขาไป">
+        <h2 style="font-size:1.5rem;"> ขาไป · จตุจักร  หัวลำโพง</h2>
+        <div id="kiosk-fwd" aria-live="polite"></div>
+      </section>
+      <section class="card" aria-label="รถขากลับ">
+        <h2 style="font-size:1.5rem;"> ขากลับ · หัวลำโพง  จตุจักร</h2>
+        <div id="kiosk-rev" aria-live="polite"></div>
+      </section>
+    </div>
+
+    <div class="card">
+      <div class="flex">
+        <button class="btn primary" id="kiosk-speak"> กดฟังประกาศรถคันถัดไป (เสียงไทย)</button>
+        <button class="btn" onclick="window.print()"> พิมพ์ตารางเดินรถประจำป้าย</button>
+        <button class="btn" id="kiosk-hc" aria-pressed="false"> โหมดคมชัดสูง (กลางแจ้ง)</button>
+        <a class="btn" href="index.html"> กลับหน้าผู้โดยสาร</a>
+        <label class="fld" style="min-width:220px; margin:0;" for="kiosk-stop-select">เปลี่ยนป้ายของหน้าจอนี้</label>
+        <select id="kiosk-stop-select" style="max-width:280px;"></select>
+      </div>
+      <p class="hint">สำหรับผู้ไม่มีสมาร์ทโฟน: อ่านจากหน้าจอนี้หรือตารางที่พิมพ์ติดป้าย และสอบถามเจ้าหน้าที่ประจำป้ายในช่วงเร่งด่วน · ขึ้นรถได้ทุกคนตามลำดับคิว ไม่ต้องจอง ไม่มีค่ามัดจำ</p>
+    </div>
+
+    <div class="card print-only" id="kiosk-print-area">
+      <h2 style="font-size:1.6rem;">ตารางเดินรถมาตรฐาน (สำหรับติดป้าย)</h2>
+      <div id="kiosk-print-table"></div>
+    </div>
+  </main>
+  <footer id="ot-footer"></footer>
+  <script src="/js/common.js"></script>
+  <script src="/js/kiosk.js"></script>
+</body>
+</html>

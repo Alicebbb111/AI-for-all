@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>หน้าผู้โดยสาร · OmniTransit</title>
+  <meta name="description" content="รถเมล์สายนำร่อง 1 จตุจักร–หัวลำโพง: ดูแผนที่รถสด เวลารถจะมาถึง ระดับความแน่น และค่าโดยสาร — ไม่ต้องสมัครสมาชิก ไม่มีการจองที่นั่ง">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/vendor/leaflet.css">
+  <link rel="stylesheet" href="/css/app.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2316181d' stroke-width='2'%3E%3Cpath d='M5 3h14a1 1 0 0 1 1 1v13H4V4a1 1 0 0 1 1-1Z'/%3E%3C/svg%3E">
+</head>
+<body data-scope="public">
+  <div id="ot-nav"></div>
+  <main id="main" class="layout" style="grid-template-columns: 1.45fr 1fr;">
+    <style>@media (max-width: 1060px){ main.layout{grid-template-columns:1fr !important} }</style>
+
+    <!-- แผนที่สด -->
+    <section class="card map-card" aria-label="แผนที่รถสด">
+      <div class="map-head">
+        <span class="live-dot" id="live-ind">ข้อมูลสด</span>
+        <select id="route-select" class="route-select" aria-label="เลือกเส้นทาง"></select>
+        <strong id="route-name" style="font-size:0.92rem;">สายนำร่อง 1</strong>
+        <span class="chip" id="sim-clock">–:–</span>
+        <span class="legend-inline" aria-label="สภาพจราจร">
+          <span><span class="ico-dot" style="background:var(--ok-fill); width:14px; height:4px; border-radius:2px;"></span>ไหลลื่น</span>
+          <span><span class="ico-dot" style="background:var(--warn-fill); width:14px; height:4px; border-radius:2px;"></span>ปานกลาง</span>
+          <span><span class="ico-dot" style="background:var(--crit-fill); width:14px; height:4px; border-radius:2px;"></span>ติดขัด</span>
+        </span>
+        <span class="grow"></span>
+      </div>
+      <div class="map-body"><div id="map" role="application" data-tour="map" aria-label="แผนที่ตำแหน่งรถเมล์สด"></div></div>
+      <div class="quicksim" id="quicksim" aria-label="แถบควบคุมการจำลองด่วน">
+        <span class="qs-label">จำลองสถานการณ์</span>
+        <button class="btn small" type="button" data-qs="rain" aria-pressed="false">ฝนตกหนัก</button>
+        <button class="btn small" type="button" data-qs="rush" aria-pressed="false">ชั่วโมงเร่งด่วน</button>
+        <button class="btn small" type="button" data-qs="gps">GPS ขาด (ทุกคัน 5 นาที)</button>
+        <span class="qs-sep" aria-hidden="true"></span>
+        <span class="qs-label">ความเร็วเวลา</span>
+        <button class="btn small" type="button" data-speed="1" aria-pressed="true">×1</button>
+        <button class="btn small" type="button" data-speed="30" aria-pressed="false">×30</button>
+        <button class="btn small" type="button" data-speed="60" aria-pressed="false">×60</button>
+      </div>
+      <div class="map-attrib">เส้นทางจากเครือข่ายถนนจริง (OSRM · ข้อมูล OpenStreetMap) · แผนที่ © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> + CARTO · ดาวเทียม Esri — ตำแหน่งรถจำลอง · คลิกหมุดรถเพื่อดูผังตัวรถและจำนวนคน</div>
+    </section>
+
+    <!-- คอลัมน์ขวา: เวลารถมาถึง + วางแผน + ตาราง -->
+    <section aria-label="ข้อมูลสำหรับผู้โดยสาร">
+      <div id="alert-area" aria-live="polite"></div>
+
+      <div class="card" data-tour="arrival">
+        <div class="flex spread" style="margin-bottom:8px;">
+          <h2 style="margin:0;">เลือกป้ายรอรถ</h2>
+          <a class="btn small ghost" href="kiosk.html?stop=S08">โหมดป้ายประกาศ</a>
+        </div>
+        <div class="ac-search" id="stop-search-wrap">
+          <input type="text" id="stop-select" role="combobox" aria-expanded="false" aria-autocomplete="list"
+                 placeholder="พิมพ์ชื่อป้าย เช่น ชัยสมรภูมิ, สยาม…" autocomplete="off">
+          <div class="ac-list" id="stop-ac-list" role="listbox" hidden></div>
+        </div>
+        <div id="fav-row" class="flex mt" style="gap:6px; flex-wrap:wrap; align-items:center;" aria-label="ป้ายโปรดและป้ายใกล้ฉัน"></div>
+        <div id="dir-tabs" class="flex mt" style="gap:6px;" role="tablist" aria-label="เลือกทิศทาง">
+          <button class="btn small" data-dir="1" role="tab" aria-selected="true">ขาไป · จตุจักร ไป หัวลำโพง</button>
+          <button class="btn small" data-dir="-1" role="tab" aria-selected="false">ขากลับ · หัวลำโพง ไป จตุจักร</button>
+        </div>
+        <div id="follow-bar" class="mt" hidden></div>
+        <div id="arrival-box" class="mt" aria-live="polite"></div>
+        <div id="next-list" class="mt"></div>
+
+        <div class="mt" id="ai-panel">
+          <div class="flex spread mb-sm">
+            <h3 style="margin:0;">คาดการณ์ความแน่นด้วย AI (OpenAI จริง)</h3>
+            <button class="btn small" id="ai-fetch">วิเคราะห์ตอนนี้</button>
+          </div>
+          <div id="ai-body" aria-live="polite">
+            <p class="hint">วิเคราะห์จำนวนคนบนรถเมื่อถึงป้ายนี้ จากบริบทสดจริง (คนรอ สภาพจราจร ฝน ช่วงเวลา ระยะห่างรถ) ด้วยโมเดล OpenAI — ต้องตั้งค่า API Key ก่อน ที่ปุ่ม "เครื่องมือ" มุมขวาบน</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mt" id="trip-planner" data-tour="planner">
+        <div class="flex spread">
+          <h2 style="margin:0;">วางแผนการเดินทาง</h2>
+          <button class="btn small" id="trip-swap" title="สลับต้นทาง-ปลายทาง">สลับทาง</button>
+        </div>
+        <p class="sub">คำนวณจากตำแหน่งรถสดในขณะนั้น</p>
+        <div class="form-row">
+          <div class="ac-search"><label class="fld" for="trip-from">ป้ายต้นทาง</label>
+            <input type="text" id="trip-from" role="combobox" aria-expanded="false" aria-autocomplete="list" autocomplete="off">
+            <div class="ac-list" role="listbox" hidden></div>
+          </div>
+          <div class="ac-search"><label class="fld" for="trip-to">ป้ายปลายทาง</label>
+            <input type="text" id="trip-to" role="combobox" aria-expanded="false" aria-autocomplete="list" autocomplete="off">
+            <div class="ac-list" role="listbox" hidden></div>
+          </div>
+        </div>
+        <div class="mt"><button class="btn primary" id="trip-btn">ค้นหาการเดินทาง</button></div>
+        <div id="trip-result" class="mt" aria-live="polite"></div>
+      </div>
+
+      <div class="card mt tight" data-tour="schedule">
+        <div class="flex spread">
+          <h3 style="margin:0;">ตารางเดินรถมาตรฐาน</h3>
+          <button class="btn small ghost" id="btn-print-sched">พิมพ์</button>
+        </div>
+        <div id="schedule-box" class="mt"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Drawer ข้อมูลสดตัวรถ (เปิดเมื่อคลิกหมุดรถบนแผนที่) -->
+  <aside id="bus-drawer" class="bus-drawer" aria-hidden="true" aria-label="ข้อมูลสดของรถคันที่เลือก">
+    <div class="bd-head">
+      <div><div class="bd-title" id="bd-title">รถ</div><div class="bd-sub" id="bd-sub"></div></div>
+      <button class="btn small ghost" id="bd-close" aria-label="ปิดแผงข้อมูลรถ">ปิด</button>
+    </div>
+    <div class="bd-body" id="bd-body"></div>
+  </aside>
+  <div id="drawer-scrim" class="drawer-scrim" hidden></div>
+
+  <footer id="ot-footer"></footer>
+  <script src="/vendor/leaflet.js"></script>
+  <script src="/js/common.js"></script>
+  <script src="/js/passenger.js"></script>
+</body>
+</html>

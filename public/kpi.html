@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>สรุปผลโครงการ · OmniTransit</title>
+  <meta name="description" content="ตัวเลขวัดผลก่อน-หลังทดลอง ความเป็นธรรม 7 กลุ่ม และระบบร้องเรียนออกเลขรับเรื่องทันที — ในหน้าเดียวเข้าใจง่าย">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/css/app.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2316181d' stroke-width='2'%3E%3Cpath d='M5 3h14a1 1 0 0 1 1 1v13H4V4a1 1 0 0 1 1-1Z'/%3E%3C/svg%3E">
+</head>
+<body>
+  <div id="ot-nav"></div>
+  <main id="main" class="layout">
+    <div class="card">
+      <div class="flex spread">
+        <div>
+          <h2 style="margin:0;">สรุปผลโครงการ — เทียบ ก่อนทดลอง กับ หลังทดลอง</h2>
+          <span class="sub" style="display:block;">สองสภาพแวดล้อมจำลองวิ่งคู่กันด้วยความต้องการเดินทางชุดเดียวกัน เทียบได้ยุติธรรม · หน้าต่างวัด 1 ชั่วโมงจำลองล่าสุด</span>
+        </div>
+        <div class="flex">
+          <span class="chip" id="overall-chip">–</span>
+          <button class="btn primary" id="btn-report">ส่งออกรายงานสรุป</button>
+        </div>
+      </div>
+      <div class="grid-4 mt" id="kpi-tiles">
+        <div class="stat-tile">
+          <div class="label">เวลารอเฉลี่ย (นาที)</div>
+          <div class="value" id="k-avgwait">–</div>
+          <div id="k-avgwait-d"></div>
+        </div>
+        <div class="stat-tile">
+          <div class="label">เวลารอ P90 (นาที)</div>
+          <div class="value" id="k-p90">–</div>
+          <div id="k-p90-d"></div>
+        </div>
+        <div class="stat-tile">
+          <div class="label">ขึ้นรถไม่ได้ (Pass-up)</div>
+          <div class="value" id="k-passup">–</div>
+          <div id="k-passup-d"></div>
+        </div>
+        <div class="stat-tile">
+          <div class="label">ความสม่ำเสมอรอบรถ (CV)</div>
+          <div class="value" id="k-cv">–</div>
+          <div id="k-cv-d"></div>
+        </div>
+      </div>
+      <div class="flex mt" id="k-secondary"></div>
+      <p class="hint">หลักการรายงาน: ถ้าตัวอย่างยังน้อยจะรายงานว่า "ยังสรุปไม่ได้" และจะไม่ลดเกณฑ์ย้อนหลังเพื่อประกาศความสำเร็จ — ความแน่นเฉลี่ยเพิ่มขึ้นไม่ใช่ความสำเร็จ ต้องดูรายป้ายและรายช่วงเวลาประกอบเสมอ</p>
+    </div>
+
+    <div class="grid-2">
+      <section class="card" aria-label="เวลารอรายป้าย">
+        <h2>เวลารอเฉลี่ยรายป้าย (นาที)</h2>
+        <p class="sub">วงกลมส้ม = ก่อนทดลอง · วงกลมน้ำเงิน = หลังทดลอง</p>
+        <div id="dumbbell-box"></div>
+      </section>
+      <section class="card" aria-label="โมเดลพยากรณ์">
+        <h2>โมเดลพยากรณ์เวลาถึง</h2>
+        <p class="sub">เปิดใช้ AI ได้เมื่อพิสูจน์ว่าแม่นกว่าวิธีง่ายอย่างน้อย 10% บนข้อมูลเฟสทดสอบ</h2>
+        <div id="ai-gate"></div>
+        <div class="flex mt">
+          <button class="btn small" id="btn-shadow">ทดสอบเงียบ (Shadow)</button>
+          <button class="btn small ok" id="btn-approve">อนุมัติขึ้นใช้จริง</button>
+          <button class="btn small" id="btn-rollback">ย้อนกลับรุ่นเดิม</button>
+        </div>
+        <div class="grid-3 mt">
+          <div class="stat-tile"><div class="label">Macro-F1 ระดับความแน่น</div><div class="value" id="f1-value" style="font-size:1.5rem;">–</div><div class="meter"><div class="fill" id="f1-meter" style="width:0%;"></div></div></div>
+          <div class="stat-tile"><div class="label">ผิดร้ายแรง (บอกไม่แน่นแต่จริงแน่น)</div><div class="value" id="serious-value" style="font-size:1.5rem;">–</div><div class="delta flat" id="serious-ci">–</div></div>
+          <div class="stat-tile"><div class="label">ตอบ "ไม่ทราบ" (ข้อมูลขาด)</div><div class="value" id="unknown-value" style="font-size:1.5rem;">–</div><div class="delta flat">ต้องรายงานกันการหลบตอบ</div></div>
+        </div>
+      </section>
+      <section class="card" aria-label="ความแม่นพยากรณ์คนบนรถล่วงหน้า">
+        <h2>ความแม่นพยากรณ์คนบนรถล่วงหน้า (สมการไหลสะสมรายป้าย)</h2>
+        <p class="sub">เทียบพยากรณ์ N_hat กับยอดประมาณจริง ณ วินาทีรถถึงป้าย · ± sigma คือกรอบความไม่แน่นอนสะสมตามสมการที่ 3 (รีเซ็ตเมื่อผู้สำรวจ/อู่ปลายทางนับจริง)</p>
+        <div class="grid-3">
+          <div class="stat-tile"><div class="label">MAE พยากรณ์คนบนรถ</div><div class="value" id="prop-mae" style="font-size:1.5rem;">–</div><div class="delta flat" id="prop-mae-d">หน่วย: คน</div></div>
+          <div class="stat-tile"><div class="label">อยู่ในกรอบ ± sigma</div><div class="value" id="prop-sig" style="font-size:1.5rem;">–</div><div class="delta flat">เป้าหมาย ≥ 60%</div></div>
+          <div class="stat-tile"><div class="label">ตัวอย่างที่วัดแล้ว</div><div class="value" id="prop-n" style="font-size:1.5rem;">–</div><div class="delta flat">เหตุการณ์รถถึงป้าย</div></div>
+        </div>
+      </section>
+    </div>
+
+    <section class="card" aria-label="ตารางตรวจความเป็นธรรม">
+      <h2>ผลกระทบต่อผู้เกี่ยวข้อง 7 กลุ่ม (ตรวจรายสัปดาห์จากข้อมูลสด)</h2>
+      <div class="table-wrap mt">
+        <table class="data" id="fairness-table">
+          <thead><tr><th style="min-width:140px;">กลุ่ม</th><th>มาตรการที่ระบบทำจริง</th><th style="min-width:200px;">ตรวจจากข้อมูลสด</th><th>สถานะ</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="banner info mt"> <div><b>คุ้มครองพนักงานขับรถ:</b> ไม่ลงโทษจากคะแนน AI เพียงอย่างเดียว · แสดงรหัสผู้ขับเท่านั้น ไม่เปิดชื่อจริง · เวลาพักถูกบังคับในระบบ (พักอู่ขั้นต่ำ 6 นาที/เที่ยว ขับไม่เกิน 8 ชั่วโมง/กะ) และคำแนะนำทั้งหมดออกแบบให้ไม่ลดเวลาพัก</div></div>
+    </section>
+
+    <div class="grid-2">
+      <section class="card" aria-label="เรื่องร้องเรียน">
+        <h2>ส่งเรื่องร้องเรียน / แจ้งเหตุ</h2>
+        <p class="sub">ไม่ต้องล็อกอิน ไม่ต้องมีบัญชี — ออกเลขรับเรื่องทันที</p>
+        <div class="form-row">
+          <div><label class="fld" for="cmp-cat">หมวดเรื่อง</label>
+            <select id="cmp-cat">
+              <option value="service">รถไม่มาตามรอบ / รอนาน</option>
+              <option value="crowding">ขึ้นรถไม่ได้ (รถเต็ม)</option>
+              <option value="data">ข้อมูลบนหน้าจอไม่ตรงจริง</option>
+              <option value="accessibility">การเข้าถึงผู้สูงอายุ/คนพิการ</option>
+              <option value="emergency">เหตุฉุกเฉินด้านความปลอดภัย</option>
+              <option value="other">อื่น ๆ</option>
+            </select></div>
+          <div><label class="fld" for="cmp-channel">ช่องทางที่ใช้แจ้ง</label>
+            <select id="cmp-channel"><option value="web">เว็บนี้</option><option value="phone">โทรศัพท์ผ่านเจ้าหน้าที่</option></select></div>
+        </div>
+        <label class="fld" for="cmp-msg">รายละเอียด (ระบุเวลา ป้าย ทิศทาง ถ้ามี)</label>
+        <textarea id="cmp-msg" placeholder="เช่น เวลา 07:40 น. ที่ป้ายประตูน้ำ รถผ่านไป 2 คันโดยเต็ม รอทั้งหมด 25 นาที"></textarea>
+        <label class="fld" for="cmp-contact">ช่องทางติดต่อกลับ (ไม่บังคับ)</label>
+        <input type="text" id="cmp-contact" placeholder="เบอร์โทร อีเมล หรือไม่กรอกก็ได้">
+        <div class="mt flex">
+          <button class="btn primary" id="cmp-submit">ส่งเรื่องร้องเรียน</button>
+          <span class="muted small">เกณฑ์: รับทราบภายใน 1 วันทำการ (ฉุกเฉิน 4 ชม.) · แจ้งความคืบหน้าภายใน 7 วันทำการ</span>
+        </div>
+        <div id="cmp-result" class="mt" aria-live="polite"></div>
+      </section>
+
+      <section class="card" aria-label="ทะเบียนเรื่องร้องเรียน">
+        <h2>ทะเบียนเรื่องร้องเรียน</h2>
+        <p class="sub">แสดงต่อสาธารณะ ไม่ระบุตัวตนผู้แจ้ง</p>
+        <div id="cmp-list" style="max-height:400px; overflow:auto;"></div>
+      </section>
+    </div>
+
+    <details class="card tight">
+      <summary style="cursor:pointer; font-weight:600; font-size:0.9rem;">เครื่องคำนวณจำนวนรถขั้นต่ำและความจุบริการ</summary>
+      <div class="form-row mt">
+        <div><label class="fld" for="calc-cycle">เวลาครบรอบรวมพัก (นาที)</label><input type="number" id="calc-cycle" value="76" min="20"></div>
+        <div><label class="fld" for="calc-headway">ระยะห่างเที่ยว (นาที)</label><input type="number" id="calc-headway" value="8" min="3"></div>
+        <div style="align-self:end;"><button class="btn" id="calc-btn">คำนวณ</button></div>
+      </div>
+      <div id="calc-result" class="mt"></div>
+      <p class="hint">สูตร: ปัดขึ้น(เวลาครบรอบรวมพัก ÷ ระยะห่างเที่ยว) — ถ้ารถพร้อมจริงน้อยกว่านี้ ต้องยอมรับรอบที่ยาวขึ้นตามจริง ไม่ใช่สั่งให้คันขับเร็วขึ้น</p>
+    </details>
+  </main>
+  <footer id="ot-footer"></footer>
+  <script src="/js/common.js"></script>
+  <script src="/js/charts.js"></script>
+  <script src="/js/kpi.js"></script>
+</body>
+</html>
