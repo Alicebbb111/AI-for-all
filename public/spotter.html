@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ผู้สำรวจ & เซ็นเซอร์ประตู APC · OmniTransit v5</title>
-  <meta name="description" content="จำลองเซ็นเซอร์ลำแสงอินฟราเรดนับคนขึ้น-ลงที่ประตู และแผงบันทึกสำหรับผู้สำรวจภาคสนาม (Pass-up count รายป้าย)">
+  <title>ผู้สำรวจ & กล้อง AI ประตู (Edge Vision) · OmniTransit v5</title>
+  <meta name="description" content="จำลองกล้อง AI มุมสูงเหนือประตูตรวจจับคนขึ้น-ลง (Overhead Edge-AI Vision Counter) และแผงบันทึกสำหรับผู้สำรวจภาคสนาม (Pass-up count รายป้าย)">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap">
@@ -15,37 +15,44 @@
   <div id="ot-nav"></div>
   <main id="main" class="layout">
     <div class="card">
-      <h2> Spotter & APC Door Sensor Simulator</h2>
+      <h2> Spotter & Edge-AI Door Vision Simulator (กล้อง AI มุมสูงตรวจจับคนขึ้น-ลง & ผู้สำรวจ)</h2>
       <div class="flex">
         <label class="fld" for="bus-select" style="margin:0;">เลือกรถ (สายนำร่อง 1)</label>
         <select id="bus-select" style="max-width:340px;"></select>
         <span id="sel-bus-crowd"></span>
         <span class="grow"></span>
         <button class="btn small" id="btn-origin"> นายท่ากดสถานะต้นทาง</button>
-        <label class="toggle" title="จำลองเซ็นเซอร์ APC ขัดข้อง (ข้อมูลจะขึ้น 'ไม่มีข้อมูลปัจจุบัน' เมื่อผ่านหลายป้าย)">
-          <input type="checkbox" id="apc-fault"><span class="track" aria-hidden="true"></span> เซ็นเซอร์ APC ขัดข้อง
+        <label class="toggle" title="จำลองกล้อง AI เหนือประตูขัดข้อง (ข้อมูลจะขึ้น 'ไม่มีข้อมูลปัจจุบัน' เมื่อผ่านหลายป้าย)">
+          <input type="checkbox" id="apc-fault"><span class="track" aria-hidden="true"></span> กล้อง AI เหนือประตูขัดข้อง
         </label>
       </div>
-      <p class="hint">หลักการ: ลำแสงอินฟราเรด 2 จุดที่ประตู — ตัดแสง 1 ไป 2 = คนเข้า (ขึ้นรถ), ตัดแสง 2 ไป 1 = คนออก (ลงรถ) ระบบสรุปด้วยสมการสมดุล <b>คนบนรถหลังป้าย = คนบนรถก่อนป้าย + คนขึ้น − คนลง</b> และรีเซ็ตเป็น 0 เมื่อถึงอู่ปลายทาง · การนับมีความคลาดเคลื่อนได้ จึงต้องมีผู้สำรวจและการตรวจยอดปลายสาย</p>
+      <p class="hint">หลักการ: กล้อง AI มุมกดแนวดิ่ง 90° เหนือประตู (Overhead Edge-AI Vision) ประมวลผลตรวจจับศีรษะ-ไหล่ขณะก้าวข้ามเส้น Virtual Tripwire (In/Out Line Crossing) บนชิป Edge ในตัวรถโดยไม่เก็บภาพใบหน้า (ปลอดภัย PDPA 100%) สรุปด้วยสมการสมดุล <b>คนบนรถหลังป้าย = ก่อนป้าย + คนขึ้น (B_cam) − คนลง (A_cam)</b> พร้อมสอบทานกับเวลาเปิดประตูจริง (Bayesian Cross-Check) · การนับมีความคลาดเคลื่อนได้ จึงต้องมีผู้สำรวจและการตรวจยอดปลายสาย</p>
       <div id="balance-line" class="mt" style="font-size:1.02rem;"></div>
     </div>
 
     <div class="grid-2">
-      <section class="card" aria-label="จำลองลำแสงประตู">
-        <h3> ลำแสงอินฟราเรดที่ประตู (Infrared Beam)</h3>
-        <div class="beam-visual">
-          <div style="text-align:center;"><div class="beam-lamp" id="beam1"></div><div class="small muted">ลำแสง 1<br>(ด้านนอก)</div></div>
-          <div class="beam-beam" id="beam-strip"></div>
-          <div style="text-align:center;"><div class="beam-lamp" id="beam2"></div><div class="small muted">ลำแสง 2<br>(ด้านใน)</div></div>
+      <section class="card" aria-label="จำลองกล้อง AI เหนือประตู">
+        <h3> ภาพจำลองมุมมองกล้อง AI เหนือประตู (Overhead Vision Virtual Tripwire)</h3>
+        <div class="beam-visual cam-visual" role="img" aria-label="มุมมองกล้อง AI จากด้านบนเหนือบันไดประตู มีเส้นตรวจจับขาเข้าและขาออก">
+          <div class="cam-frame">
+            <span class="cam-tag">มุมกดแนวดิ่ง 90° · Top-Down Head-Shoulder Tracking</span>
+            <div class="cam-lane">
+              <div class="tripwire in" id="beam1"><span>เส้นตรวจจับขาเข้า (IN Line — B_cam)</span></div>
+              <div class="cam-walk"></div>
+              <div class="tripwire out" id="beam2"><span>เส้นตรวจจับขาออก (OUT Line — A_cam)</span></div>
+            </div>
+            <div class="beam-beam" id="beam-strip" title="สถานะสตรีม Edge NPU"></div>
+            <span class="chip pass">Edge NPU Active · PDPA Safe: No Face Stored</span>
+          </div>
         </div>
         <div class="counter-panel mt">
-          <button class="btn primary" id="btn-in" style="flex:1;"> คนเข้า (1 ไป 2) = ขึ้น</button>
+          <button class="btn primary" id="btn-in" style="flex:1;"> ตรวจจับก้าวขึ้น (ข้ามเส้น IN = +1)</button>
           <div class="num" id="beam-count">0</div>
-          <button class="btn" id="btn-out" style="flex:1;"> คนออก (2 ไป 1) = ลง</button>
+          <button class="btn" id="btn-out" style="flex:1;"> ตรวจจับก้าวลง (ข้ามเส้น OUT = -1)</button>
         </div>
-        <p class="hint">แต่ละครั้งที่กด ระบบจะบันทึกเหตุการณ์ตัดแสงและปรับ "คนบนรถโดยประมาณ" ทันที — สถานะความแน่นจะไปขึ้นบนแผนที่สดทันที</p>
+        <p class="hint">แต่ละครั้งที่กด ระบบจะบันทึกเหตุการณ์ก้าวข้ามเส้น (Line Crossing) และปรับ "คนบนรถโดยประมาณ" ทันที — สถานะความแน่นจะไปขึ้นบนแผนที่สดทันที · ประมวลผลในตัว (On-Device) ไม่ส่งวิดีโอออกจากรถ</p>
         <hr class="divider">
-        <h3> เหตุการณ์ตัดแสงล่าสุด</h3>
+        <h3> เหตุการณ์กล้อง AI ตรวจจับล่าสุด</h3>
         <ul class="log-list" id="apc-log"></ul>
       </section>
 

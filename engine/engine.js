@@ -216,7 +216,7 @@ class Engine {
       case 'apc_fault': {
         const b1 = this.ai.buses.find((b) => b.id === body.busId);
         if (b1) { b1.apcFault = !!body.value; if (!body.value) { b1.countSource = 'apc'; b1.stopsSinceCount = 0; } }
-        this.logEvent(`เซ็นเซอร์นับคนรถ ${body.busId}: ${body.value ? 'ขัดข้อง (ผ่านหลายป้ายจะขึ้น "ไม่มีข้อมูลปัจจุบัน")' : 'กลับมาใช้ได้'}`, 'warning');
+        this.logEvent(`กล้อง AI นับคนเหนือประตูรถ ${body.busId}: ${body.value ? 'ขัดข้อง (ผ่านหลายป้ายจะขึ้น "ไม่มีข้อมูลปัจจุบัน")' : 'กลับมาใช้ได้'}`, 'warning');
         break;
       }
       case 'server_down': {
@@ -259,7 +259,7 @@ class Engine {
     const dir = body.direction === 'in' ? 1 : -1;
     b.onboardEst = Math.max(0, Math.min(b.model.legalMax + 5, b.onboardEst + dir));
     b.countSource = 'apc'; b.stopsSinceCount = 0;
-    this.apcLog.unshift({ t: fmtClock(this.ai.t), busId: b.id, beam: dir === 1 ? '12 (เข้า)' : '21 (ออก)', onboardEst: Math.round(b.onboardEst) });
+    this.apcLog.unshift({ t: fmtClock(this.ai.t), busId: b.id, beam: dir === 1 ? 'IN (B_cam)' : 'OUT (A_cam)', onboardEst: Math.round(b.onboardEst) });
     if (this.apcLog.length > 40) this.apcLog.pop();
     return { ok: true, onboardEst: Math.round(b.onboardEst) };
   }

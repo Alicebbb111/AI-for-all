@@ -38,7 +38,7 @@ const DWELL_ALIGHT_SEC = 1.4;        // สมการ 2: เบตา — ว�
 const CROWD_DWELL_PENALTY = 1.35;    // สมการ 2: คูณเวลาจอดเมื่อ N_hat/C_max เกิน 75%
 const CROWD_DWELL_THRESHOLD = 0.75;
 const SIGNAL_DELAY_SEC = 14;         // สมการ 2: รอไฟแดงเฉลี่ยที่แยกหลัก (stop.signal)
-const SENSOR_SIGMA_PER_STOP = 1.5;   // สมการ 3: ความไม่แน่นอนเพิ่มต่อป้ายที่ใช้เซ็นเซอร์อย่างเดียว
+const SENSOR_SIGMA_PER_STOP = 1.1;   // สมการ 3: ความไม่แน่นอนเพิ่มต่อป้ายที่อ่านจากกล้อง AI เหนือประตู (แม่นกว่าลำแสง IR เดิม — แยกคนเดินคู่ได้)
 const FORECAST_SIGMA_PER_STOP = 2.2; // สมการ 3: ความไม่แน่นอนเพิ่มต่อป้ายที่พยากรณ์ล่วงหน้า
 const RAIN_DEMAND_FACTOR = 0.85;     // สมการ 1: ปัจจัยความต้องการเดินทางเมื่อฝนตก (ตามเอนจิน demand)
 const RUSH_DEMAND_FACTOR = 1.5;      // สมการ 1: ปัจจัยชั่วโมงเร่งด่วนเสริม (ตามเอนจิน demand)
@@ -136,7 +136,7 @@ class Bus {
     // สมการ 3: ความไม่แน่นอนสะสม (± คน) + บันทึกสำหรับ Bayesian Dwell Cross-Check
     this.sigma = 0;
     this._arriveT = 0;      // เวลาถึงป้ายล่าสุด → actualDwellSec
-    this._apcBoard = 0;     // ยอดขึ้นตาม APC ของป้ายล่าสุด → B_apc
+    this._apcBoard = 0;     // ยอดขึ้นตามกล้อง AI ของป้ายล่าสุด → B_cam
     this.stats = { trips: 0, driveMin: 20 + i * 3, restMin: 40 + i * 2, layoverStartT: null };
   }
   /** ระยะที่เดินไปแล้วของทิศตนเอง (0..L) */
@@ -286,8 +286,8 @@ class World {
     // สมการสมดุลที่ระบบใช้: คนบนรถหลังป้าย = ก่อนป้าย + คนขึ้น − คนลง (จากการนับจริง/APC)
     const apc = this.applyApcCount(b, board, alight);
     b._arriveT = this.t;      // สมการ 3: เวลาถึงจริง (ใช้คำนวณ actualDwellSec ตอนออกจากป้าย)
-    b._apcBoard = apc.board;  // สมการ 3: B_apc ของป้ายนี้
-    b.sigma = Math.sqrt((b.sigma || 0) ** 2 + SENSOR_SIGMA_PER_STOP ** 2); // ทุกป้ายที่อ่านจากเซ็นเซอร์ ±1.5
+    b._apcBoard = apc.board;  // สมการ 3: B_cam ของป้ายนี้ (จากกล้อง AI เหนือประตู)
+    b.sigma = Math.sqrt((b.sigma || 0) ** 2 + SENSOR_SIGMA_PER_STOP ** 2); // ทุกป้ายที่อ่านจากกล้อง AI ±1.1
 
     for (const w of waits) {
       this.waits.push({ t: this.t, waitSec: w });
@@ -304,7 +304,7 @@ class World {
     if (isTerminus) {
       // รีเซ็ตเป็น 0 ที่อู่ปลายทาง + ตรวจยอด (การนับผิดได้ — ต้องเดินตรวจ ไม่ถือว่า exact ground truth)
       const diff = Math.abs(b.onboardEst - b.onboardTrue);
-      if (diff >= 3) this.pushIncident(`ตรวจยอดปลายสาย รถ ${b.id}: ประมาณ ${b.onboardEst} / ตรวจนับจริง ${b.onboardTrue} คน — ให้เดินตรวจเซ็นเซอร์ประตู`, 'warning');
+      if (diff >= 3) this.pushIncident(`ตรวจยอดปลายสาย รถ ${b.id}: ประมาณ ${b.onboardEst} / ตรวจนับจริง ${b.onboardTrue} คน — ให้ตรวจสอบเลนส์กล้อง AI เหนือประตู`, 'warning');
       b.onboardTrue = 0; b.onboardEst = 0;
       b.sigma = 0; // สมการ 3: ตรวนับจริงที่อู่ = รีเซ็ตความไม่แน่นอนเป็นศูนย์
       b.countSource = 'none'; b.stopsSinceCount = 0;
@@ -337,13 +337,14 @@ class World {
   }
 
   // ── การนับของระบบ: APC มีความคลาดเคลื่อน / เซ็นเซอร์พัง / ผู้สำรวจบันทึกแทน ──
-  // คืนยอดที่ APC นับได้ (มี noise) เพื่อใช้เป็น B_apc ใน Bayesian Dwell Cross-Check (สมการ 3)
+  // คืนยอดที่ Overhead Edge-AI Vision Counter นับได้ (มี noise ต่ำ) เพื่อใช้เป็น B_cam ใน Bayesian Vision-Dwell Cross-Check (สมการ 3)
   applyApcCount(b, boardTrue, alightTrue) {
     if (b.state === 'terminal') return { board: 0, alight: 0 };
     if (b.manualHoldStops > 0) { b.manualHoldStops--; return { board: 0, alight: 0 }; }
     if (!b.apcFault && b.countSource !== 'none') {
       const rnd = mulberry32(hashStr('apc' + b.id + Math.floor(this.t * 7)));
-      const noise = (n) => Math.max(0, Math.round(n + (rnd() - 0.5) * 2 * Math.max(1, n * 0.08)) + (rnd() < 0.03 ? 1 : 0));
+      // กล้อง AI แม่นยำ 97%+ — แยกศีรษะ-ไหล่คนเดินคู่/ก้าวพร้อมกันได้ จึงจำลอง noise แค่ n*0.03 (เดิมลำแสง IR = n*0.08)
+      const noise = (n) => Math.max(0, Math.round(n + (rnd() - 0.5) * 2 * Math.max(1, n * 0.03)) + (rnd() < 0.01 ? 1 : 0));
       const na = noise(alightTrue), nb = noise(boardTrue);
       b.onboardEst = Math.max(0, b.onboardEst - na + nb);
       b.countSource = 'apc'; b.stopsSinceCount = 0; b.originDeclared = false;
@@ -362,17 +363,17 @@ class World {
     info.sourceLabel =
       b.countSource === 'manual' ? 'นับโดยผู้สำรวจ' :
       b.countSource === 'origin' ? 'สถานะเมื่อออกต้นทาง' :
-      b.countSource === 'apc' ? 'นับสดที่ประตู (APC)' : null;
+      b.countSource === 'apc' ? 'กล้อง AI เหนือประตู (Edge Vision)' : null;
     info.countAgeStops = b.stopsSinceCount;
     return info;
   }
 
   departStop(b) {
     // สมการ 3: Bayesian Dwell Cross-Check — ตรวจยอดคนขึ้นซ้ำกับเวลาเปิดประตูจริง
-    // B_implied = (actualDwellSec − tau_0) / alpha → B_corrected = 0.75·B_apc + 0.25·B_implied
+    // สมการ 3 (Bayesian Vision-Dwell Cross-Check): B_implied = (actualDwellSec − tau_0) / alpha → B_corrected = 0.85·B_cam + 0.15·B_implied
     const actualDwellSec = Math.max(0, this.t - (b._arriveT || this.t));
     const bImplied = Math.max(0, (actualDwellSec - DWELL_TAU0_SEC) / (b.model.boardSec || 2.2));
-    const bCorrected = Math.round(0.75 * (b._apcBoard || 0) + 0.25 * bImplied);
+    const bCorrected = Math.round(0.85 * (b._apcBoard || 0) + 0.15 * bImplied);
     const delta = bCorrected - (b._apcBoard || 0);
     if (delta !== 0) b.onboardEst = Math.max(0, b.onboardEst + delta);
     b.state = 'running';

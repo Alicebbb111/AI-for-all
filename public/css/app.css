@@ -829,3 +829,28 @@ body { line-height: 1.62; }
 }
 .route-select:hover { border-color: var(--baseline); }
 .route-select:focus-visible { outline: 3px solid var(--accent); outline-offset: 1px; }
+
+/* ── Edge-AI Door Vision: มุมมองกล้อง Top-Down เหนือประตู ───────────────── */
+.cam-visual { display: block; }
+.cam-frame {
+  position: relative; border: 2px solid var(--line); border-radius: var(--radius-sm);
+  background:
+    repeating-linear-gradient(45deg, var(--grid) 0 1px, transparent 1px 12px),
+    var(--page);
+  padding: 12px 14px 14px; display: grid; gap: 10px;
+}
+.cam-tag { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.03em; color: var(--ink-2); }
+.cam-lane { display: grid; gap: 14px; }
+.tripwire {
+  position: relative; height: 22px; border-radius: 4px;
+  border: 2px dashed var(--ok-fill); background: var(--ok-wash);
+  display: grid; place-items: center;
+}
+.tripwire span { font-size: 0.66rem; font-weight: 600; color: var(--ok); background: var(--surface-1); padding: 0 8px; border-radius: 999px; }
+.tripwire.out { border-color: var(--accent); background: var(--accent-wash); }
+.tripwire.out span { color: var(--accent-ink); }
+.tripwire.broken { border-color: var(--crit-fill); background: var(--crit-wash); }
+.tripwire.broken span { color: var(--crit); }
+.cam-walk { height: 10px; border-radius: 999px; background: repeating-linear-gradient(90deg, var(--baseline) 0 14px, transparent 14px 24px); opacity: 0.5; }
+.cam-visual .beam-beam { height: 5px; border-radius: 3px; background: repeating-linear-gradient(90deg, var(--ok-fill) 0 10px, transparent 10px 16px); }
+.cam-visual .beam-beam.broken { background: var(--crit-fill); }

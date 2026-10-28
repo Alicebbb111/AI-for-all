@@ -465,7 +465,7 @@
       <div class="mb-eq">สมการคนบนรถเมื่อถึงป้ายคุณ: คนบนรถตอนนี้ (N_k) − คาดลงระหว่างทาง (Σ A_hat) + คาดขึ้นระหว่างทาง (Σ B_hat) = คาดเมื่อถึงป้ายคุณ (N_hat_m ± σ)</div>
       <div class="mb-num"><b>${nNow}${sigNow ? ' ± ' + sigNow : ''} คน</b> − Σ A_hat + Σ B_hat (สุทธิ ${netTxt}) = <b>${pred.N} ± ${pred.sig} คน</b></div>
       ${etaEq}
-      <div class="mb-note">ตัวเลขจากเอนจินจำลองสด (สมการไหลสะสมรายป้าย + ETA คูณขวักไขว่ · สมการที่ 1-2) — σ คือความไม่แน่นอนสะสมจากเซ็นเซอร์และการพยากรณ์ล่วงหน้า</div>
+      <div class="mb-note">ตัวเลขจากเอนจินจำลองสด (สมการไหลสะสมรายป้าย + ETA คูณขวักไขว่ · สมการที่ 1-2) — σ คือความไม่แน่นอนสะสมจากกล้อง AI มุมสูงเหนือประตู (Edge Vision) และการพยากรณ์ล่วงหน้า</div>
     </details>`;
   }
 
@@ -702,7 +702,7 @@
       ${OT.crowdMeter(crowd, crowd.onboardEst)}
       <h3 style="margin:14px 0 2px; font-size:0.9rem;">ผังที่นั่งเรียลไทม์ (ตามสเปกรุ่น)</h3>
       ${seatLayoutSVG(b.model, crowd.onboardEst)}
-      <p class="hint" style="margin-top:6px;">ป้ายถัดไป: ${OT.esc(b.nextStopName)} · คนบนรถโดยประมาณ ${crowd.onboardEst === null ? 'ไม่มีข้อมูล' : crowd.onboardEst + (b.sigma ? ' ± ' + b.sigma : '') + ' คน'}${crowd.sourceLabel ? ' · ' + OT.esc(crowd.sourceLabel) : ''} · ± คือความไม่แน่นอนสะสมตามจำนวนป้ายที่ใช้เซ็นเซอร์ · ไม่รับประกันที่นั่ง และไม่มีระบบจอง</p>`;
+      <p class="hint" style="margin-top:6px;">ป้ายถัดไป: ${OT.esc(b.nextStopName)} · คนบนรถโดยประมาณ ${crowd.onboardEst === null ? 'ไม่มีข้อมูล' : crowd.onboardEst + (b.sigma ? ' ± ' + b.sigma : '') + ' คน'}${crowd.sourceLabel ? ' · ' + OT.esc(crowd.sourceLabel) : ''} · ± คือความไม่แน่นอนสะสมตามจำนวนป้ายที่อ่านจากกล้อง AI มุมสูงเหนือประตู (Edge Vision) + สมการพยากรณ์ล่วงหน้า · ไม่รับประกันที่นั่ง และไม่มีระบบจอง</p>`;
   }
 
   // ── หมุดรถ ───────────────────────────────────────────────────────────────

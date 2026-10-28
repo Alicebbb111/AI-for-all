@@ -144,10 +144,27 @@
   }
   OT.connect = function (scope) {
     OT.scope = scope || 'ops';
-    fetch(`/api/state?scope=${OT.scope}`).then((r) => r.json()).then(setState).catch(() => {});
-    const es = new EventSource(`/api/events?scope=${OT.scope}`);
-    es.addEventListener('state', (ev) => { try { setState(JSON.parse(ev.data)); } catch {} });
-    es.onerror = () => {};
+    let pollTimer = null;
+    function poll() {
+      fetch(`/api/state?scope=${OT.scope}`)
+        .then((r) => r.json())
+        .then(setState)
+        .catch(() => {});
+    }
+    poll();
+    try {
+      const es = new EventSource(`/api/events?scope=${OT.scope}`);
+      es.addEventListener('state', (ev) => {
+        try { setState(JSON.parse(ev.data)); } catch {}
+      });
+      es.onerror = () => {
+        if (!pollTimer) {
+          pollTimer = setInterval(poll, 2000);
+        }
+      };
+    } catch {
+      if (!pollTimer) pollTimer = setInterval(poll, 2000);
+    }
   };
 
   // ── แถบนำทาง: 3 หน้าหลัก + เมนูตั้งค่า (ฟันเฟือง) ─────────────────────────
@@ -158,7 +175,7 @@
   ];
   const GEAR_LINKS = [
     ['kiosk.html', 'speaker', 'ป้ายประกาศที่จุดจอด (Kiosk)'],
-    ['spotter.html', 'list', 'ผู้สำรวจ / เซ็นเซอร์ประตู APC'],
+    ['spotter.html', 'list', 'ผู้สำรวจ / กล้อง AI ประตู'],
     ['aieval.html', 'flask', 'ทดสอบและอนุมัติโมเดล AI'],
     ['sim.html', 'wrench', 'จำลองเหตุขัดข้อง / GTFS-RT'],
     ['governance.html', 'building', 'กำกับโครงการ งบประมาณ แผนงาน'],
@@ -337,7 +354,7 @@
       { sel: '#kiosk-speak', title: 'เสียงประกาศภาษาไทย', text: 'กดปุ่มนี้เพื่อฟังประกาศรถคันถัดไปด้วยเสียง และมีตารางเดินรถสั่งพิมพ์ติดป้ายได้จากปุ่มพิมพ์' },
     ]},
     { page: 'spotter.html', steps: [
-      { sel: '.beam-visual', title: 'เซ็นเซอร์ลำแสงอินฟราเรดที่ประตู', text: 'ลำแสง 2 จุด: ตัดแสง 1 ไป 2 = คนขึ้น, 2 ไป 1 = คนลง ลองกดปุ่มจำลอง คนบนรถจะถูกคำนวณด้วยสมการสมดุลและขึ้นแผนที่ทันที' },
+      { sel: '.beam-visual', title: 'กล้อง AI มุมสูงเหนือประตู (Overhead Edge-AI Vision)', text: 'กล้องมุมกดแนวดิ่ง 90° ตรวจจับศีรษะ-ไหล่ขณะก้าวข้ามเส้น Virtual Tripwire: ข้ามเส้น IN = คนขึ้น (B_cam), ข้ามเส้น OUT = คนลง (A_cam) — ประมวลผลบนชิป Edge ในตัวรถ ไม่เก็บภาพใบหน้า (PDPA 100%) ลองกดปุ่มจำลอง คนบนรถจะถูกคำนวณด้วยสมการสมดุลและขึ้นแผนที่ทันที' },
       { sel: '#btn-spot-submit', title: 'ผู้สำรวจภาคสนาม', text: 'ผู้สำรวจบันทึกคนขึ้น คนลง และคนที่ขึ้นไม่ได้เพราะรถเต็ม (Pass-up) รายป้าย เพื่อปรับค่าประมาณการและนับเข้าผลวัดความเป็นธรรม' },
     ]},
     { page: 'dispatcher.html', steps: [

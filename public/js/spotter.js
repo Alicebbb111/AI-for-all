@@ -1,5 +1,5 @@
 'use strict';
-/* OmniTransit v5 — spotter.js (จำลองลำแสง APC + แผงผู้สำรวจภาคสนาม) */
+/* OmniTransit v5 — spotter.js (จำลองกล้อง AI มุมสูงเหนือประตู Overhead Edge-AI Vision + แผงผู้สำรวจภาคสนาม) */
 (function () {
   let busId = 'B03';
 
@@ -36,9 +36,13 @@
       ${last ? `<span class="chip">ป้ายล่าสุด: ${OT.esc(last.stopName)} · ขึ้น ${last.board} ลง ${last.alight} ขึ้นไม่ได้ ${last.passUp}</span>` : ''}
     `;
     // บันทึก APC
-    $('apc-log').innerHTML = (st.apcLog || []).slice(0, 10).map((e) =>
-      `<li><time>${e.t}</time><span>คัน ${e.busId} — ตัดแสง <b>${OT.esc(e.beam)}</b>  คนบนรถโดยประมาณ <b>${e.onboardEst}</b></span></li>`).join('') ||
-      '<li><span class="muted">ยังไม่มีเหตุการณ์ — กดปุ่มจำลองคนเข้า/ออก</span></li>';
+    $('apc-log').innerHTML = (st.apcLog || []).slice(0, 10).map((e) => {
+      const evTxt = String(e.beam || '').startsWith('IN')
+        ? 'กล้อง AI ตรวจจับคนก้าวขึ้น (B_cam)'
+        : 'กล้อง AI ตรวจจับคนก้าวลง (A_cam)';
+      return `<li><time>${e.t}</time><span>คัน ${e.busId} — ${evTxt} · คนบนรถโดยประมาณ <b>${e.onboardEst}</b></span></li>`;
+    }).join('') ||
+      '<li><span class="muted">ยังไม่มีเหตุการณ์ — กดปุ่มจำลองก้าวขึ้น/ก้าวลง</span></li>';
     // ตารางผู้สำรวจ
     const tb = $('spotter-table').querySelector('tbody');
     tb.innerHTML = (st.spotterLog || []).map((e) => `
@@ -52,7 +56,7 @@
       <td class="num">${s.wait1}</td><td class="num">${s.waitN1}</td></tr>`).join('');
   }
 
-  // ── ลำแสงแฟลช ────────────────────────────────────────────────────────────
+  // ── แฟลชสถานะกล้องตอนตรวจจับได้ ──────────────────────────────────────────
   function flash(order) {
     const b1 = $('beam1'), b2 = $('beam2'), strip = $('beam-strip');
     b1.classList.add('broken'); b2.classList.add('broken'); strip.classList.add('broken');
