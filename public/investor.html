@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OmniTransit — นำเสนอผู้ลงทุน (Series A · 100 ล้านบาท)</title>
+  <meta name="description" content="OmniTransit: ระบบปฏิบัติการรถเมล์เมือง (Transit OS) ที่ให้ข้อมูลจริง 100% จากกล้อง Edge-AI — พร้อมนำร่องระดับ Enterprise">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body class="inv-page">
+  <!-- HERO -->
+  <header class="inv-hero">
+    <div class="inv-wrap">
+      <div class="inv-brand"><span class="inv-badge">SERIES A</span><span class="inv-brandname">OmniTransit</span></div>
+      <h1>ระบบปฏิบัติการรถโดยสารเมือง<br>ที่รู้ความจริงแบบเรียลไทม์ 100%</h1>
+      <p class="inv-lead">รถเมล์ทุกคันในเมืองควรถูกวัดด้วยข้อมูลจริง ไม่ใช่การคาดเดา<br>
+      เราติดตั้งกล้อง Edge-AI เหนือประตูทุกคัน + เอนจินควบคุมการปล่อยรถ 4 สมการ<br>
+      เพื่อลดเวลารอ ป้องกันรถวิ่งชนกัน และสร้างความเป็นธรรมให้ผู้โดยสารทุกกลุ่ม</p>
+      <div class="inv-ask">
+        <div class="inv-ask-num">100<span> ล้านบาท</span></div>
+        <div class="inv-ask-label">ระดมทุน Series A เพื่อขยายจากสายนำร่อง<br>สู่กองรถระดับเมือง (City-scale Transit OS)</div>
+      </div>
+      <div class="inv-hero-cta">
+        <a class="btn primary xl" href="/dispatcher.html">ดูศูนย์บัญชาการสด</a>
+        <a class="btn xl inv-ghost" href="/index.html">ดูมุมมองผู้โดยสาร</a>
+        <button class="btn xl inv-ghost" onclick="window.print()">พิมพ์เป็น PDF</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="inv-wrap">
+    <!-- หลักฐานสด -->
+    <section class="inv-sec">
+      <span class="mc-kicker">หลักฐานที่ 1 · ระบบทำงานจริง ไม่ใช่สไลด์</span>
+      <h2>ตัวเลขสดจากระบบที่กำลังจำลองอยู่ตอนนี้</h2>
+      <p class="inv-note">ดึงตรงจากเอนจินจำลองของเราผ่าน API แบบเรียลไทม์ — สิ่งที่กรรมการเห็นคือสิ่งที่ระบบกำลังคำนวณอยู่จริง</p>
+      <div class="inv-tiles" id="inv-live"><!-- ใส่ด้วย JS --></div>
+    </section>
+
+    <!-- ปัญหา -->
+    <section class="inv-sec">
+      <span class="mc-kicker">ปัญหา</span>
+      <h2>เมืองใหญ่ทั่วโลกบริหารรถเมล์ด้วย "การคาดเดา"</h2>
+      <div class="inv-grid3">
+        <article class="inv-card"><h3>ไม่รู้ว่าคนบนรถมีกี่คน</h3><p>รถเมล์ส่วนใหญ่ไม่มีเครื่องนับผู้โดยสารที่เชื่อถือได้ นโยบายทั้งเมืองตัดสินใจบนข้อมูลประมาณการที่ล้าสมัย</p></article>
+        <article class="inv-card"><h3>รถวิ่งชนกันแล้วขาดระยะ</h3><p>สองคันออกห่าง 10 นาที แต่วิ่งมาเจอกันที่ไฟแดงแล้วกลายเป็นติดกัน — ผู้โดยสารรอ 20 นาทีแทนที่จะรอ 8 นาที โดยไม่มีใครแทรกแซงได้ทัน</p></article>
+        <article class="inv-card"><h3>ระบบเก่าปิดกั้นการลงทุน</h3><p>ระบบ IT เดิมแยกส่วน ไม่มี API มาตรฐาน (GTFS-RT) การลงทุนฮาร์ดแวร์ใหม่จึงไม่เคยคุ้มค่าในสายตาผู้บริหาร</p></article>
+      </div>
+    </section>
+
+    <!-- โซลูชัน -->
+    <section class="inv-sec">
+      <span class="mc-kicker">โซลูชัน</span>
+      <h2>Transit OS ครบวงจร — ฮาร์ดแวร์ + เอนจิน + แพลตฟอร์ม</h2>
+      <div class="inv-grid3">
+        <article class="inv-card inv-accent"><h3>1 · Edge-AI Vision Counter</h3><p>กล้องมุมกด 90° เหนือประตู ตรวจจับศีรษะ-ไหล่ข้ามเส้น Virtual Tripwire แม่นยำ 97%+ ประมวลผลในชิปบนรถ (On-Device) — ไม่เก็บภาพใบหน้า สอดคล้อง PDPA 100%</p></article>
+        <article class="inv-card inv-accent"><h3>2 · เอนจินควบคุม 4 สมการ</h3><p>ไหลสะสมรายป้าย · ETA คูณขวักไขว่ · Bayesian Vision Cross-Check · Daganzo Headway Control — ตัดสินใจปล่อย/หน่วงรถด้วยหลักฐาน ตรวจสอบย้อนได้ทุกครั้ง</p></article>
+        <article class="inv-card inv-accent"><h3>3 · Enterprise Platform</h3><p>GTFS-Realtime · บันทึกการตัดสินใจ (Audit) · Digital Twin ทดลองนโยบายก่อนใช้จริง · Kill Switch · REST API มาตรฐาน — ติดตั้งได้ในวันเดียว ศูนย์ dependency</p></article>
+      </div>
+    </section>
+
+    <!-- ตลาด -->
+    <section class="inv-sec">
+      <span class="mc-kicker">โอกาสทางตลาด</span>
+      <h2>จุดเริ่มต้น: กรุงเทพฯ — ขยายสู่เมืองใหญ่ในอาเซียน</h2>
+      <div class="inv-grid3">
+        <article class="inv-card"><div class="inv-num">~3,000<span>+</span></div><h3>คันรถโดยสารประจำทางใน กทม.</h3><p>เจ้าของเดินรถรัฐวิสาหกิจ + ร่วมเอกชน ที่ต้องการระบบนับคนและควบคุมรอบ (ประมาณการเพื่อการนำเสนอ)</p></article>
+        <article class="inv-card"><div class="inv-num">36<span> ล้านคน</span></div><h3>การเดินทางรถโดยสาร/ปี ใน กทม.</h3><p>ทุกการเดินทางคือจุดที่ข้อมูลจริงสร้างมูลค่าได้ ทั้งการวางแผนและการให้บริการ (ประมาณการเพื่อการนำเสนอ)</p></article>
+        <article class="inv-card"><div class="inv-num">ASEAN<span> City-ready</span></div><h3>สถาปัตยกรรมพร้อมข้ามประเทศ</h3><p>GTFS-RT มาตรฐานสากล + ไม่ผูก cloud vendor + ทำงานออฟไลน์ได้ — ขยายสู่โฮจิมินห์/จาการ์ตา/พนมเปญด้วยโค้ดชุดเดียว</p></article>
+      </div>
+    </section>
+
+    <!-- โมเดลรายได้ -->
+    <section class="inv-sec">
+      <span class="mc-kicker">โมเดลรายได้</span>
+      <h2>B2G/B2B: ขายครั้งเดียวติดตั้ง + รายได้ต่อเนื่องต่อคัน</h2>
+      <div class="inv-model">
+        <table class="data">
+          <thead><tr><th>รายการ</th><th>รูปแบบ</th><th class="num">ราคาอ้างอิง/คัน</th><th>รายได้</th></tr></thead>
+          <tbody>
+            <tr><td>Edge-AI Kit (กล้อง + NPU + ติดตั้ง)</td><td>One-time</td><td class="num">45,000 บาท</td><td>รับรู้เมื่อติดตั้ง</td></tr>
+            <tr><td>Transit OS Software</td><td>SaaS รายเดือน</td><td class="num">1,200 บาท/เดือน</td><td>ARR ต่อเนื่อง</td></tr>
+            <tr><td>City Analytics / GTFS-RT Platform</td><td>SaaS รายเมือง</td><td class="num">150,000 บาท/เดือน</td><td>ARR ระดับเมือง</td></tr>
+          </tbody>
+        </table>
+        <p class="inv-note">ตัวอย่าง: กองรถ 1,000 คัน = รายได้ติดตั้ง 45 ล้านบาท + ARR ~17.4 ล้านบาท/ปี (ประมาณการเพื่อการนำเสนอ · ราคาจริงอยู่ระหว่างตรวจสอบตลาด)</p>
+      </div>
+    </section>
+
+    <!-- การใช้เงิน -->
+    <section class="inv-sec">
+      <span class="mc-kicker">การใช้เงินระดมทุน</span>
+      <h2>100 ล้านบาท = จาก 1 สายนำร่อง สู่ 1,000 คัน</h2>
+      <div class="inv-funds">
+        <div class="inv-donut" id="inv-donut"></div>
+        <div class="inv-fund-rows" id="inv-fund-rows"></div>
+      </div>
+      <p class="inv-note">แผนนี้ผูกกับ Roadmap จริงในระบบ (หัวข้อถัดไป) — ทุกงวดใช้เงินผ่านเงื่อนไข Gate ที่ตรวจสอบได้ เช่นเดียวกับวินัยที่เราใช้ควบคุมรถ</p>
+    </section>
+
+    <!-- Roadmap -->
+    <section class="inv-sec">
+      <span class="mc-kicker">แผน 24 เดือน</span>
+      <h2>จากพิสูจน์ 1 สาย สู่ Enterprise ระดับเมือง</h2>
+      <div class="inv-roadmap" id="inv-roadmap"></div>
+    </section>
+
+    <!-- Enterprise readiness -->
+    <section class="inv-sec">
+      <span class="mc-kicker">ความพร้อมระดับ Enterprise</span>
+      <h2>สร้างด้วยวินัยวิศวกรรมที่ซื้อได้ด้วยความมั่นใจ</h2>
+      <div class="inv-ready" id="inv-ready"></div>
+    </section>
+
+    <!-- ความเสี่ยง -->
+    <section class="inv-sec">
+      <span class="mc-kicker">ความโปร่งใส</span>
+      <h2>สิ่งที่เราบอกตรงๆ (และทำไมนี่คือจุดแข็ง)</h2>
+      <div class="inv-grid3">
+        <article class="inv-card"><h3>ตัวเลขบนเว็บนี้มาจากการจำลอง</h3><p>เราไม่ประกาศว่าเป็นข้อมูลเดินรถจริง — ระบบออกแบบมาเพื่อพิสูจน์แนวคิดและฝึกโมเดลก่อนติดตั้งจริง และระบบเดิมก็ถอนตัวเลขสดออกเองเมื่อข้อมูลไม่น่าเชื่อถือ</p></article>
+        <article class="inv-card"><h3>ข้อมูลภายนอก (สภาพอากาศ/เหตุการณ์) ยังเป็นคำแนะนำ</h3><p>เราไม่อ้างว่าบริบทภายนอกสร้างผลเชิงสาเหตุ จนกว่าจะมีการเทียบเคียงเชิงสถิติ — ความซื่อสัตย์นี้คือสิ่งที่หน่วยงานรัฐเชื่อใจและต้องการ</p></article>
+        <article class="inv-card"><h3>ไม่มีสัญญาลูกค้าแรกจนกว่าจะผ่าน Gate</h3><p>Phase แรกของเงินทุนไปที่การนำร่องวัดผลจริงกับผู้ให้บริการ 1 ราย ก่อนขยาย — ความเสี่ยงถูกจำกัดด้วยโครงสร้าง ไม่ใช่ด้วยความหวัง</p></article>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="inv-cta">
+      <h2>พร้อมให้เดินด้วยกันในสายแรกของเมือง</h2>
+      <p>OmniTransit · Transit OS ที่ทำให้ทุกการลงทุนรถเมล์วัดผลได้</p>
+      <div class="inv-hero-cta">
+        <a class="btn primary xl" href="/dispatcher.html">เข้าศูนย์บัญชาการสด</a>
+        <a class="btn xl inv-ghost" href="/kpi.html">ดูผลวัดความเป็นธรรม</a>
+      </div>
+    </section>
+  </main>
+  <footer class="inv-footer">
+    <div class="inv-wrap">ข้อจำกัดความรับผิดชอบ: หน้านี้เป็นสื่อนำเสนอของระบบจำลอง OmniTransit v5 · ตัวเลขตลาดและราคาระบุว่าเป็นประมาณการเพื่อการนำเสนอ ·
+    ตัวเลขการดำเนินงานดึงสดจากเอนจินจำลอง · แผนที่และข้อมูล © OpenStreetMap contributors (ODbL) · ฟอนต์ IBM Plex Sans Thai (OFL)</div>
+  </footer>
+  <script src="/js/common.js"></script>
+  <script src="/js/investor.js"></script>
+</body>
+</html>

@@ -197,7 +197,17 @@ class Engine {
   control(body) {
     const a = body.action;
     switch (a) {
-      case 'speed': this.simSpeed = [1, 10, 30, 60, 120].includes(body.value) ? body.value : this.simSpeed; break;
+      case 'speed': this.simSpeed = [1, 2, 5, 10, 30, 60, 120].includes(body.value) ? body.value : this.simSpeed; break;
+      case 'slowzone': {
+        // Mission Control: บังคับสร้างจุดรถติดกลางสายทันที (สำหรับสาธิต/ทดสอบ)
+        const seg = Math.floor(ZONES / 3);
+        const zone = { fromS: seg * ZONE_LEN, toS: Math.min(S.totalLen, (seg + 3) * ZONE_LEN), untilT: this.ai.t + 8 * MIN };
+        this.baseline.slowZone = zone; this.ai.slowZone = zone;
+        if(this.onExogenous)this.onExogenous('traffic',zone);
+        this.nextSlowZoneT = this.ai.t + 10 * MIN;
+        this.logEvent(`จำลองรถติดหนักกลางสายช่วง ${STOPS.reduce((best, st) => Math.abs(S.stopS[st.id] - zone.fromS) < Math.abs(S.stopS[best.id] - zone.fromS) ? st : best).name} (นาน ~8 นาที)`, 'serious');
+        break;
+      }
       case 'route': return this.switchRoute(String(body.value || ''));
       case 'rain': this.rain = !!body.value; this.logEvent(this.rain ? ' จำลองฝนตกหนัก (ถนนลื่น วิ่งช้าลง จอดนานขึ้น)' : 'ฝนหยุด กลับสู่สภาพปกติ', 'warning'); break;
       case 'rush': this.rush = !!body.value; this.logEvent(this.rush ? ' จำลองชั่วโมงเร่งด่วนเสริม (คนเพิ่ม รถติดขึ้น)' : 'จบชั่วโมงเร่งด่วนเสริม', 'warning'); break;

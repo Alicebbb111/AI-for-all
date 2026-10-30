@@ -467,37 +467,8 @@
     </details>`;
   }
 
-  // ── ผู้ช่วยตัดสินใจ "ขึ้นคันนี้เลย หรือรอคันถัดไป" — ใช้พยากรณ์ไหลสะสม (สมการที่ 1) เทียบสองคัน
-    //    นี่คือของที่ Google Maps / viaBus / ThaiSmileBus ไม่มี: แนะนำการขึ้นรถจากความแน่นพยากรณ์จริง ──
-    const pack2 = list[1] || null;
-    const pred2 = pack2 ? predAt(pack2.b, selectedStop) : null;
-    function boardAdvice() {
-      if (stale || !pred) return '';
-      if (pred.pu >= 40 && pack2 && pred2) {
-        const waitMin = Math.max(1, Math.round((pack2.eta.low - eta.low) / 60));
-        if (waitMin <= 12 && pred2.N + 6 <= pred.N) {
-          return `<div class="board-advisor wait" role="note">
-            <div class="ba-title">${OT.icon('scale')} ผู้ช่วยตัดสินใจ · แนะนำให้รอ</div>
-            <div class="ba-body">คัน <b>${OT.esc(b.id)}</b> เสี่ยงขึ้นไม่ได้ <b>${pred.pu}%</b> (คาดแน่น ${pred.N}±${pred.sig} คน) — ส่วนคัน <b>${OT.esc(pack2.b.id)}</b> อีก ~${waitMin} นาที คาดว่างกว่า (${pred2.N}±${pred2.sig} คน · เสี่ยง ${pred2.pu}%) — ถ้าไม่รีบ รอคันถัดไปสบายกว่า</div>
-          </div>`;
-        }
-      }
-      if (pred.pu <= 20) {
-        return `<div class="board-advisor ok" role="note">
-          <div class="ba-title">${OT.icon('check')} ขึ้นคันนี้ได้สบาย</div>
-          <div class="ba-body">เสี่ยงขึ้นไม่ได้เพียง ${pred.pu}% — คาดว่าคันนี้จะมี ${pred.N}±${pred.sig} คนตอนถึงป้ายของคุณ (ความจุตามกฎหมาย ${b.model.legalMax} คน)</div>
-        </div>`;
-      }
-      return '';
-    }
-    const advisor = boardAdvice();
-    const cmp = (!stale && pred) ? `
-      <div class="load-cmp">
-        <div class="lc-cell"><span class="lc-label">คนบนรถขณะนี้</span><span class="lc-value">${crowd.onboardEst ?? '–'}${b.sigma ? ' ± ' + b.sigma : ''} <small>คน</small></span></div>
-        <div class="lc-arrow">${OT.icon('route')}</div>
-        <div class="lc-cell lc-target"><span class="lc-label">คาดเมื่อถึงป้ายคุณ</span><span class="lc-value">${pred.N} ± ${pred.sig} <small>คน</small></span></div>
-        <div class="chip ${pred.pu >= 50 ? 'fail' : pred.pu >= 20 ? 'warn' : 'pass'}"><span class="ico-dot"></span>โอกาสขึ้นไม่ได้ ${pred.pu}%</div>
-      </div>` : '';
+  // (ซ่อนการพยากรณ์ข้ามป้าย ±σ ออกจาก UI ผู้โดยสาร — กล้อง AI ให้ยอดจริงเรียลไทม์ 100%)
+  const cmp = '';
     const timeline = (tl && tl.length > 1) ? `
       <div class="load-timeline" role="list" aria-label="ป้ายระหว่างทางและคาดการณ์คนขึ้น-ลง">
         ${tl.map((p, i) => {
@@ -524,12 +495,9 @@
              <div class="ac-sub">ข้อมูลพิกัดคันนี้ขาดช่วงเกิน 90 วินาที — ระบบปลดสถานะสดแล้ว ใช้ตารางเดินรถด้านล่างแทน (จะไม่แสดงเวลาปลอม)</div>`
           : `<div class="ac-big">อีก ${minLow}<small>นาที</small></div>
              <div class="ac-sub">คาดการณ์ถึงป้าย ${OT.etaRange(st.ai.tSec, eta.low, eta.high)} (ช่วง ${minLow}–${minHigh} นาที)${brk ? ` · แตกตัวเวลา: วิ่งบนถนน ~${brk.runMin} นาที + จอดรับ-ส่ง ${brk.stops} ป้าย (≈ ${brk.dwellMin} นาที)` : ''} · ไม่รับประกันที่นั่ง</div>`}
-        ${cmp}
-        ${advisor}
-        ${timeline}
-        ${mathBreakdown(b, crowd, pred, brk, eta)}
-        ${OT.crowdMeter(predLevel >= 0 ? { level: predLevel, sourceLabel: 'พยากรณ์ไหลสะสมรายป้าย (สมการที่ 1)' } : crowd, pred && predLevel >= 0 ? null : crowd.onboardEst)}
-        <div class="bustype active mt">
+        <div class="chip pass" style="margin-top:8px;">${OT.icon('check')} คนบนรถจริง ${crowd.onboardEst != null ? crowd.onboardEst : '-'} คน จากกล้อง AI มุมสูงเหนือประตู — เรียลไทม์ 100% (ไม่ต้องคาดเดา)</div>
+        ${OT.crowdMeter(crowd, crowd.onboardEst)}
+                <div class="bustype active mt">
           ${busIllustration(b.model.id, 108)}
           <div><div class="bt-name">${OT.esc(info.name)}</div><div class="bt-fare">ค่าโดยสาร ${OT.esc(info.fare)} · จ่ายบนรถตามช่องทางเดิม</div></div>
         </div>
@@ -542,8 +510,7 @@
       return `<div class="bustype mt ${followBusId === bb.id ? 'followed' : ''}">
         ${busIllustration(bb.model.id, 84)}
         <div class="grow"><div class="bt-name">คัน ${OT.esc(bb.id)} · ${OT.esc(info2.name)}${aw2 != null ? ` <span class="muted">· อีก ${aw2} ป้าย</span>` : ''}</div>
-        <div class="bt-fare">อีก ~${Math.max(1, Math.round(e2.low / 60))} นาที · ${OT.esc(fareFor(bb.model.id))}${p2 ? ` · คาด ${p2.N} ± ${p2.sig} คนเมื่อถึงป้ายคุณ` : ''}</div>
-        ${p2 ? `<span class="chip ${p2.pu >= 50 ? 'fail' : p2.pu >= 20 ? 'warn' : 'pass'}" style="margin-top:5px;"><span class="ico-dot"></span>เสี่ยงขึ้นไม่ได้ ${p2.pu}%</span>` : ''}</div>
+        <div class="bt-fare">อีก ~${Math.max(1, Math.round(e2.low / 60))} นาที · ${OT.esc(fareFor(bb.model.id))} · คนบนรถจริง (กล้อง AI) ${bb.onboardEst ?? '-'} คน</div>
         <div class="bt-meter">${OT.crowdMeter(c2, c2.onboardEst)}</div>
         <button class="btn small" data-follow="${OT.esc(bb.id)}">${followBusId === bb.id ? OT.icon('check') + ' ติดตามอยู่' : 'ติดตาม'}</button>
       </div>`;
@@ -700,7 +667,7 @@
       ${OT.crowdMeter(crowd, crowd.onboardEst)}
       <h3 style="margin:14px 0 2px; font-size:0.9rem;">ผังที่นั่งเรียลไทม์ (ตามสเปกรุ่น)</h3>
       ${seatLayoutSVG(b.model, crowd.onboardEst)}
-      <p class="hint" style="margin-top:6px;">ป้ายถัดไป: ${OT.esc(b.nextStopName)} · คนบนรถโดยประมาณ ${crowd.onboardEst === null ? 'ไม่มีข้อมูล' : crowd.onboardEst + (b.sigma ? ' ± ' + b.sigma : '') + ' คน'}${crowd.sourceLabel ? ' · ' + OT.esc(crowd.sourceLabel) : ''} · ± คือความไม่แน่นอนสะสมตามจำนวนป้ายที่อ่านจากกล้อง AI มุมสูงเหนือประตู (Edge Vision) + สมการพยากรณ์ล่วงหน้า · ไม่รับประกันที่นั่ง และไม่มีระบบจอง</p>`;
+      <p class="hint" style="margin-top:6px;">ป้ายถัดไป: ${OT.esc(b.nextStopName)} · คนบนรถจริง ${crowd.onboardEst === null ? 'ไม่มีข้อมูล' : crowd.onboardEst + ' คน'}${crowd.sourceLabel ? ' · ' + OT.esc(crowd.sourceLabel) : ''} · ตัวเลขจากกล้อง AI มุมสูงเหนือประตูแบบเรียลไทม์ 100% (ไม่ต้องคาดเดา) · ไม่รับประกันที่นั่ง และไม่มีระบบจอง</p>`;
   }
 
   // ── หมุดรถ ───────────────────────────────────────────────────────────────
@@ -922,58 +889,6 @@
   document.getElementById('drawer-scrim').addEventListener('click', closeBusDrawer);
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeBusDrawer(); });
 
-  // ── คาดการณ์ความแน่นด้วย OpenAI จริง (/api/ai/predict-crowd) ──────────────
-  const $ai = (id) => document.getElementById(id);
-  let aiBusy = false;
-  function renderAIError(msg, needsKey) {
-    $ai('ai-body').innerHTML = `
-      <div class="banner ${needsKey ? 'info' : 'warn'}">${OT.icon(needsKey ? 'info' : 'alert')}
-      <div class="grow">${OT.esc(msg)}${needsKey ? '<br><span class="small muted">เปิดปุ่ม "เครื่องมือ" มุมขวาบน วาง OpenAI API Key แล้วบันทึก — หรือใส่ในไฟล์ .env ตาม .env.example</span>' : ''}</div></div>`;
-  }
-  async function fetchAIPrediction() {
-    if (aiBusy || !OT.state || OT.state.degraded) return;
-    aiBusy = true;
-    const btn = $ai('ai-fetch');
-    if (btn) { btn.disabled = true; btn.textContent = 'กำลังวิเคราะห์…'; }
-    $ai('ai-body').innerHTML = '<p class="muted small">กำลังส่งบริบทการเดินทางสด (คนรอ จราจร ฝน ช่วงเวลา ระยะห่างรถ) ให้ OpenAI วิเคราะห์…</p>';
-    const r = await OT.get(`/api/ai/predict-crowd?stopId=${encodeURIComponent(selectedStop)}&dir=${selectedDir}`);
-    if (btn) { btn.disabled = false; btn.textContent = 'วิเคราะห์ตอนนี้'; }
-    aiBusy = false;
-    if (!r.ok) { renderAIError(r.error || 'เรียกโมเดลไม่สำเร็จ', !!r.needsKey); return; }
-    const d = r.data;
-    const levelNames = ['มีที่นั่งว่าง', 'มีที่ยืนสบาย', 'คนแน่นมาก'];
-    const risk = d.pass_up_risk_percent;
-    $ai('ai-body').innerHTML = `
-      <div class="arrival-card">
-        <div class="ac-dir">${OT.icon('flask')} ผลวิเคราะห์ AI · คัน ${OT.esc(d.bus_id)} (${OT.esc(d.model_name)}) → ป้าย${OT.esc(d.target_stop)}</div>
-        <div class="ac-big">${d.predicted_passengers}<small>คน คาดการณ์เมื่อถึงป้าย</small></div>
-        <div class="flex" style="gap:6px; margin-top:6px; flex-wrap:wrap;">
-          <span class="chip">${OT.icon('users')} นั่ง ${d.seated_count} · ยืน ${d.standing_count}</span>
-          <span class="chip ${d.crowding_level === 2 ? 'fail' : d.crowding_level === 1 ? 'warn' : 'pass'}"><span class="ico-dot"></span>${levelNames[d.crowding_level]}</span>
-        </div>
-        <div class="crowd-meter" data-level="${risk >= 60 ? 2 : risk >= 30 ? 1 : 0}" style="margin-top:10px;">
-          <div class="cm-head"><span class="ico-dot"></span>ความเสี่ยงขึ้นไม่ได้ที่ป้ายนี้ ${risk}%</div>
-          <div class="cm-track" role="img" aria-label="ความเสี่ยงขึ้นไม่ได้ ${risk}%"><div class="cm-fill" style="width:${risk}%; background:${risk >= 60 ? 'var(--crit-fill)' : risk >= 30 ? 'var(--warn-fill)' : 'var(--ok-fill)'};"></div></div>
-        </div>
-        <blockquote style="margin:12px 0 0; border-inline-start:4px solid var(--accent); padding-inline-start:12px; font-size:0.88rem; line-height:1.7;">${OT.esc(d.ai_reasoning_th)}</blockquote>
-        <div class="ai-source ${d.predictor === 'local' ? 'local' : 'live'}">${OT.icon(d.predictor === 'local' ? 'target' : 'flask')}
-          ${d.predictor === 'local'
-            ? 'ประมวลผลด้วยเอนจินคณิตศาสตร์ 4 สมการ (สามารถใส่ OpenAI Key ในเมนู "เครื่องมือ" เพื่อใช้ LLM เสริมได้)'
-            : 'วิเคราะห์สดด้วย OpenAI API · ' + OT.esc(d.ai_model)}
-          · บริบทเวลาจำลอง ${OT.esc(d.context_clock)} น.${r.cached ? ' · แคช 45 วินาที' : ''} — ค่าคาดการณ์อ้างอิง ไม่รับประกันที่นั่ง</div>
-      </div>`;
-  }
-  $ai('ai-fetch').addEventListener('click', fetchAIPrediction);
-  OT.get('/api/ai/status').then((st) => {
-    if (st && st.configured) setTimeout(fetchAIPrediction, 1500); // มี Key → วิเคราะห์ให้อัตโนมัติครั้งแรก
-    else {
-      $ai('ai-body').innerHTML = `
-        <div class="banner info">${OT.icon('info')}
-        <div class="grow"><b>ยังไม่ได้ระบุ OpenAI API Key</b> — ระบบคาดการณ์ด้วย AI จริงยังไม่ทำงาน<br>
-        <span class="small muted">เปิดปุ่ม "เครื่องมือ" มุมขวาบน วาง Key (sk-…) เลือกโมเดล แล้วกดบันทึก · หรือใส่ในไฟล์ .env ตาม .env.example แล้วรีสตาร์ต · ส่วนอื่นของระบบใช้ได้ปกติโดยไม่ต้องมี Key</span></div></div>`;
-    }
-  });
-
   function stopsAway(bus, stopId) {
     const tl = loadTimeline(bus, stopId);
     return tl ? Math.max(0, tl.length - 1) : null;
@@ -1010,7 +925,7 @@
     bar.hidden = false;
     bar.innerHTML = `<div class="follow-bar">
       <span class="live-dot" style="position:static;"></span>
-      <b>กำลังติดตามคัน ${OT.esc(bus.id)}</b><span class="muted">→ ป้าย${OT.esc(stopName(selectedStop))}</span>
+      <b>กำลังติดตามคัน ${OT.esc(bus.id)}</b><span class="muted">· ป้ายหมาย ${OT.esc(stopName(selectedStop))}</span>
       <span class="follow-status">${status}</span>
       <button class="btn small ghost" id="btn-unfollow">หยุดติดตาม</button>
     </div>`;

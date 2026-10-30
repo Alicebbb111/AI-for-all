@@ -3,30 +3,46 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>หน้านายท่า · OmniTransit</title>
-  <meta name="description" content="ศูนย์ควบคุมสำหรับนายท่า: นับถอยหลังปล่อยรถ การแจ้งเตือนรถวิ่งติดกันแบบกดปุ่มเดียว และสถานะรถทั้งสาย">
+  <title>ศูนย์บัญชาการนายท่า · OmniTransit v5</title>
+  <meta name="description" content="ศูนย์บัญชาการควบคุมการปล่อยรถและป้องกันรถขาดระยะแบบเรียลไทม์ — ข้อมูลจริงจากกล้อง AI เหนือประตู">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap">
-  <link rel="stylesheet" href="/css/app.css">
   <link rel="stylesheet" href="/vendor/leaflet.css">
-  <link rel="stylesheet" href="/css/operations.css">
+  <link rel="stylesheet" href="/css/app.css">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2316181d' stroke-width='2'%3E%3Cpath d='M5 3h14a1 1 0 0 1 1 1v13H4V4a1 1 0 0 1 1-1Z'/%3E%3C/svg%3E">
 </head>
-<body>
+<body class="mc-page">
   <div id="ot-nav"></div>
-  <main id="main" class="layout">
-    <div class="card" data-tour="countdown-area" id="countdown-area">
+  <main id="main" class="layout mc-layout">
+
+    <!-- แถบเครื่องมือ: สถานะ + จำลองสถานการณ์ (บาง ควบคุมได้ในคลิกเดียว) -->
+    <div class="card mc-toolbar" id="scenario-bar" aria-label="แถบควบคุมการจำลองสถานการณ์">
+      <span class="chip pass" id="disp-clock">–:–</span>
+      <span class="sb-title">สถานการณ์จำลอง</span>
+      <button class="btn small" type="button" data-scen="rain" aria-pressed="false">ฝนตกหนัก</button>
+      <button class="btn small" type="button" data-scen="rush" aria-pressed="false">ชั่วโมงเร่งด่วน</button>
+      <button class="btn small" type="button" data-scen="slowzone">รถติดกลางสาย</button>
+      <button class="btn small" type="button" data-scen="breakdown">รถเสียกะทันหัน</button>
+      <span class="sb-sep" aria-hidden="true"></span>
+      <span class="sb-title">เวลา</span>
+      <button class="btn small" type="button" data-speed="1" aria-pressed="true">1x</button>
+      <button class="btn small" type="button" data-speed="2" aria-pressed="false">2x</button>
+      <button class="btn small" type="button" data-speed="5" aria-pressed="false">5x</button>
+      <button class="btn small" type="button" data-speed="10" aria-pressed="false">10x</button>
+      <span class="grow"></span>
+      <label class="toggle" title="เสียงเตือนเมื่อมีรถวิ่งติดกันรอตัดสินใจ"><input type="checkbox" id="audio-alert" checked><span class="track" aria-hidden="true"></span> เสียงเตือน</label>
+      <label class="toggle" title="ระบบกดอนุมัติแทนอัตโนมัติสำหรับสาธิต"><input type="checkbox" id="auto-approve"><span class="track" aria-hidden="true"></span> อนุมัติอัตโนมัติ</label>
+    </div>
+
+    <!-- โซน 1: รอบปล่อยรถ + สมการสด -->
+    <section class="card" data-tour="countdown-area" id="countdown-area" aria-label="รอบปล่อยรถและสมการสด">
       <div class="flex spread">
         <div>
-          <h2 style="margin:0;">รอบปล่อยรถคันถัดไป</h2>
-          <span class="sub" style="display:block;">สายนำร่อง 1 · รอบประกาศ 8 นาที · พักอู่ขั้นต่ำ 6 นาที</span>
+          <span class="mc-kicker">ศูนย์ควบคุมการปล่อยรถต้นสาย</span>
+          <h2 style="margin:0;">รอบปล่อยคันถัดไป & สมการสด</h2>
         </div>
-        <div class="flex">
-          <label class="toggle" title="เสียงเตือนเมื่อมีรถวิ่งติดกันรอตัดสินใจ"><input type="checkbox" id="audio-alert" checked><span class="track" aria-hidden="true"></span> เสียงเตือน</label>
-          <label class="toggle" title="ระบบกดอนุมัติแทนอัตโนมัติสำหรับสาธิต"><input type="checkbox" id="auto-approve"><span class="track" aria-hidden="true"></span> อนุมัติอัตโนมัติ (สาธิต)</label>
-          <span class="chip" id="disp-clock">–:–</span>
-        </div>
+        <div id="dispatcher-alert" aria-live="polite" style="max-width:46%;"></div>
       </div>
       <div class="countdown-wrap mt">
         <div class="countdown">
@@ -40,29 +56,140 @@
           <div class="cd-sub" id="cd--1-sub">คำนวณจากเที่ยวล่าสุด + รอบ 8 นาที</div>
         </div>
       </div>
-      <div id="dispatcher-alert" class="mt" aria-live="polite"></div>
-    </div>
+      <div id="dispatch-formula" class="mt" aria-label="สมการคำนวณการปล่อยรถสด"></div>
+    </section>
 
+    <!-- โซน 2: การ์ดตัดสินใจนายท่า -->
     <div id="rec-area" data-tour="rec-area" aria-label="การแจ้งเตือนและคำแนะนำ"></div>
-    <section class="card" id="operations-panel" aria-label="Bus Bunching AI"></section>
 
+    <!-- โซน 3: เรดาร์เส้นทาง -->
+    <section class="card" id="corridor-radar-card" aria-label="เรดาร์เส้นทางและสัญญาณไฟ">
+      <div class="flex spread">
+        <div>
+          <span class="mc-kicker">เรดาร์เส้นทาง</span>
+          <h2 style="margin:0;">สัญญาณไฟรายแยก & ตำแหน่งรถสด</h2>
+        </div>
+        <span class="chip" id="radar-meta">–</span>
+      </div>
+      <div id="corridor-radar" role="img" aria-label="ผังเส้นทางแบบ interactive"></div>
+      <div id="stop-inspector" class="mt" aria-live="polite"></div>
+    </section>
+
+    <!-- โซน 4: กราฟวิศวกรรม -->
+    <section class="card" aria-label="กราฟวิเคราะห์การเดินรถ">
+      <div class="flex spread">
+        <div>
+          <span class="mc-kicker">วิศวกรรมการเดินรถ</span>
+          <h2 style="margin:0;">ช่องไฟเทียบเป้าหมาย & ยอดคนจริงจากกล้อง AI</h2>
+        </div>
+        <span class="chip" id="hl-meta">–</span>
+      </div>
+      <div id="headway-load-chart" class="mt"></div>
+    </section>
+
+    <!-- โซน 4ข: แผงควบคุมช่องไฟสด & ป้องกันรถขาดระยะ (Anti-Bunching & Headway Control) -->
+    <section class="card" aria-label="แผงควบคุมช่องไฟสดและป้องกันรถขาดระยะ">
+      <div class="flex spread">
+        <div>
+          <span class="mc-kicker">ระบบควบคุมช่องไฟ & ป้องกันรถขาดระยะ</span>
+          <h2 style="margin:0;">สถานะระยะห่างระหว่างรถสด (Live Headway & Anti-Bunching)</h2>
+        </div>
+        <div class="flex" style="gap:8px;">
+          <span class="chip" id="bunching-status-chip">–</span>
+        </div>
+      </div>
+
+      <!-- แถบสรุปดัชนีช่องไฟทั้งสาย 4 กล่อง -->
+      <div class="headway-kpi-grid mt">
+        <div class="hk-card">
+          <div class="hk-label">เวลารถทิ้งช่วงเฉลี่ย (ทั้งสาย)</div>
+          <div class="hk-value" id="kpi-avg-headway">– <small>นาที</small></div>
+          <div class="hk-sub">รอบมาตรฐานของสาย: 12 – 18 นาที</div>
+        </div>
+        <div class="hk-card">
+          <div class="hk-label">ความสม่ำเสมอของสาย (CV)</div>
+          <div class="hk-value" id="kpi-headway-cv">–</div>
+          <div class="hk-sub">เกณฑ์ดีเยี่ยม: ต่ำกว่า 0.25 (ระยะห่างคงที่)</div>
+        </div>
+        <div class="hk-card">
+          <div class="hk-label">จุดเสี่ยงรถจี้ท้ายกัน (Bunching)</div>
+          <div class="hk-value" id="kpi-bunching-count" style="color:var(--ok);">0 <small>คู่</small></div>
+          <div class="hk-sub">คันหลังตามชิดน้อยกว่า 5 นาที</div>
+        </div>
+        <div class="hk-card">
+          <div class="hk-label">จุดเสี่ยงรถขาดระยะ (Long Gap)</div>
+          <div class="hk-value" id="kpi-gap-count" style="color:var(--ok);">0 <small>ช่วง</small></div>
+          <div class="hk-sub">คันหลังทิ้งห่างเกิน 28 นาที</div>
+        </div>
+      </div>
+
+      <!-- ผังสายทางแสดงระยะห่างระหว่างรถสด (Visual Headway Corridor) -->
+      <div class="headway-visual-wrap mt">
+        <div class="hv-header">
+          <b>ผังระยะห่างระหว่างรถตามแนวเส้นทางจริง</b>
+          <span class="muted small">· เขียว = ระยะปกติสม่ำเสมอ · ส้ม = เริ่มทิ้งช่วง/เริ่มชิด · แดง = วิ่งจี้ท้ายกัน (&lt;5 นาที) · ม่วง = รถขาดระยะ (&gt;28 นาที)</span>
+        </div>
+        <div id="headway-visual-corridor" class="mt"></div>
+      </div>
+
+      <!-- ตารางสรุปช่องไฟรายคู่ -->
+      <div class="table-wrap mt">
+        <div class="flex spread" style="margin-bottom:8px;">
+          <div>
+            <b>ตารางวิเคราะห์ระยะห่างระหว่างรถรายคู่ (Live Headway & Spacing)</b>
+            <div class="muted small">แสดงเวลาที่คันหลังวิ่งตามหลังคันหน้า คำนวณจาก GPS ถนนจริง + ยอดคนจริงจากกล้อง AI</div>
+          </div>
+          <span class="chip small" style="background:var(--surface-2);">รอบปกติของสาย: 12–18 นาที</span>
+        </div>
+
+        <!-- แถบอธิบายความหมายสีสำหรับนายท่า -->
+        <div class="headway-explain-bar">
+          <span class="heb-item"><span class="badge-dot ok"></span> <b>สม่ำเสมอ (10–22 นาที):</b> วิ่งทิ้งช่วงกำลังดี ผู้โดยสารไม่ต้องรอนาน</span>
+          <span class="heb-item"><span class="badge-dot warn"></span> <b>เริ่มทิ้งช่วง (22–28 นาที):</b> เริ่มห่าง ให้คันหลังเร่งความเร็วตามรอบ</span>
+          <span class="heb-item"><span class="badge-dot gap"></span> <b>ขาดระยะ (&gt;28 นาที):</b> ทิ้งช่วงนานเกินไป แนะนำปล่อยรถเสริมแทรกด่วน</span>
+          <span class="heb-item"><span class="badge-dot danger"></span> <b>จี้ท้าย (&lt;5 นาที):</b> รถวิ่งติดกันเกินไป เสี่ยงตามก้น แนะนำหน่วงคันหลัง</span>
+        </div>
+
+        <div id="headway-pair-table"></div>
+      </div>
+
+      <!-- AI Tactical Co-Pilot -->
+      <div class="ai-analyst mt" id="ai-analyst" aria-live="polite">
+        <div class="aa-head">
+          <span class="mc-kicker" style="margin:0;">นักวิเคราะห์สถานการณ์สด</span>
+          <span class="chip small" id="aa-provider">กำลังเตรียมข้อมูล…</span>
+        </div>
+        <div id="aa-text" class="muted" style="font-size:0.84rem; line-height:1.75;">กำลังรวบรวมข้อมูล operations ส่งให้โมเดลวิเคราะห์…</div>
+      </div>
+    </section>
+
+    <!-- โซน 5: ตารางรถ -->
     <section class="card" aria-label="สถานะรถทั้งสาย" data-tour="fleet-table" id="fleet-table">
       <div class="flex spread">
-        <h2 style="margin:0;">รถทั้งสาย 10 คัน</h2>
+        <div>
+          <span class="mc-kicker">กองรถ</span>
+          <h2 style="margin:0;">สถานะรถทั้งสาย — ข้อมูลจริงจากกล้อง AI เหนือประตู</h2>
+        </div>
         <span class="chip" id="fleet-adequacy">–</span>
       </div>
       <div class="table-wrap mt">
         <table class="data" id="fleet-table-el">
           <thead><tr>
-            <th>คัน</th><th>รุ่น</th><th>ตำแหน่งปัจจุบัน</th><th>สถานะ</th><th class="num">เวลาพัก</th><th class="num">ขับสะสม</th><th>ความแน่น</th><th>สัญญาณ</th>
+            <th>คัน</th><th>สถานะ · ป้ายถัดไป</th><th>คนบนรถจริง (กล้อง AI)</th><th class="num">ขึ้น/ลงล่าสุด</th><th class="num">เปิดประตูล่าสุด</th><th>ไฟแดงป้ายหน้า</th><th>GPS</th>
           </tr></thead>
           <tbody></tbody>
         </table>
       </div>
     </section>
 
-    <details class="card tight">
-      <summary style="cursor:pointer; font-weight:600; font-size:0.9rem;">บันทึกการตัดสินใจ (Audit Log) — ตรวจสอบย้อนหลัง</summary>
+    <!-- แผงหนัก: พับเก็บไว้เปิดเมื่อต้องการเจาะลึก -->
+    <details class="card mc-collapsible" id="ops-details">
+      <summary>Bus Bunching AI · Digital Twin · External Context (แผงวิเคราะห์เจาะลึก)</summary>
+      <div class="mt" id="operations-panel" aria-label="Bus Bunching AI"></div>
+    </details>
+
+    <details class="card mc-collapsible">
+      <summary>บันทึกการตัดสินใจ (Audit Log)</summary>
       <ul class="log-list mt" id="audit-log"></ul>
     </details>
   </main>

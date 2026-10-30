@@ -18,13 +18,25 @@ const PUBLIC = path.join(ROOT, 'public');
 ai.loadDotEnv(ROOT); // อ่าน OPENAI_API_KEY / OPENAI_MODEL จาก .env (ถ้ามี)
 const engine = new Engine();
 const { Operations } = require('./engine/operations');
-const { explain } = require('./engine/copilot');
+const { explain, explainWithAI } = require('./engine/copilot');
 const { ContextService } = require('./engine/context/service');
 const { ROUTES } = require('./engine/data');
 engine.operations = new Operations(engine);
 const contextService = new ContextService(ROUTES);
 engine.operations.contextService = contextService;
 const twinJobs = new (require('./engine/twin-service').TwinJobs)();
+
+// Warm Start (opt-in ผ่าน WARM_START_MIN): เดินจำลองล่วงหน้าก่อนเปิดให้บริการ
+// เพื่อให้หน้านำเสนอ/นายท่ามีข้อมูล KPI ย้อนหลังทันที — ไม่ตั้งค่า = สตาร์ตเย็นตามปกติ (tests ใช้พาธนี้)
+if (process.env.WARM_START_MIN) {
+  const mins = Math.max(1, Math.min(180, Number(process.env.WARM_START_MIN) || 0));
+  const speed = engine.simSpeed; engine.simSpeed = 120;
+  const ticks = Math.ceil((mins * 60) / 120);
+  for (let i = 0; i < ticks; i++) engine.tick();
+  engine.simSpeed = speed;
+  engine.logEvent(`ระบบเริ่มด้วยข้อมูลจำลองย้อนหลัง ${mins} นาที (Warm Start)`, 'info');
+}
+
 function authorized(req, kind) {
   const key = process.env[kind === 'telemetry' ? 'TELEMETRY_TOKEN' : 'OPERATIONS_TOKEN'];
   if (key) return req.headers.authorization === `Bearer ${key}`;
@@ -84,6 +96,14 @@ function serveStatic(res, urlPath) {
 }
 
 // ── SSE: สตรีมสแนปชอตทุก 1 วินาที ────────────────────────────────────────────
+/** payload ต่อโหมด: operations เฉพาะสาย (simulation/live/replay) ขึ้นหน้าสุดของ JSON
+ *  เพื่อให้ผู้อ่านแบบ chunked เห็นโหมดตั้งแต่ chunk แรก และตัด operations simulation ที่ซ้ำซ้อนออก */
+function sseStatePayload(scope, mode, runId) {
+  const snap = engine.snapshot(scope);
+  const payload = { operations: engine.operations.snapshot(mode, runId) };
+  for (const k of Object.keys(snap)) if (k !== 'operations') payload[k] = snap[k];
+  return JSON.stringify(payload);
+}
 const sseClients = new Set();
 setInterval(() => {
   if (!sseClients.size) return;
@@ -93,7 +113,7 @@ setInterval(() => {
   for (const c of sseClients) {
     let data = c.scope === 'public' ? publicPayload : opsPayload;
     if(c.mode!=='simulation') {
-      try {data=JSON.stringify({...JSON.parse(data),operations:engine.operations.snapshot(c.mode,c.runId)});}
+      try {data=sseStatePayload(c.scope,c.mode,c.runId);}
       catch {continue;}
     }
     try { c.res.write(`event: state\ndata: ${data}\n\n`); } catch { sseClients.delete(c); }
@@ -145,7 +165,10 @@ const server = http.createServer(async (req, res) => {
       try {
         const ops=engine.operations.snapshot(url.searchParams.get('mode')||'simulation',url.searchParams.get('runId'));
         const name=p.split('/').at(-1);
-        if(name==='copilot')return sendJson(res,200,explain(ops));
+        if(name==='copilot'){
+          if(url.searchParams.get('ai')==='1')return sendJson(res,200,await explainWithAI(ops,ai));
+          return sendJson(res,200,explain(ops));
+        }
         if(!['headways','predictions','recommendations','state'].includes(name))return sendJson(res,404,{ok:false,error:'unknown operations endpoint'});
         return sendJson(res,200,name==='state'?ops:{mode:ops.mode,simulationRunId:ops.simulationRunId,data:ops[name],cameraStatus:ops.cameraStatus});
       }catch(err){return sendJson(res,400,{ok:false,error:err.message});}
@@ -169,8 +192,10 @@ const server = http.createServer(async (req, res) => {
       });
       res.write(`retry: 3000\n\n`);
       const client = { res, scope, mode, runId };
+      // เขียน event เฉพาะสายก่อนลงทะเบียน broadcast — กัน broadcast tick ที่กำลังวนลูปอยู่
+      // (Set iteration) แทรก event simulation มาก่อนหน้าสำหรับ client โหมด live/replay
+      try { res.write(`event: state\ndata: ${sseStatePayload(scope, mode, runId)}\n\n`); } catch (err) { console.error('[sse init]', err && err.message); }
       sseClients.add(client);
-      try { res.write(`event: state\ndata: ${JSON.stringify({...engine.snapshot(scope),operations:engine.operations.snapshot(mode,runId)})}\n\n`); } catch {}
       req.on('close', () => sseClients.delete(client));
       return;
     }

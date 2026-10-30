@@ -609,6 +609,8 @@ class World {
     const Ht = ROUTE.targetHeadwayMin;
     const Hf = gapMin(fa), Hb = gapMin(bk);
     const rawHoldMin = 0.5 * (Ht - Hf) + 0.25 * (Hb - Hf);
+    const originStopId = dir === 1 ? STOPS[0].id : STOPS[STOPS.length - 1].id;
+    const corridorAvg = this.aiSegSpeed.reduce((a, c) => a + c, 0) / this.aiSegSpeed.length;
     return {
       busId: bus.id, dir,
       H_frontMin: +Hf.toFixed(1), H_backMin: +Hb.toFixed(1), H_targetMin: Ht,
@@ -616,6 +618,17 @@ class World {
       holdMin: Math.max(0, Math.min(5, Math.round(rawHoldMin))),
       frontBusId: fa ? fa.x.id : null, backBusId: bk ? bk.x.id : null,
       layoverRemainingMin: Math.max(0, Math.ceil(((bus.stats.layoverStartT ?? this.t) + ROUTE.minLayoverMin * MIN - this.t) / 60)),
+      // ── Mission Control: หลักฐานจริง 5 มิติสำหรับเครื่องคิดเลขปล่อยรถของนายท่า ──
+      frontGapMeters: fa ? Math.round(fa.gap) : null,
+      backGapMeters: bk ? Math.round(bk.gap) : null,
+      frontBusLoad: fa ? Math.round(fa.x.onboardEst || 0) : null,
+      frontBusCapacity: fa ? fa.x.model.legalMax : null,
+      frontBusSpeedKmh: fa ? +(fa.x.speedKmh || 0).toFixed(1) : null,
+      corridorAvgSpeedKmh: +corridorAvg.toFixed(1),
+      redLightsActiveCount: STOPS.filter((s, idx) => s.signal && this.signalStateAt(idx, this.t).color === 'red').length,
+      totalSignalStops: STOPS.filter((s) => s.signal).length,
+      originQueuePax: this.queues.get(originStopId + ':' + dir)?.size || 0,
+      loadWeightedHoldMin: +(rawHoldMin * (1 / (1 + 0.5 * ((fa ? (fa.x.onboardEst || 0) / fa.x.model.legalMax : 0))))).toFixed(2),
     };
   }
 
@@ -784,6 +797,20 @@ class World {
   }
 
   // ── สแนปชอต ───────────────────────────────────────────────────────────────
+  /** (Mission Control) สถานะสัญญาณไฟจราจร Deterministic รายแยกตามเวลาจำลอง + ความหนาแน่นจราจร
+   *  วงจรไฟ 100/115/130 วิ (ตาม stopIdx) · สัดส่วนไฟแดงเพิ่มในชั่วโมงเร่งด่วน · เฟสขยับรายป้ายกันไฟพร้อมกันหมด */
+  signalStateAt(stopIdx, tSec = this.t) {
+    const st = STOPS[stopIdx];
+    if (!st || !st.signal) return { hasSignal: false, color: 'none', remainingSec: 0, cycleSec: 0, redDurationSec: 0, expectedDelaySec: 0 };
+    const cycleSec = 100 + (stopIdx % 3) * 15;
+    const redDurationSec = Math.round(cycleSec * (this.lastEnv?.rush ? 0.62 : 0.52));
+    const phaseSec = Math.floor((tSec + stopIdx * 23) % cycleSec);
+    const color = phaseSec < redDurationSec ? 'red' : (phaseSec < redDurationSec + 5 ? 'amber' : 'green');
+    const remainingSec = color === 'red' ? (redDurationSec - phaseSec) : (cycleSec - phaseSec);
+    const expectedDelaySec = color === 'red' ? Math.round(remainingSec * 0.65) : 4;
+    return { hasSignal: true, color, remainingSec, cycleSec, redDurationSec, expectedDelaySec };
+  }
+
   snapshot(includeOps) {
     const withProp = this.policy === 'ai'; // สมการ 1-3 ผูกกับเวิลด์ AI (baseline ใช้ตารางตายตัว)
     const buses = this.buses.map((b) => {
@@ -819,12 +846,24 @@ class World {
           board: b.lastArrival.board, alight: b.lastArrival.alight, passUp: b.lastArrival.passUp,
           waitingAfter: b.lastArrival.waitingAfter, onboardAfter: b.lastArrival.onboardAfterEst, t: b.lastArrival.t,
         } : null,
+        // ── Mission Control: ข้อมูลจริงจากกล้อง AI เหนือประตู + สถานะจราจร/ไฟแดงรายคัน ──
+        actualDwellSec: b.state === 'dwell' ? Math.round(this.t - (b._arriveT || this.t))
+          : (b.lastArrival ? Math.round(8 + b.lastArrival.board * 1.3 + b.lastArrival.alight * 0.9) : 0),
+        remainingDwellSec: b.state === 'dwell' ? Math.max(0, Math.round(Math.max(b.dwellUntil, b.operationHoldUntil || 0) - this.t)) : 0,
+        zoneSpeedKmh: +this.aiSegSpeed[b.segIndexAt()].toFixed(1),
+        nextSignalState: this.signalStateAt(b.nextStopIdx, this.t),
       };
     });
-    const stops = STOPS.map((st) => ({
+    const stops = STOPS.map((st, idx) => ({
       id: st.id, name: st.name, survey: st.survey, surveyLabel: st.surveyLabel,
       wait1: this.queues.get(st.id + ':1').size,
       waitN1: this.queues.get(st.id + ':-1').size,
+      // ── Mission Control: พิกัดบนแกนเดินรถ + ไฟแดง + ความเร็วถนนหน้าป้าย + โปรไฟล์ดีมานด์ ──
+      s: Math.round(S.stopS[st.id] || 0),
+      signal: !!st.signal,
+      signalState: this.signalStateAt(idx, this.t),
+      zoneSpeedKmh: +this.aiSegSpeed[zoneIndexAt(S.stopS[st.id] || 0)].toFixed(1),
+      baseRate: st.baseRate, alightProb: st.alight,
     }));
     const base = {
       policy: this.policy, clock: fmtClock(this.t), tSec: Math.round(this.t),
@@ -839,6 +878,8 @@ class World {
       headwaySeries: this.headwaySeries.slice(-60),
       terminalShift: this.terminalShift,
       holdRec: this.policy === 'ai' ? { '1': this.holdRecommendation(1), '-1': this.holdRecommendation(-1) } : null,
+      zoneSpeeds: this.aiSegSpeed.map((v, i) => ({ zone: i, fromS: Math.round(i * ZONE_LEN), toS: Math.round(Math.min(S.totalLen, (i + 1) * ZONE_LEN)), speedKmh: +v.toFixed(1) })),
+      recentArrivals: this.arrivalEvents.slice(-80),
     };
   }
 }

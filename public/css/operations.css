@@ -3,3 +3,11 @@
 #operations-panel pre { font:inherit; line-height:1.6; }
 #ops-source { overflow-wrap:anywhere; }
 .ops-context-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin:10px 0}.ops-context-grid h4{margin-top:0}.ops-context-grid p{overflow-wrap:anywhere}
+
+/* AI Tactical Co-Pilot — บรีฟการ์ด (ไม่ใช่กำแพงข้อความ) */
+.ops-copilot-card { border:1.5px solid var(--accent); border-radius:var(--radius-sm); padding:12px 14px; background:var(--accent-wash); }
+.ops-copilot-card .aa-head { display:flex; align-items:center; gap:10px; margin-bottom:6px; flex-wrap:wrap; }
+.copilot-sec { font-weight:700; margin-top:8px; color:var(--accent-ink); font-size:0.8rem; }
+.copilot-sec:first-child { margin-top:0; }
+.copilot-line { font-size:0.8rem; line-height:1.7; color:var(--ink); overflow-wrap:anywhere; }
+.copilot-decision { font-size:0.82rem; margin-bottom:4px; }

@@ -25,15 +25,28 @@ class Operations {
     if(this.cache?.key===key)return this.cache.data;
     const stops=ctx.STOPS.map(s=>({...s,s:ctx.S.stopS[s.id]}));
     let vehicles;
-    if(mode==='simulation') vehicles=w.buses.map(b=>({
+    if(mode==='simulation') vehicles=w.buses.map(b=>{
+      const sig=w.signalStateAt(b.nextStopIdx,w.t);
+      const tf=w.trafficFactor(b,e.env);
+      return {
       busId:b.id,tripId:String(b.tripNo),routeId:e.routeId,mode,simulationRunId:this.runId,direction:b.dir,
       s:b.pF,...pointAtS(ctx.S,b.pF),
-      speedKmh:b.speedKmh || (b.state==='dwell'?w.aiSegSpeed[b.segIndexAt()]:0),
+      speedKmh:b.speedKmh || (['dwell','running'].includes(b.state)?w.aiSegSpeed[b.segIndexAt()]:0),
       state:b.state,gpsOk:b.gpsOk,onboardEst:w.publicCrowding(b).onboardEst,
       capacity:b.model.legalMax,remainingDwellSec:Math.max(0,b.dwellUntil-w.t),
-      trafficDelayActive:w.trafficFactor(b,e.env)<1,
-      etaAt:id=>w.predictSeconds(b,ctx.STOPS.findIndex(s=>s.id===id),'ai') + (b.state==='dwell'?Math.max(0,Math.max(b.dwellUntil,b.operationHoldUntil||0)-w.t):0)
-    }));
+      trafficDelayActive:tf<1,
+      etaAt:id=>w.predictSeconds(b,ctx.STOPS.findIndex(s=>s.id===id),'ai') + (b.state==='dwell'?Math.max(0,Math.max(b.dwellUntil,b.operationHoldUntil||0)-w.t):0),
+      // Mission Control: ยอดขึ้น-ลงจริงล่าสุดจากกล้อง AI + ปัจจัยหน่วงรายคัน (ไฟแดงหน้า/จราจร) + ป้ายถัดไป
+      boardLast:b.lastArrival?.board ?? 0,
+      alightLast:b.lastArrival?.alight ?? 0,
+      actualDwellSec:b.state==='dwell'?Math.round(w.t-(b._arriveT||w.t)):(b.lastArrival?Math.round(8+b.lastArrival.board*1.3+b.lastArrival.alight*0.9):0),
+      signalDelaySec:ctx.STOPS[b.nextStopIdx]?.signal?sig.expectedDelaySec:0,
+      trafficDelaySec:tf<1?Math.round((1-tf)*45):0,
+      nextStopName:ctx.STOPS[b.nextStopIdx]?.name||'-',
+      nextSignalColor:sig.color,
+      nextSignalRemainingSec:sig.remainingSec
+      };
+    });
     else vehicles=this.telemetry.vehicles(mode,e.routeId,runId).map(v=>{
       // Historical flow is an explicitly labelled dwell proxy, never a claim of measured future boarding.
       const dwell=v.lastFlow ? 9+1.3*v.lastFlow.board+0.9*v.lastFlow.alight : null;
@@ -54,7 +67,8 @@ class Operations {
     const predictions=hs.map(row=>{
       const front=vehicles.find(v=>v.busId===row.frontBusId);
       const future=row.vehicle.etaAt&&front?.etaAt?stops.filter(s=>row.direction*(s.s-front.s)>1).sort((a,b)=>row.direction*(a.s-b.s)).slice(0,3).map(s=>({stopId:s.id,etaSec:row.vehicle.etaAt(s.id),headwaySec:row.vehicle.etaAt(s.id)-front.etaAt(s.id)})):[];
-      const base=predict(row,ctx.HEADWAY,future);return {...base,externalContextUsed:contextFactors,contextMode:'advisory_only',contextVariants:{withoutExternalContext:base.predictedHeadwaySec,withWeatherContext:base.predictedHeadwaySec,withWeatherAndEventContext:base.predictedHeadwaySec,note:'No calibrated numeric adjustment; contexts are explanatory/advisory only'},factors:[...(base.factors||[]),...contextFactors]};
+      // เส้นทางยาว 19.5 กม. ที่ ~15 กม./ชม. — ช่องไฟจริงยาวเกิน 10 นาที จึงขยายเพดานจุดอ้างอิงเป็น 30 นาที
+      const base=predict(row,ctx.HEADWAY,future,{maxRefEtaSec:1800});return {...base,externalContextUsed:contextFactors,contextMode:'advisory_only',contextVariants:{withoutExternalContext:base.predictedHeadwaySec,withWeatherContext:base.predictedHeadwaySec,withWeatherAndEventContext:base.predictedHeadwaySec,note:'No calibrated numeric adjustment; contexts are explanatory/advisory only'},factors:[...(base.factors||[]),...contextFactors]};
     });
     for(const v of vehicles)if(!predictions.some(p=>p.busId===v.busId))predictions.push({busId:v.busId,riskLevel:'unknown',predictedHeadwaySec:null,estimatedTimeToBunchingSec:null,predictionHorizonSec:0,dataQuality:'insufficient',externalContextUsed:contextFactors,contextMode:'advisory_only',contextVariants:{withoutExternalContext:null,withWeatherContext:null,withWeatherAndEventContext:null,note:'Insufficient operational data; external context does not fill missing headway'},factors:[!v.gpsOk?'gps_stale':'no_common_reference_or_speed',...contextFactors],modelVersion:MODEL_VERSION});
     const recommendations=[],holdingEvaluations=[];
@@ -89,6 +103,17 @@ class Operations {
     if(this.evaluations.size>300)this.evaluations.delete(this.evaluations.keys().next().value);
     const data={mode,simulationRunId:mode==='simulation'?this.runId:runId,simulation:mode==='simulation',clockSec:t,limitations:'Baseline algorithm; external context is advisory and not calibrated as causal impact. Live holding/dispatch unavailable until approved stops, demand and terminal readiness are supplied.',externalContext,vehicles:vehicles.map(({etaAt,...v})=>v),headways:hs.map(({vehicle,...row})=>row),predictions,recommendations,holdingEvaluations,dispatches,approvedHoldingStops:this.allowedStops,cameraStatus:mode==='simulation'?'Simulation APC; no camera connected':vehicles.some(v=>v.passenger)?'External aggregate passenger data':'No passenger data'};
     data.decision={action:recommendations[0]?.type||'none',label:recommendations.length?'Operator approval required':'No Intervention',reason:recommendations.length?recommendations[0].reason:'No robust passenger-time improvement established for an eligible action',holdingReasons:[...new Set(holdingEvaluations.map(x=>x.reason))],dispatchReasons:[...new Set(dispatches.map(x=>x.reason))]};
+    // Mission Control: สรุปสุทธิระดับสาย — ความเสี่ยงขาดระยะ, ช่องไฟเฉลี่ย, ยอดคนจริงจากกล้อง AI, แยกติดไฟแดงขณะนั้น
+    const finiteH=hs.map(x=>x.frontHeadwaySec).filter(Number.isFinite);
+    data.corridorSummary={
+      highRiskCount:predictions.filter(p=>p.riskLevel==='high').length,
+      mediumRiskCount:predictions.filter(p=>p.riskLevel==='medium').length,
+      avgHeadwaySec:finiteH.length?Math.round(finiteH.reduce((a,c)=>a+c,0)/finiteH.length):null,
+      totalOnboardCamera:vehicles.reduce((a,v)=>a+(v.onboardEst??0),0),
+      redLightsActiveNow:ctx.STOPS.filter((s,idx)=>s.signal&&w.signalStateAt(idx,t).color==='red').length,
+      totalSignalStops:ctx.STOPS.filter(s=>s.signal).length,
+      corridorAvgSpeedKmh:+(w.aiSegSpeed.reduce((a,c)=>a+c,0)/w.aiSegSpeed.length).toFixed(1)
+    };
     this.cache={key,data}; return data;
   }
   recommend(type,mode,t,body) {

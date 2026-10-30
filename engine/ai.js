@@ -136,4 +136,47 @@ function cached(key, producer) {
   });
 }
 
-module.exports = { loadDotEnv, status, setConfig, callOpenAI, cached };
+/** เรียก Chat แบบ generic (สำหรับโมดูลอื่น เช่น นักวิเคราะห์สถานการณ์) — resolve เสมอ {ok, text} */
+function chat(systemPrompt, userContent, { temperature = 0.3 } = {}) {
+  return new Promise((resolve) => {
+    if (!state.apiKey) return resolve({ ok: false, needsKey: true, error: 'ยังไม่ได้ระบุ OpenAI API Key' });
+    const body = JSON.stringify({
+      model: state.model,
+      temperature,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userContent },
+      ],
+    });
+    const req = https.request({
+      hostname: 'api.openai.com',
+      path: '/v1/chat/completions',
+      method: 'POST',
+      timeout: 25_000,
+      headers: {
+        'Authorization': `Bearer ${state.apiKey}`,
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(body),
+      },
+    }, (res) => {
+      let data = '';
+      res.on('data', (c) => { data += c; });
+      res.on('end', () => {
+        try {
+          if (res.statusCode === 401) return resolve({ ok: false, error: 'API Key ไม่ถูกต้อง (401)' });
+          if (res.statusCode === 429) return resolve({ ok: false, error: 'โควตา/อัตราเรียกเกินกำหนด (429)' });
+          if (res.statusCode !== 200) return resolve({ ok: false, error: `OpenAI ตอบกลับรหัส ${res.statusCode}` });
+          const parsed = JSON.parse(data);
+          const content = parsed.choices && parsed.choices[0] && parsed.choices[0].message && parsed.choices[0].message.content;
+          resolve({ ok: true, text: String(content || '').trim() });
+        } catch { resolve({ ok: false, error: 'ตอบกลับไม่อยู่ในรูปแบบที่กำหนด' }); }
+      });
+    });
+    req.on('timeout', () => { req.destroy(new Error('timeout')); });
+    req.on('error', (e) => resolve({ ok: false, error: 'เชื่อมต่อไม่สำเร็จ: ' + e.message }));
+    req.write(body);
+    req.end();
+  });
+}
+
+module.exports = { loadDotEnv, status, setConfig, callOpenAI, chat, cached };

@@ -201,11 +201,12 @@
               <button class="btn small" id="gear-btn" aria-haspopup="true" aria-expanded="false" title="เครื่องมือผู้ปฏิบัติงาน การนำเสนอ และตั้งค่า">${OT.icon('sliders')} <span class="nav-label">เครื่องมือ</span></button>
               <div class="gear-panel" id="gear-panel" role="menu">
                 <div class="gp-title">การนำเสนอ</div>
+                <a href="investor.html" role="menuitem">${OT.icon('building')}นำเสนอผู้ลงทุน (CEO Pitch)</a>
                 <a href="#" onclick="OT.startTour(); return false;" role="menuitem">${OT.icon('target')}ทัวร์สาธิตระบบ 2 นาที</a>
                 <a href="#" onclick="OT.openPitch(); return false;" role="menuitem">${OT.icon('megaphone')}บทพูดนำเสนอ 45 วินาที</a>
                 <div class="gp-title">เครื่องมือสำหรับผู้ปฏิบัติงาน</div>
                 ${GEAR_LINKS.map(([href, ico, label]) => `<a href="${href}" role="menuitem">${OT.icon(ico)}${label}</a>`).join('')}
-                <div class="gp-title">OpenAI API — คาดการณ์ความแน่นจริง</div>
+                <div class="gp-title">OpenAI API — ผู้ช่วย AI วิเคราะห์ยุทธวิธีปล่อยรถและช่องไฟสด</div>
                 <form class="gp-form" id="ai-key-form" autocomplete="off">
                   <input type="password" id="ai-key-input" placeholder="วาง OpenAI API Key (sk-…)" autocomplete="off" aria-label="OpenAI API Key">
                   <select id="ai-model-select" aria-label="เลือกโมเดล OpenAI">
@@ -282,7 +283,7 @@
       <div class="footer">
         <div><strong>OmniTransit v5</strong> — ระบบสาธิตจำลองเพื่อการออกแบบและทดสอบ ยังไม่ใช่บริการเดินรถจริง ตัวเลขทั้งหมดเกิดจากการจำลอง</div>
         <div>แผนที่ © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors (ODbL) · ฟอนต์ IBM Plex Sans Thai (SIL OFL)</div>
-        <div>ความเป็นส่วนตัว: ไม่มีกล้องหรือการจดจำใบหน้า · ไม่เก็บพิกัดโทรศัพท์ผู้โดยสาร · ไม่แสดงชื่อจริงของพนักงานขับรถ · ไม่มีการจองที่นั่งหรือเก็บมัดจำ — ขึ้นรถได้เท่าเทียมโดยไม่ต้องมีสมาร์ทโฟน</div>
+        <div>ความเป็นส่วนตัว (PDPA 100%): กล้อง AI มุมกดเหนือประตูประมวลผลเฉพาะจำนวนคนขึ้น-ลงในชิปบนรถ ไม่บันทึกภาพใบหน้า ไม่เก็บพิกัดโทรศัพท์ผู้โดยสาร · ผู้ขับใช้รหัส · ไม่มีการจองที่นั่งหรือเก็บมัดจำ — ขึ้นรถได้เท่าเทียมโดยไม่ต้องมีสมาร์ทโฟน</div>
       </div>`;
   };
 
@@ -507,7 +508,7 @@
           <ol class="welcome-steps">
             <li><b>ดูรถสด</b> บนแผนที่ — คลิกที่หมุดรถเพื่อเห็นผังตัวรถและจำนวนคน</li>
             <li><b>เลือกป้ายรอรถ</b> ในช่องค้นหาด้านขวา เพื่อดูเวลารถจะมาถึง</li>
-            <li><b>กด "วิเคราะห์ตอนนี้"</b> เพื่อให้ AI พยากรณ์ความแน่นของรถคันถัดไป</li>
+            <li><b>กด "ติดตามรถคันนี้"</b> เพื่อรับการแจ้งเตือนเสียงเมื่อรถใกล้ถึงป้าย</li>
           </ol>
           <div class="flex" style="gap:8px; flex-wrap:wrap; margin-top:10px;">
             <button class="btn primary" id="welcome-tour">${OT.icon('target')} เริ่มทัวร์สาธิต 2 นาที</button>

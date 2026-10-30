@@ -6,7 +6,7 @@ const { Engine } = require('../engine/engine');
 const ai = require('../engine/ai');
 const worldMod = require('../engine/world');
 const { Operations } = require('../engine/operations');
-const { explain } = require('../engine/copilot');
+const { explain, explainWithAI } = require('../engine/copilot');
 const { ContextService } = require('../engine/context/service');
 const { ROUTES } = require('../engine/data');
 
@@ -155,7 +155,10 @@ module.exports = async (req, res) => {
       try {
         const ops = engine.operations.snapshot(url.searchParams.get('mode') || 'simulation', url.searchParams.get('runId'));
         const name = p.split('/').at(-1);
-        if (name === 'copilot') return sendJson(res, 200, explain(ops));
+        if (name === 'copilot') {
+          if (url.searchParams.get('ai') === '1') return sendJson(res, 200, await explainWithAI(ops, ai));
+          return sendJson(res, 200, explain(ops));
+        }
         if (!['headways', 'predictions', 'recommendations', 'state'].includes(name)) {
           return sendJson(res, 404, { ok: false, error: 'unknown operations endpoint' });
         }

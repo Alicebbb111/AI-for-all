@@ -1,7 +1,7 @@
 'use strict';
 (function () {
   const host=document.getElementById('operations-panel');
-  host.innerHTML='<h2>Bus Bunching AI</h2><div class="flex"><label>แหล่งข้อมูล <select id="ops-mode"><option value="simulation">Simulation</option><option value="live">Live</option><option value="replay">Replay</option></select></label><input id="ops-run" placeholder="Replay run ID" aria-label="Replay run ID"><input id="ops-token" type="password" placeholder="Operations token (ถ้าตั้งค่าไว้)" autocomplete="off" aria-label="Operations token"></div><p id="ops-source"></p><div id="ops-map" style="height:280px" aria-label="แผนที่รถตามแหล่งข้อมูลที่เลือก"></div><div class="table-wrap"><table class="data"><thead><tr><th>รถ</th><th>Headway หน้า / หลัง (วิ)</th><th>คาดการณ์ (วิ)</th><th>ความเสี่ยง</th><th>ผู้โดยสาร</th><th>คุณภาพข้อมูล</th></tr></thead><tbody id="ops-rows"></tbody></table></div><div id="ops-recs"></div><pre id="ops-copilot" style="white-space:pre-wrap"></pre><section><h3>External Context Intelligence</h3><div class="ops-context-grid"><article class="card tight"><h4>Weather · Open-Meteo</h4><div id="ops-weather">ยังไม่ได้โหลดข้อมูล</div></article><article class="card tight"><h4>Upcoming Events</h4><div id="ops-events">ยังไม่มีข้อมูลกิจกรรม</div></article></div><p class="muted">ข้อมูลภายนอกเป็นปัจจัยประกอบ ไม่ใช่ข้อสรุปสาเหตุ และไม่สั่ง Holding/Dispatch โดยตรง</p></section><h3>Digital Twin — Simulation เท่านั้น</h3><p class="muted">เปรียบเทียบ 4 นโยบาย ค่าเริ่มต้น 30 seeds และ 30 นาทีต่อสถานการณ์ ผลอาจแย่กว่า Baseline และจะแสดงตามจริง ไม่มีจุด Holding ที่อนุมัติ = ไม่ทดลองสั่ง Holding</p><button class="btn" id="ops-twin">ทดลอง Digital Twin</button><div class="table-wrap" id="ops-twin-result"></div>';
+  host.innerHTML='<h2>Bus Bunching AI</h2><div class="flex"><label>แหล่งข้อมูล <select id="ops-mode"><option value="simulation">Simulation</option><option value="live">Live</option><option value="replay">Replay</option></select></label><input id="ops-run" placeholder="Replay run ID" aria-label="Replay run ID"><input id="ops-token" type="password" placeholder="Operations token (ถ้าตั้งค่าไว้)" autocomplete="off" aria-label="Operations token"></div><p id="ops-source"></p><div id="ops-map" style="height:280px" aria-label="แผนที่รถตามแหล่งข้อมูลที่เลือก"></div><div class="table-wrap"><table class="data"><thead><tr><th>รถ · ทิศ</th><th>ช่องไฟ หน้า/หลัง</th><th>บีบอัด dH/dt · คาดการณ์ต่ำสุด</th><th>TTB · BSI</th><th>คนจริง (กล้อง AI)</th><th>ปัจจัยหน่วง</th><th>ความเสี่ยง</th><th>คุณภาพข้อมูล</th></tr></thead><tbody id="ops-rows"></tbody></table></div><div id="ops-recs"></div><div class="ops-copilot-card mt" id="ops-copilot-card"><div class="aa-head"><span class="mc-kicker" style="margin:0;">AI Tactical Co-Pilot — บรีฟสถานการณ์สด</span><span class="chip small" id="ops-copilot-provider">กำลังเตรียมข้อมูล…</span></div><div id="ops-copilot" style="font-size:0.84rem; line-height:1.75;">กำลังรวบรวมข้อมูลเพื่อวิเคราะห์…</div></div><section><h3>External Context Intelligence</h3><div class="ops-context-grid"><article class="card tight"><h4>Weather · Open-Meteo</h4><div id="ops-weather">ยังไม่ได้โหลดข้อมูล</div></article><article class="card tight"><h4>Upcoming Events</h4><div id="ops-events">ยังไม่มีข้อมูลกิจกรรม</div></article></div><p class="muted">ข้อมูลภายนอกเป็นปัจจัยประกอบ ไม่ใช่ข้อสรุปสาเหตุ และไม่สั่ง Holding/Dispatch โดยตรง</p></section><h3>Digital Twin — Simulation เท่านั้น</h3><p class="muted">เปรียบเทียบ 4 นโยบาย ค่าเริ่มต้น 30 seeds และ 30 นาทีต่อสถานการณ์ ผลอาจแย่กว่า Baseline และจะแสดงตามจริง ไม่มีจุด Holding ที่อนุมัติ = ไม่ทดลองสั่ง Holding</p><button class="btn" id="ops-twin">ทดลอง Digital Twin</button><div class="table-wrap" id="ops-twin-result"></div>';
   const $=id=>document.getElementById(id),esc=OT.esc;
   const originalPost=OT.post;
   OT.post=async(url,body)=>{
@@ -16,6 +16,10 @@
   for(const [value,label] of [['normal_weather','อากาศปกติ (สมมติฐาน)'],['light_rain','ฝนเล็กน้อย (สมมติฐาน)'],['heavy_rain','ฝนหนัก (สมมติฐาน)'],['large_public_event','กิจกรรมขนาดใหญ่ (สมมติฐาน)'],['confirmed_road_closure','ปิดถนนยืนยันแล้ว (สมมติฐาน)'],['rain_public_event','ฝน + กิจกรรม (สมมติฐาน)']]) {const option=document.createElement('option');option.value=value;option.textContent=label;$('ops-scenario').appendChild(option);}
   $('ops-twin').insertAdjacentHTML('beforebegin','<label>จำนวน Seeds <input id="ops-seeds" type="number" min="1" max="100" value="30"></label> ');
   const map=L.map('ops-map').setView([13.765,100.533],12);
+  // (Mission Control) แผงอยู่ใน <details> ที่พับปิด — เมื่อกางออก container ขยายจาก 0px
+  // ต้องสั่ง Leaflet คำนวณขนาดใหม่ ไม่งั้นแผนที่เป็นสีเทาว่าง
+  const opsDetails=document.getElementById('ops-details');
+  if(opsDetails)opsDetails.addEventListener('toggle',()=>{if(opsDetails.open)setTimeout(()=>map.invalidateSize(),60);});
   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}).addTo(map);
   const markers=L.layerGroup().addTo(map);
   const contextMarkers=L.layerGroup().addTo(map);
@@ -29,11 +33,40 @@
     current=s;
     $('ops-source').textContent=`${s.mode.toUpperCase()} · ${s.cameraStatus} · จุด Holding ที่อนุมัติ: ${s.approvedHoldingStops.join(', ')||'ไม่มี'} · ${s.limitations}`;
     markers.clearLayers();
-    for(const v of s.vehicles)if(Number.isFinite(v.lat)&&Number.isFinite(v.lng))L.circleMarker([v.lat,v.lng],{radius:7,color:v.gpsOk?'#2fae6e':'#888'}).bindTooltip(`${esc(v.busId)} · ${esc(s.mode)}`).addTo(markers);
-    $('ops-rows').innerHTML=s.vehicles.map(v=>{
+    for(const v of s.vehicles)if(Number.isFinite(v.lat)&&Number.isFinite(v.lng)){
       const h=s.headways.find(x=>x.busId===v.busId),p=s.predictions.find(x=>x.busId===v.busId);
-      return `<tr><td>${esc(v.busId)}</td><td>${num(h?.frontHeadwaySec)} / ${num(h?.backHeadwaySec)}</td><td>${num(p?.predictedHeadwaySec)}</td><td>${esc(p?.riskLevel||'unknown')}</td><td>${num(v.onboardEst)}</td><td>${esc(p?.dataQuality||'insufficient')}</td></tr>`;
-    }).join('')||'<tr><td colspan="6">ยังไม่มีข้อมูลรถสำหรับแหล่งข้อมูลนี้</td></tr>';
+      const d=p?.delayBreakdown||{};
+      L.circleMarker([v.lat,v.lng],{radius:7,color:v.gpsOk?'#2fae6e':'#888'}).bindPopup(
+        `<b>${esc(v.busId)}</b> — คนจริง (กล้อง AI) <b>${num(v.onboardEst)}/${num(v.capacity)}</b> คน`+
+        `<br>ช่องไฟ หน้า ${num(h?.frontHeadwaySec)} วิ (${Number.isFinite(h?.frontGapMeters)?h.frontGapMeters.toLocaleString()+' ม.':'-'}) · หลัง ${num(h?.backHeadwaySec)} วิ`+
+        `<br>หน่วง: เปิดประตู ${v.actualDwellSec||0} วิ · ไฟแดงหน้า ${d.signalSec||v.signalDelaySec||0} วิ · จราจร ${d.trafficSec||v.trafficDelaySec||0} วิ`
+      ).addTo(markers);
+    }
+    const RISK_TH={high:['เสี่ยงสูง','bad'],medium:['เฝ้าระวัง','warn'],low:['ปกติ','run'],unknown:['รอข้อมูล','rest']};
+    const DQ_TH={insufficient:'รอสะสมข้อมูล',limited_passenger_data:'ข้อมูลจำกัด',synthetic_or_unvalidated:'เรียลไทม์ (กล้อง AI)'};
+    const hm=v=>{const h=s.headways.find(x=>x.busId===v.busId);return h||{};};
+    const pm=v=>{const p=s.predictions.find(x=>x.busId===v.busId);return p||{};};
+    $('ops-rows').innerHTML=s.vehicles.map(v=>{
+      const h=hm(v),p=pm(v);
+      const [rl,rc]=RISK_TH[p.riskLevel||'unknown']||[p.riskLevel||'unknown','rest'];
+      const gaps=(Number.isFinite(h.frontGapMeters)?h.frontGapMeters.toLocaleString()+' ม.':'–')+' / '+(Number.isFinite(h.backGapMeters)?h.backGapMeters.toLocaleString()+' ม.':'–');
+      const comp=(Number.isFinite(p.headwayCompressionRate)?p.headwayCompressionRate.toFixed(3):'–')+' · '+(Number.isFinite(p.predictedHeadwaySec)?Math.round(p.predictedHeadwaySec)+' วิ':'–');
+      const ttb=p.kinematicTtbSec!=null?Math.round(p.kinematicTtbSec)+' วิ':'–';
+      const bsi=Number.isFinite(p.bunchingSeverityIndex)?p.bunchingSeverityIndex.toFixed(2):'–';
+      const d=p.delayBreakdown||{};
+      const delay=`จอด ${d.dwellSec||0} · ไฟ ${d.signalSec||0} · ติด ${d.trafficSec||0} วิ`;
+      const load=`${num(v.onboardEst)}/${num(v.capacity)} · +${v.boardLast??0} / -${v.alightLast??0}`;
+      return `<tr>
+        <td><b>${esc(v.busId)}</b> <span class="muted small">${v.direction===1?'ขาไป':'ขากลับ'}</span></td>
+        <td class="num small">${num(h.frontHeadwaySec)} / ${num(h.backHeadwaySec)} วิ<div class="muted" style="font-size:0.66rem;">${gaps}</div></td>
+        <td class="num small">${comp}</td>
+        <td class="num small">${ttb} · ${bsi}</td>
+        <td class="small">${load}</td>
+        <td class="num small">${delay}</td>
+        <td><span class="tag ${rc}"><span class="ico-dot"></span>${esc(rl)}</span></td>
+        <td class="small">${esc(DQ_TH[p.dataQuality]||p.dataQuality||'insufficient')}</td>
+      </tr>`;
+    }).join('')||'<tr><td colspan="8">ยังไม่มีข้อมูลรถสำหรับแหล่งข้อมูลนี้</td></tr>';
     $('ops-recs').innerHTML=s.recommendations.map(r=>`<div class="card tight"><b>${esc(r.type)} · ${esc(r.busId)}</b><p>${r.type==='holding'?`รอเพิ่ม ${num(r.holdSec)} วินาที · ต้นทุนคนบนรถ ${num(r.passengerDelaySec)} คน-วินาที`:`ปล่อยที่เวลาจำลอง ${OT.simSecToClock(r.releaseAtSec)} · รถพร้อม ${r.readyCount} คัน`}</p><p>คาดว่าลด Passenger time ${num(r.estimatedGainPassengerSec)} คน-วินาที · ${esc(r.reason||'')}</p><span>${esc(r.status)}</span> ${r.status==='pending'?`<button class="btn small" data-ops-id="${esc(r.id)}" data-decision="approved">อนุมัติใน Simulation</button> <button class="btn small" data-ops-id="${esc(r.id)}" data-decision="rejected">ปฏิเสธ</button>`:''}</div>`).join('')||`<p><b>No Intervention</b> — ยังไม่มีหลักฐานว่ามาตรการที่ผ่านข้อจำกัดจะลดเวลารวมผู้โดยสารได้</p><p>${esc([...(s.decision?.holdingReasons||[]),...(s.decision?.dispatchReasons||[])].join(' · '))}</p>`;
   }
   async function post(url,body) {
@@ -51,7 +84,7 @@
       const query=`mode=${encodeURIComponent($('ops-mode').value)}&runId=${encodeURIComponent($('ops-run').value)}`;
       const s=await OT.get('/api/operations/state?'+query);
       if(s.error){$('ops-source').textContent=s.error;return;}render(s);
-      const c=await OT.get('/api/operations/copilot?'+query);$('ops-copilot').textContent=c.text||c.error;
+      if($('ops-mode').value==='simulation')await refreshCopilot();
     }finally{busy=false;}
   }
   async function refreshContext() {
@@ -83,5 +116,33 @@
       $('ops-twin-result').innerHTML=r.error?esc(r.error):summaryTable(r)+'<table class="data"><thead><tr><th>Seed / นโยบาย</th><th>รอเฉลี่ย (วิ)</th><th>Headway variance</th><th>Bunching</th><th>Onboard delay (วิ/คนรับขึ้น)</th><th>Passenger time (คน-วิ)</th><th>Prediction MAE / n</th></tr></thead><tbody>'+r.results.map(x=>`<tr><td>${esc(x.seed)} / ${esc(x.strategy)}</td><td>${num(x.averagePassengerWaitingTimeSec)}</td><td>${num(x.headwayVarianceSec2)}</td><td>${x.bunchingEvents}</td><td>${num(x.averageOnboardDelaySec)}</td><td>${num(x.totalPassengerTimeSec)}</td><td>${num(x.predictionMaeSec)} / ${x.predictionSamples}</td></tr>`).join('')+'</tbody></table><p>'+r.limitations.map(esc).join(' · ')+'</p>';
     }catch(e){$('ops-twin-result').textContent=e.message;}finally{clearInterval(progress);b.disabled=false;}
   });
+  let copilotBusy=false,lastCopilot=0;
+  function renderCopilot(c){
+    const prov=document.getElementById('ops-copilot-provider'),body=document.getElementById('ops-copilot');
+    if(!prov||!body)return;
+    const openai=c.provider==='openai';
+    prov.textContent=openai?`วิเคราะห์สดด้วย OpenAI · ${esc(c.modelVersion||'')}`:'เอนจินวิเคราะห์ท้องถิ่น (สมการ 4 ตัว)';
+    prov.className='chip small '+(openai?'pass':'');
+    const lines=String(c.text||'').split('\n').filter(Boolean);
+    let html='';
+    for(const ln of lines){
+      const m=ln.match(/^\[(\d)\]\s*(.+)$/);
+      if(m){html+=`<div class="copilot-sec"><b>${esc(m[2])}</b></div>`;continue;}
+      if(ln.startsWith('- ')){html+=`<div class="copilot-line">• ${esc(ln.slice(2))}</div>`;continue;}
+      const d=ln.match(/^(No Intervention|Operator approval required):\s*(.+)$/);
+      if(d){html+=`<div class="copilot-decision"><b>${esc(d[1])}</b> — ${esc(d[2])}</div>`;continue;}
+      html+=`<div class="copilot-line">${esc(ln)}</div>`;
+    }
+    body.innerHTML=html||esc(c.text||'');
+  }
+  async function refreshCopilot(){
+    if(copilotBusy)return;copilotBusy=true;
+    try{
+      const mode=$('ops-mode').value;
+      const c=await OT.get(`/api/operations/copilot?mode=${encodeURIComponent(mode)}&ai=1`);
+      if(c&&c.text!==undefined){renderCopilot(c);lastCopilot=Date.now();}
+    }catch{}finally{copilotBusy=false;}
+  }
   refresh();refreshContext();setInterval(refresh,5000);setInterval(refreshContext,15*60*1000);
+  setInterval(()=>{if(Date.now()-lastCopilot>20000)refreshCopilot();},10000);
 })();

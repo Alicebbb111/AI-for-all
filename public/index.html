@@ -69,18 +69,8 @@
         <div id="arrival-box" class="mt" aria-live="polite"></div>
         <div id="next-list" class="mt"></div>
 
-        <div class="mt" id="ai-panel">
-          <div class="flex spread mb-sm">
-            <h3 style="margin:0;">คาดการณ์ความแน่นด้วย AI (OpenAI จริง)</h3>
-            <button class="btn small" id="ai-fetch">วิเคราะห์ตอนนี้</button>
-          </div>
-          <div id="ai-body" aria-live="polite">
-            <p class="hint">วิเคราะห์จำนวนคนบนรถเมื่อถึงป้ายนี้ จากบริบทสดจริง (คนรอ สภาพจราจร ฝน ช่วงเวลา ระยะห่างรถ) ด้วยโมเดล OpenAI — ต้องตั้งค่า API Key ก่อน ที่ปุ่ม "เครื่องมือ" มุมขวาบน</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="card mt" id="trip-planner" data-tour="planner">
+        <!-- แผงพยากรณ์ความแน่น AI ถอดออกตามสถาปัตยกรรมใหม่: กล้อง AI เหนือประตูให้ยอดจริงเรียลไทม์ 100% -->
+        <div class="card mt" id="trip-planner" data-tour="planner">
         <div class="flex spread">
           <h2 style="margin:0;">วางแผนการเดินทาง</h2>
           <button class="btn small" id="trip-swap" title="สลับต้นทาง-ปลายทาง">สลับทาง</button>

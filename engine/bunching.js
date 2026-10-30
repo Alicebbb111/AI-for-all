@@ -20,16 +20,20 @@ function headways(vehicles, stops, nowSec, history = new Map()) {
       const previous = samples.filter(x => x.t < sampleTime).at(-1);
       if (finite(current) && (!samples.length || sampleTime > samples.at(-1).t)) { samples.push({t:sampleTime,h:current}); if(samples.length>120)samples.shift(); history.set(key,samples); }
       const trend = previous && sampleTime > previous.t ? (current - previous.h) / (sampleTime - previous.t) : null;
-      rows.push({ busId:b.busId, frontBusId:front?.busId || null, backBusId:back?.busId || null, direction:dir, referenceStopId:reference.id, referenceEtaSec:own, frontHeadwaySec:current, backHeadwaySec:backH, previousHeadwaySec:previous?.h ?? null, trendSecPerSec:trend, sampleCount:samples.length, history:samples.slice(-20), vehicle:b });
+      rows.push({ busId:b.busId, frontBusId:front?.busId || null, backBusId:back?.busId || null, direction:dir, referenceStopId:reference.id, referenceEtaSec:own, frontHeadwaySec:current, backHeadwaySec:backH, previousHeadwaySec:previous?.h ?? null, trendSecPerSec:trend, sampleCount:samples.length, history:samples.slice(-20), vehicle:b,
+        // Mission Control: ระยะห่างจริงเป็นเมตร + สัดส่วนช่องไฟเทียบเป้าหมายอ้างอิง 480 วินาที
+        frontGapMeters: front ? Math.max(0, Math.round(dir * (front.s - b.s))) : null,
+        backGapMeters: back ? Math.max(0, Math.round(dir * (b.s - back.s))) : null,
+        headwayRatio: finite(current) ? +(current / 480).toFixed(2) : null });
     }
   }
   if (history.size > 3000) history.delete(history.keys().next().value);
   return rows;
 }
-function predict(row, targetSec, future = []) {
-  const horizonSec = Math.min(600, Math.max(0, row.referenceEtaSec || 0));
+function predict(row, targetSec, future = [], { maxRefEtaSec = 600 } = {}) {
+  const horizonSec = Math.min(maxRefEtaSec, Math.max(0, row.referenceEtaSec || 0));
   const factors = [];
-  if (!finite(row.frontHeadwaySec) || row.sampleCount < 2 || !finite(row.trendSecPerSec) || !horizonSec || row.referenceEtaSec>600) return { busId:row.busId, riskLevel:'unknown', predictedHeadwaySec:null, estimatedTimeToBunchingSec:null, predictionHorizonSec:horizonSec, dataQuality:'insufficient', factors:[row.referenceEtaSec>600?'reference_beyond_10_minutes':'insufficient_headway_history'], modelVersion:MODEL_VERSION };
+  if (!finite(row.frontHeadwaySec) || row.sampleCount < 2 || !finite(row.trendSecPerSec) || !horizonSec || row.referenceEtaSec>maxRefEtaSec) return { busId:row.busId, riskLevel:'unknown', predictedHeadwaySec:null, estimatedTimeToBunchingSec:null, predictionHorizonSec:horizonSec, dataQuality:'insufficient', factors:[row.referenceEtaSec>maxRefEtaSec?'reference_beyond_horizon':'insufficient_headway_history'], modelVersion:MODEL_VERSION };
   const trend = Math.max(-.5, Math.min(.5, row.trendSecPerSec));
   // Headway here is already a future common-stop ETA difference. Do not extrapolate it a second time.
   const projected = Math.max(0,row.frontHeadwaySec);
@@ -42,7 +46,13 @@ function predict(row, targetSec, future = []) {
   if (row.vehicle.trafficDelaySec > 0 || row.vehicle.trafficDelayActive) factors.push('traffic_delay');
   if (future.length) factors.push('stop_by_stop_passenger_eta');
   if (finite(row.vehicle.dwellEstimateSec)) factors.push('last_flow_dwell_proxy');
-  return { busId:row.busId, frontBusId:row.frontBusId, referenceStopId:row.referenceStopId,predictionStopId:min.stopId||row.referenceStopId, predictedReferenceHeadwaySec:projected, currentHeadwaySec:row.frontHeadwaySec, predictedHeadwaySec:min.headwaySec, riskLevel:min.headwaySec < threshold?'high':min.headwaySec < targetSec*0.75?'medium':'low', estimatedTimeToBunchingSec:min.headwaySec<threshold?min.etaSec:null, predictionHorizonSec:min.etaSec, dataQuality:row.vehicle.onboardEst == null?'limited_passenger_data':'synthetic_or_unvalidated', factors, modelVersion:MODEL_VERSION };
+  return { busId:row.busId, frontBusId:row.frontBusId, referenceStopId:row.referenceStopId,predictionStopId:min.stopId||row.referenceStopId, predictedReferenceHeadwaySec:projected, currentHeadwaySec:row.frontHeadwaySec, predictedHeadwaySec:min.headwaySec, riskLevel:min.headwaySec < threshold?'high':min.headwaySec < targetSec*0.75?'medium':'low', estimatedTimeToBunchingSec:min.headwaySec<threshold?min.etaSec:null, predictionHorizonSec:min.etaSec, dataQuality:row.vehicle.onboardEst == null?'limited_passenger_data':'synthetic_or_unvalidated', factors, modelVersion:MODEL_VERSION,
+    // Mission Control: อัตราบีบอัดช่องไฟ + เวลาถึงจุดวิกฤตเชิงจลน์ศาสตร์ + ดัชนีความรุนแรง + ภาระผู้โดยสาร + แยกย่อยความหน่วง
+    headwayCompressionRate: +trend.toFixed(3),
+    kinematicTtbSec: trend < -0.02 ? Math.max(0, Math.round((row.frontHeadwaySec - threshold) / (-trend))) : null,
+    bunchingSeverityIndex: +Math.min(1, Math.max(0, (Math.abs(targetSec - min.headwaySec) / targetSec) * 0.6 + Math.max(0, -trend) * 0.4)).toFixed(2),
+    loadRatio: row.vehicle?.capacity ? +((row.vehicle.onboardEst ?? 0) / row.vehicle.capacity).toFixed(2) : null,
+    delayBreakdown: { dwellSec: Math.round(row.vehicle?.remainingDwellSec || row.vehicle?.dwellEstimateSec || 0), trafficSec: Math.round(row.vehicle?.trafficDelaySec || 0), signalSec: Math.round(row.vehicle?.signalDelaySec || 0) } };
 }
 function holding(row, prediction, { allowedStops = [], stopId, targetSec, demandPerSec, occupancy, maxHoldSec = 180, evaluate, busId=row.busId, uncertaintyPeople=0 } = {}) {
   if (!allowedStops.includes(stopId)) return { available:false, holdSec:0, action:'none',reason:'no_approved_holding_point', candidates:[] };
