@@ -1,0 +1,51 @@
+{
+  "startedAt": "2026-10-30T13:30:34.220Z",
+  "finishedAt": "2026-10-30T13:30:50.273Z",
+  "weather": {
+    "status": "available",
+    "source": "open-meteo",
+    "lastUpdated": "2026-10-30T13:30:35.084Z",
+    "current": {
+      "forecastTime": "2026-10-30T20:30",
+      "temperatureC": 27.6,
+      "precipitationMm": 0,
+      "rainMm": 0,
+      "precipitationProbability": 29,
+      "weatherCode": 1,
+      "windSpeedKmh": 4.6,
+      "weatherCondition": "no_rain_detected",
+      "weatherImpactLevel": "low",
+      "reasons": [
+        "limited_weather_signal"
+      ]
+    },
+    "points": [
+      {
+        "latitude": 13.7988,
+        "longitude": 100.54646,
+        "status": "available",
+        "error": null
+      },
+      {
+        "latitude": 13.76551,
+        "longitude": 100.53835,
+        "status": "available",
+        "error": null
+      },
+      {
+        "latitude": 13.73094,
+        "longitude": 100.51812,
+        "status": "available",
+        "error": null
+      }
+    ]
+  },
+  "gdelt": {
+    "status": "unavailable",
+    "provider": "gdelt-doc-2.0",
+    "lastUpdated": null,
+    "error": "The operation was aborted due to timeout",
+    "articleCount": 0,
+    "sample": []
+  }
+}

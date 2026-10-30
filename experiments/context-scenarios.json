@@ -1,0 +1,3559 @@
+{
+  "generatedAt": "2026-10-30T13:31:48.230Z",
+  "classification": "synthetic scenario experiment; not real-world effectiveness",
+  "seeds": [
+    "context-1",
+    "context-2",
+    "context-3"
+  ],
+  "durationSec": 600,
+  "sameBaseInitialStateAcrossScenarios": true,
+  "runs": [
+    {
+      "scenario": "normal_weather",
+      "scenarioConfig": {
+        "trafficScale": 1,
+        "demandScale": 1,
+        "external": {
+          "speedFactor": 1,
+          "dwellFactor": 1,
+          "demandFactor": 1
+        }
+      },
+      "matchedExogenousWithinPolicyComparison": true,
+      "summary": [
+        {
+          "strategy": "none",
+          "averagePassengerWaitingTimeSec": {
+            "n": 3,
+            "mean": 284.0865062639036,
+            "sd": 13.15153158694185,
+            "min": 269.0833333333333,
+            "p10": 269.0833333333333,
+            "median": 282.06849315068496,
+            "p90": 282.06849315068496,
+            "max": 301.10769230769233
+          },
+          "totalPassengerTimeSec": {
+            "n": 3,
+            "mean": 169616.66666666666,
+            "sd": 6023.233258714865,
+            "min": 161105,
+            "p10": 161105,
+            "median": 173585,
+            "p90": 173585,
+            "max": 174160
+          },
+          "averageOnboardDelaySec": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "headwayVarianceSec2": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          },
+          "bunchingEvents": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "interventions": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "averageHoldingDurationSec": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          },
+          "predictionMaeSec": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          }
+        },
+        {
+          "strategy": "holding",
+          "averagePassengerWaitingTimeSec": {
+            "n": 3,
+            "mean": 284.0865062639036,
+            "sd": 13.15153158694185,
+            "min": 269.0833333333333,
+            "p10": 269.0833333333333,
+            "median": 282.06849315068496,
+            "p90": 282.06849315068496,
+            "max": 301.10769230769233
+          },
+          "totalPassengerTimeSec": {
+            "n": 3,
+            "mean": 169616.66666666666,
+            "sd": 6023.233258714865,
+            "min": 161105,
+            "p10": 161105,
+            "median": 173585,
+            "p90": 173585,
+            "max": 174160
+          },
+          "averageOnboardDelaySec": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "headwayVarianceSec2": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          },
+          "bunchingEvents": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "interventions": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "averageHoldingDurationSec": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          },
+          "predictionMaeSec": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          }
+        },
+        {
+          "strategy": "dispatch",
+          "averagePassengerWaitingTimeSec": {
+            "n": 3,
+            "mean": 284.0865062639036,
+            "sd": 13.15153158694185,
+            "min": 269.0833333333333,
+            "p10": 269.0833333333333,
+            "median": 282.06849315068496,
+            "p90": 282.06849315068496,
+            "max": 301.10769230769233
+          },
+          "totalPassengerTimeSec": {
+            "n": 3,
+            "mean": 169616.66666666666,
+            "sd": 6023.233258714865,
+            "min": 161105,
+            "p10": 161105,
+            "median": 173585,
+            "p90": 173585,
+            "max": 174160
+          },
+          "averageOnboardDelaySec": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "headwayVarianceSec2": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          },
+          "bunchingEvents": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "interventions": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "averageHoldingDurationSec": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          },
+          "predictionMaeSec": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          }
+        },
+        {
+          "strategy": "combined",
+          "averagePassengerWaitingTimeSec": {
+            "n": 3,
+            "mean": 284.0865062639036,
+            "sd": 13.15153158694185,
+            "min": 269.0833333333333,
+            "p10": 269.0833333333333,
+            "median": 282.06849315068496,
+            "p90": 282.06849315068496,
+            "max": 301.10769230769233
+          },
+          "totalPassengerTimeSec": {
+            "n": 3,
+            "mean": 169616.66666666666,
+            "sd": 6023.233258714865,
+            "min": 161105,
+            "p10": 161105,
+            "median": 173585,
+            "p90": 173585,
+            "max": 174160
+          },
+          "averageOnboardDelaySec": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "headwayVarianceSec2": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          },
+          "bunchingEvents": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "interventions": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "averageHoldingDurationSec": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          },
+          "predictionMaeSec": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          }
+        }
+      ],
+      "paired": [
+        {
+          "strategy": "holding",
+          "deltaPassengerTimeSec": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "improved": 0,
+          "worse": 0,
+          "unchanged": 3
+        },
+        {
+          "strategy": "dispatch",
+          "deltaPassengerTimeSec": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "improved": 0,
+          "worse": 0,
+          "unchanged": 3
+        },
+        {
+          "strategy": "combined",
+          "deltaPassengerTimeSec": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "improved": 0,
+          "worse": 0,
+          "unchanged": 3
+        }
+      ],
+      "results": [
+        {
+          "seed": "context-1",
+          "strategy": "none",
+          "baseInitialStateHash": "8cd7995e4a43d12243f9d622b6431dcf23b7d38e2bf4f10275b15dc1bb3f3400",
+          "initialStateHash": "b36598fa0f7d25945f79e8c85af768483b0748f03c19ee18cd50d4f9d0baec4e",
+          "externalContextAssumption": {
+            "speedFactor": 1,
+            "dwellFactor": 1,
+            "demandFactor": 1,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 173585,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-1",
+          "strategy": "holding",
+          "baseInitialStateHash": "8cd7995e4a43d12243f9d622b6431dcf23b7d38e2bf4f10275b15dc1bb3f3400",
+          "initialStateHash": "b36598fa0f7d25945f79e8c85af768483b0748f03c19ee18cd50d4f9d0baec4e",
+          "externalContextAssumption": {
+            "speedFactor": 1,
+            "dwellFactor": 1,
+            "demandFactor": 1,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 173585,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-1",
+          "strategy": "dispatch",
+          "baseInitialStateHash": "8cd7995e4a43d12243f9d622b6431dcf23b7d38e2bf4f10275b15dc1bb3f3400",
+          "initialStateHash": "b36598fa0f7d25945f79e8c85af768483b0748f03c19ee18cd50d4f9d0baec4e",
+          "externalContextAssumption": {
+            "speedFactor": 1,
+            "dwellFactor": 1,
+            "demandFactor": 1,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 173585,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-1",
+          "strategy": "combined",
+          "baseInitialStateHash": "8cd7995e4a43d12243f9d622b6431dcf23b7d38e2bf4f10275b15dc1bb3f3400",
+          "initialStateHash": "b36598fa0f7d25945f79e8c85af768483b0748f03c19ee18cd50d4f9d0baec4e",
+          "externalContextAssumption": {
+            "speedFactor": 1,
+            "dwellFactor": 1,
+            "demandFactor": 1,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 173585,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-2",
+          "strategy": "none",
+          "baseInitialStateHash": "08c804b8dfe8ced2aa06fff99c23b21e924d195e71e5e13305f1271a640ad25c",
+          "initialStateHash": "73c0f6b25e662132408c0a26ac41e6905d536486acabeb7a62e645c73c2eb026",
+          "externalContextAssumption": {
+            "speedFactor": 1,
+            "dwellFactor": 1,
+            "demandFactor": 1,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 161105,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-2",
+          "strategy": "holding",
+          "baseInitialStateHash": "08c804b8dfe8ced2aa06fff99c23b21e924d195e71e5e13305f1271a640ad25c",
+          "initialStateHash": "73c0f6b25e662132408c0a26ac41e6905d536486acabeb7a62e645c73c2eb026",
+          "externalContextAssumption": {
+            "speedFactor": 1,
+            "dwellFactor": 1,
+            "demandFactor": 1,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 161105,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-2",
+          "strategy": "dispatch",
+          "baseInitialStateHash": "08c804b8dfe8ced2aa06fff99c23b21e924d195e71e5e13305f1271a640ad25c",
+          "initialStateHash": "73c0f6b25e662132408c0a26ac41e6905d536486acabeb7a62e645c73c2eb026",
+          "externalContextAssumption": {
+            "speedFactor": 1,
+            "dwellFactor": 1,
+            "demandFactor": 1,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 161105,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-2",
+          "strategy": "combined",
+          "baseInitialStateHash": "08c804b8dfe8ced2aa06fff99c23b21e924d195e71e5e13305f1271a640ad25c",
+          "initialStateHash": "73c0f6b25e662132408c0a26ac41e6905d536486acabeb7a62e645c73c2eb026",
+          "externalContextAssumption": {
+            "speedFactor": 1,
+            "dwellFactor": 1,
+            "demandFactor": 1,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 161105,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-3",
+          "strategy": "none",
+          "baseInitialStateHash": "a86abbe6d63bf74c9c1762e20194feb34cf1cd53dfbf293f1f9df83f6c72acd7",
+          "initialStateHash": "469178a76258b384b5bc53646c21b66bc850422c5f532d1ee076d96c201e1478",
+          "externalContextAssumption": {
+            "speedFactor": 1,
+            "dwellFactor": 1,
+            "demandFactor": 1,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 174160,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-3",
+          "strategy": "holding",
+          "baseInitialStateHash": "a86abbe6d63bf74c9c1762e20194feb34cf1cd53dfbf293f1f9df83f6c72acd7",
+          "initialStateHash": "469178a76258b384b5bc53646c21b66bc850422c5f532d1ee076d96c201e1478",
+          "externalContextAssumption": {
+            "speedFactor": 1,
+            "dwellFactor": 1,
+            "demandFactor": 1,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 174160,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-3",
+          "strategy": "dispatch",
+          "baseInitialStateHash": "a86abbe6d63bf74c9c1762e20194feb34cf1cd53dfbf293f1f9df83f6c72acd7",
+          "initialStateHash": "469178a76258b384b5bc53646c21b66bc850422c5f532d1ee076d96c201e1478",
+          "externalContextAssumption": {
+            "speedFactor": 1,
+            "dwellFactor": 1,
+            "demandFactor": 1,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 174160,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-3",
+          "strategy": "combined",
+          "baseInitialStateHash": "a86abbe6d63bf74c9c1762e20194feb34cf1cd53dfbf293f1f9df83f6c72acd7",
+          "initialStateHash": "469178a76258b384b5bc53646c21b66bc850422c5f532d1ee076d96c201e1478",
+          "externalContextAssumption": {
+            "speedFactor": 1,
+            "dwellFactor": 1,
+            "demandFactor": 1,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 174160,
+          "bunchingEvents": 0,
+          "interventions": 0
+        }
+      ]
+    },
+    {
+      "scenario": "light_rain",
+      "scenarioConfig": {
+        "trafficScale": 1,
+        "demandScale": 1,
+        "external": {
+          "speedFactor": 0.9,
+          "dwellFactor": 1.1,
+          "demandFactor": 1
+        }
+      },
+      "matchedExogenousWithinPolicyComparison": true,
+      "summary": [
+        {
+          "strategy": "none",
+          "averagePassengerWaitingTimeSec": {
+            "n": 3,
+            "mean": 284.4770698051948,
+            "sd": 11.556244892775714,
+            "min": 269.12987012987014,
+            "p10": 269.12987012987014,
+            "median": 287.2857142857143,
+            "p90": 287.2857142857143,
+            "max": 297.015625
+          },
+          "totalPassengerTimeSec": {
+            "n": 3,
+            "mean": 171015,
+            "sd": 5915.599434264178,
+            "min": 162650,
+            "p10": 162650,
+            "median": 175090,
+            "p90": 175090,
+            "max": 175305
+          },
+          "averageOnboardDelaySec": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "headwayVarianceSec2": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          },
+          "bunchingEvents": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "interventions": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "averageHoldingDurationSec": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          },
+          "predictionMaeSec": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          }
+        },
+        {
+          "strategy": "holding",
+          "averagePassengerWaitingTimeSec": {
+            "n": 3,
+            "mean": 284.4770698051948,
+            "sd": 11.556244892775714,
+            "min": 269.12987012987014,
+            "p10": 269.12987012987014,
+            "median": 287.2857142857143,
+            "p90": 287.2857142857143,
+            "max": 297.015625
+          },
+          "totalPassengerTimeSec": {
+            "n": 3,
+            "mean": 171015,
+            "sd": 5915.599434264178,
+            "min": 162650,
+            "p10": 162650,
+            "median": 175090,
+            "p90": 175090,
+            "max": 175305
+          },
+          "averageOnboardDelaySec": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "headwayVarianceSec2": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          },
+          "bunchingEvents": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "interventions": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "averageHoldingDurationSec": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          },
+          "predictionMaeSec": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          }
+        },
+        {
+          "strategy": "dispatch",
+          "averagePassengerWaitingTimeSec": {
+            "n": 3,
+            "mean": 284.4770698051948,
+            "sd": 11.556244892775714,
+            "min": 269.12987012987014,
+            "p10": 269.12987012987014,
+            "median": 287.2857142857143,
+            "p90": 287.2857142857143,
+            "max": 297.015625
+          },
+          "totalPassengerTimeSec": {
+            "n": 3,
+            "mean": 171015,
+            "sd": 5915.599434264178,
+            "min": 162650,
+            "p10": 162650,
+            "median": 175090,
+            "p90": 175090,
+            "max": 175305
+          },
+          "averageOnboardDelaySec": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "headwayVarianceSec2": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          },
+          "bunchingEvents": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "interventions": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "averageHoldingDurationSec": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          },
+          "predictionMaeSec": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          }
+        },
+        {
+          "strategy": "combined",
+          "averagePassengerWaitingTimeSec": {
+            "n": 3,
+            "mean": 284.4770698051948,
+            "sd": 11.556244892775714,
+            "min": 269.12987012987014,
+            "p10": 269.12987012987014,
+            "median": 287.2857142857143,
+            "p90": 287.2857142857143,
+            "max": 297.015625
+          },
+          "totalPassengerTimeSec": {
+            "n": 3,
+            "mean": 171015,
+            "sd": 5915.599434264178,
+            "min": 162650,
+            "p10": 162650,
+            "median": 175090,
+            "p90": 175090,
+            "max": 175305
+          },
+          "averageOnboardDelaySec": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "headwayVarianceSec2": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          },
+          "bunchingEvents": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "interventions": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "averageHoldingDurationSec": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          },
+          "predictionMaeSec": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          }
+        }
+      ],
+      "paired": [
+        {
+          "strategy": "holding",
+          "deltaPassengerTimeSec": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "improved": 0,
+          "worse": 0,
+          "unchanged": 3
+        },
+        {
+          "strategy": "dispatch",
+          "deltaPassengerTimeSec": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "improved": 0,
+          "worse": 0,
+          "unchanged": 3
+        },
+        {
+          "strategy": "combined",
+          "deltaPassengerTimeSec": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "improved": 0,
+          "worse": 0,
+          "unchanged": 3
+        }
+      ],
+      "results": [
+        {
+          "seed": "context-1",
+          "strategy": "none",
+          "baseInitialStateHash": "8cd7995e4a43d12243f9d622b6431dcf23b7d38e2bf4f10275b15dc1bb3f3400",
+          "initialStateHash": "b17e365819652c231ae7193069891f706f8f5140d47ce0de90f1137cc098e314",
+          "externalContextAssumption": {
+            "speedFactor": 0.9,
+            "dwellFactor": 1.1,
+            "demandFactor": 1,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 175090,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-1",
+          "strategy": "holding",
+          "baseInitialStateHash": "8cd7995e4a43d12243f9d622b6431dcf23b7d38e2bf4f10275b15dc1bb3f3400",
+          "initialStateHash": "b17e365819652c231ae7193069891f706f8f5140d47ce0de90f1137cc098e314",
+          "externalContextAssumption": {
+            "speedFactor": 0.9,
+            "dwellFactor": 1.1,
+            "demandFactor": 1,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 175090,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-1",
+          "strategy": "dispatch",
+          "baseInitialStateHash": "8cd7995e4a43d12243f9d622b6431dcf23b7d38e2bf4f10275b15dc1bb3f3400",
+          "initialStateHash": "b17e365819652c231ae7193069891f706f8f5140d47ce0de90f1137cc098e314",
+          "externalContextAssumption": {
+            "speedFactor": 0.9,
+            "dwellFactor": 1.1,
+            "demandFactor": 1,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 175090,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-1",
+          "strategy": "combined",
+          "baseInitialStateHash": "8cd7995e4a43d12243f9d622b6431dcf23b7d38e2bf4f10275b15dc1bb3f3400",
+          "initialStateHash": "b17e365819652c231ae7193069891f706f8f5140d47ce0de90f1137cc098e314",
+          "externalContextAssumption": {
+            "speedFactor": 0.9,
+            "dwellFactor": 1.1,
+            "demandFactor": 1,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 175090,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-2",
+          "strategy": "none",
+          "baseInitialStateHash": "08c804b8dfe8ced2aa06fff99c23b21e924d195e71e5e13305f1271a640ad25c",
+          "initialStateHash": "ce51b244bbeaea298e695269be488f156c12929b72c9633b548fc32f2cec1498",
+          "externalContextAssumption": {
+            "speedFactor": 0.9,
+            "dwellFactor": 1.1,
+            "demandFactor": 1,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 162650,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-2",
+          "strategy": "holding",
+          "baseInitialStateHash": "08c804b8dfe8ced2aa06fff99c23b21e924d195e71e5e13305f1271a640ad25c",
+          "initialStateHash": "ce51b244bbeaea298e695269be488f156c12929b72c9633b548fc32f2cec1498",
+          "externalContextAssumption": {
+            "speedFactor": 0.9,
+            "dwellFactor": 1.1,
+            "demandFactor": 1,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 162650,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-2",
+          "strategy": "dispatch",
+          "baseInitialStateHash": "08c804b8dfe8ced2aa06fff99c23b21e924d195e71e5e13305f1271a640ad25c",
+          "initialStateHash": "ce51b244bbeaea298e695269be488f156c12929b72c9633b548fc32f2cec1498",
+          "externalContextAssumption": {
+            "speedFactor": 0.9,
+            "dwellFactor": 1.1,
+            "demandFactor": 1,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 162650,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-2",
+          "strategy": "combined",
+          "baseInitialStateHash": "08c804b8dfe8ced2aa06fff99c23b21e924d195e71e5e13305f1271a640ad25c",
+          "initialStateHash": "ce51b244bbeaea298e695269be488f156c12929b72c9633b548fc32f2cec1498",
+          "externalContextAssumption": {
+            "speedFactor": 0.9,
+            "dwellFactor": 1.1,
+            "demandFactor": 1,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 162650,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-3",
+          "strategy": "none",
+          "baseInitialStateHash": "a86abbe6d63bf74c9c1762e20194feb34cf1cd53dfbf293f1f9df83f6c72acd7",
+          "initialStateHash": "2b6114050db2f050fb2514ae4b422fa596e9933a22ab966f6778fcca56f3451b",
+          "externalContextAssumption": {
+            "speedFactor": 0.9,
+            "dwellFactor": 1.1,
+            "demandFactor": 1,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 175305,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-3",
+          "strategy": "holding",
+          "baseInitialStateHash": "a86abbe6d63bf74c9c1762e20194feb34cf1cd53dfbf293f1f9df83f6c72acd7",
+          "initialStateHash": "2b6114050db2f050fb2514ae4b422fa596e9933a22ab966f6778fcca56f3451b",
+          "externalContextAssumption": {
+            "speedFactor": 0.9,
+            "dwellFactor": 1.1,
+            "demandFactor": 1,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 175305,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-3",
+          "strategy": "dispatch",
+          "baseInitialStateHash": "a86abbe6d63bf74c9c1762e20194feb34cf1cd53dfbf293f1f9df83f6c72acd7",
+          "initialStateHash": "2b6114050db2f050fb2514ae4b422fa596e9933a22ab966f6778fcca56f3451b",
+          "externalContextAssumption": {
+            "speedFactor": 0.9,
+            "dwellFactor": 1.1,
+            "demandFactor": 1,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 175305,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-3",
+          "strategy": "combined",
+          "baseInitialStateHash": "a86abbe6d63bf74c9c1762e20194feb34cf1cd53dfbf293f1f9df83f6c72acd7",
+          "initialStateHash": "2b6114050db2f050fb2514ae4b422fa596e9933a22ab966f6778fcca56f3451b",
+          "externalContextAssumption": {
+            "speedFactor": 0.9,
+            "dwellFactor": 1.1,
+            "demandFactor": 1,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 175305,
+          "bunchingEvents": 0,
+          "interventions": 0
+        }
+      ]
+    },
+    {
+      "scenario": "heavy_rain",
+      "scenarioConfig": {
+        "trafficScale": 1,
+        "demandScale": 1,
+        "external": {
+          "speedFactor": 0.72,
+          "dwellFactor": 1.25,
+          "demandFactor": 0.9
+        }
+      },
+      "matchedExogenousWithinPolicyComparison": true,
+      "summary": [
+        {
+          "strategy": "none",
+          "averagePassengerWaitingTimeSec": {
+            "n": 3,
+            "mean": 277.99754901960785,
+            "sd": 13.615024221925912,
+            "min": 260.11764705882354,
+            "p10": 260.11764705882354,
+            "median": 280.75,
+            "p90": 280.75,
+            "max": 293.125
+          },
+          "totalPassengerTimeSec": {
+            "n": 3,
+            "mean": 166316.66666666666,
+            "sd": 5457.958002362748,
+            "min": 158650,
+            "p10": 158650,
+            "median": 169375,
+            "p90": 169375,
+            "max": 170925
+          },
+          "averageOnboardDelaySec": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "headwayVarianceSec2": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          },
+          "bunchingEvents": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "interventions": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "averageHoldingDurationSec": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          },
+          "predictionMaeSec": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          }
+        },
+        {
+          "strategy": "holding",
+          "averagePassengerWaitingTimeSec": {
+            "n": 3,
+            "mean": 277.99754901960785,
+            "sd": 13.615024221925912,
+            "min": 260.11764705882354,
+            "p10": 260.11764705882354,
+            "median": 280.75,
+            "p90": 280.75,
+            "max": 293.125
+          },
+          "totalPassengerTimeSec": {
+            "n": 3,
+            "mean": 166316.66666666666,
+            "sd": 5457.958002362748,
+            "min": 158650,
+            "p10": 158650,
+            "median": 169375,
+            "p90": 169375,
+            "max": 170925
+          },
+          "averageOnboardDelaySec": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "headwayVarianceSec2": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          },
+          "bunchingEvents": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "interventions": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "averageHoldingDurationSec": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          },
+          "predictionMaeSec": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          }
+        },
+        {
+          "strategy": "dispatch",
+          "averagePassengerWaitingTimeSec": {
+            "n": 3,
+            "mean": 277.99754901960785,
+            "sd": 13.615024221925912,
+            "min": 260.11764705882354,
+            "p10": 260.11764705882354,
+            "median": 280.75,
+            "p90": 280.75,
+            "max": 293.125
+          },
+          "totalPassengerTimeSec": {
+            "n": 3,
+            "mean": 166316.66666666666,
+            "sd": 5457.958002362748,
+            "min": 158650,
+            "p10": 158650,
+            "median": 169375,
+            "p90": 169375,
+            "max": 170925
+          },
+          "averageOnboardDelaySec": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "headwayVarianceSec2": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          },
+          "bunchingEvents": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "interventions": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "averageHoldingDurationSec": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          },
+          "predictionMaeSec": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          }
+        },
+        {
+          "strategy": "combined",
+          "averagePassengerWaitingTimeSec": {
+            "n": 3,
+            "mean": 277.99754901960785,
+            "sd": 13.615024221925912,
+            "min": 260.11764705882354,
+            "p10": 260.11764705882354,
+            "median": 280.75,
+            "p90": 280.75,
+            "max": 293.125
+          },
+          "totalPassengerTimeSec": {
+            "n": 3,
+            "mean": 166316.66666666666,
+            "sd": 5457.958002362748,
+            "min": 158650,
+            "p10": 158650,
+            "median": 169375,
+            "p90": 169375,
+            "max": 170925
+          },
+          "averageOnboardDelaySec": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "headwayVarianceSec2": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          },
+          "bunchingEvents": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "interventions": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "averageHoldingDurationSec": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          },
+          "predictionMaeSec": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          }
+        }
+      ],
+      "paired": [
+        {
+          "strategy": "holding",
+          "deltaPassengerTimeSec": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "improved": 0,
+          "worse": 0,
+          "unchanged": 3
+        },
+        {
+          "strategy": "dispatch",
+          "deltaPassengerTimeSec": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "improved": 0,
+          "worse": 0,
+          "unchanged": 3
+        },
+        {
+          "strategy": "combined",
+          "deltaPassengerTimeSec": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "improved": 0,
+          "worse": 0,
+          "unchanged": 3
+        }
+      ],
+      "results": [
+        {
+          "seed": "context-1",
+          "strategy": "none",
+          "baseInitialStateHash": "8cd7995e4a43d12243f9d622b6431dcf23b7d38e2bf4f10275b15dc1bb3f3400",
+          "initialStateHash": "40a8404e868238de798a7b1ec21d9b0e113037e550d527566eff085871e462da",
+          "externalContextAssumption": {
+            "speedFactor": 0.72,
+            "dwellFactor": 1.25,
+            "demandFactor": 0.9,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 170925,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-1",
+          "strategy": "holding",
+          "baseInitialStateHash": "8cd7995e4a43d12243f9d622b6431dcf23b7d38e2bf4f10275b15dc1bb3f3400",
+          "initialStateHash": "40a8404e868238de798a7b1ec21d9b0e113037e550d527566eff085871e462da",
+          "externalContextAssumption": {
+            "speedFactor": 0.72,
+            "dwellFactor": 1.25,
+            "demandFactor": 0.9,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 170925,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-1",
+          "strategy": "dispatch",
+          "baseInitialStateHash": "8cd7995e4a43d12243f9d622b6431dcf23b7d38e2bf4f10275b15dc1bb3f3400",
+          "initialStateHash": "40a8404e868238de798a7b1ec21d9b0e113037e550d527566eff085871e462da",
+          "externalContextAssumption": {
+            "speedFactor": 0.72,
+            "dwellFactor": 1.25,
+            "demandFactor": 0.9,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 170925,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-1",
+          "strategy": "combined",
+          "baseInitialStateHash": "8cd7995e4a43d12243f9d622b6431dcf23b7d38e2bf4f10275b15dc1bb3f3400",
+          "initialStateHash": "40a8404e868238de798a7b1ec21d9b0e113037e550d527566eff085871e462da",
+          "externalContextAssumption": {
+            "speedFactor": 0.72,
+            "dwellFactor": 1.25,
+            "demandFactor": 0.9,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 170925,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-2",
+          "strategy": "none",
+          "baseInitialStateHash": "08c804b8dfe8ced2aa06fff99c23b21e924d195e71e5e13305f1271a640ad25c",
+          "initialStateHash": "24485fa8de59d70ae4b6db5dec3f681d6616c2ab4921b8b63cebf338dcc8e092",
+          "externalContextAssumption": {
+            "speedFactor": 0.72,
+            "dwellFactor": 1.25,
+            "demandFactor": 0.9,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 158650,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-2",
+          "strategy": "holding",
+          "baseInitialStateHash": "08c804b8dfe8ced2aa06fff99c23b21e924d195e71e5e13305f1271a640ad25c",
+          "initialStateHash": "24485fa8de59d70ae4b6db5dec3f681d6616c2ab4921b8b63cebf338dcc8e092",
+          "externalContextAssumption": {
+            "speedFactor": 0.72,
+            "dwellFactor": 1.25,
+            "demandFactor": 0.9,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 158650,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-2",
+          "strategy": "dispatch",
+          "baseInitialStateHash": "08c804b8dfe8ced2aa06fff99c23b21e924d195e71e5e13305f1271a640ad25c",
+          "initialStateHash": "24485fa8de59d70ae4b6db5dec3f681d6616c2ab4921b8b63cebf338dcc8e092",
+          "externalContextAssumption": {
+            "speedFactor": 0.72,
+            "dwellFactor": 1.25,
+            "demandFactor": 0.9,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 158650,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-2",
+          "strategy": "combined",
+          "baseInitialStateHash": "08c804b8dfe8ced2aa06fff99c23b21e924d195e71e5e13305f1271a640ad25c",
+          "initialStateHash": "24485fa8de59d70ae4b6db5dec3f681d6616c2ab4921b8b63cebf338dcc8e092",
+          "externalContextAssumption": {
+            "speedFactor": 0.72,
+            "dwellFactor": 1.25,
+            "demandFactor": 0.9,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 158650,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-3",
+          "strategy": "none",
+          "baseInitialStateHash": "a86abbe6d63bf74c9c1762e20194feb34cf1cd53dfbf293f1f9df83f6c72acd7",
+          "initialStateHash": "b96166caca003a840c1d7184c131ecb51aca887c91315c4bc9165e91bb1c6e8e",
+          "externalContextAssumption": {
+            "speedFactor": 0.72,
+            "dwellFactor": 1.25,
+            "demandFactor": 0.9,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 169375,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-3",
+          "strategy": "holding",
+          "baseInitialStateHash": "a86abbe6d63bf74c9c1762e20194feb34cf1cd53dfbf293f1f9df83f6c72acd7",
+          "initialStateHash": "b96166caca003a840c1d7184c131ecb51aca887c91315c4bc9165e91bb1c6e8e",
+          "externalContextAssumption": {
+            "speedFactor": 0.72,
+            "dwellFactor": 1.25,
+            "demandFactor": 0.9,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 169375,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-3",
+          "strategy": "dispatch",
+          "baseInitialStateHash": "a86abbe6d63bf74c9c1762e20194feb34cf1cd53dfbf293f1f9df83f6c72acd7",
+          "initialStateHash": "b96166caca003a840c1d7184c131ecb51aca887c91315c4bc9165e91bb1c6e8e",
+          "externalContextAssumption": {
+            "speedFactor": 0.72,
+            "dwellFactor": 1.25,
+            "demandFactor": 0.9,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 169375,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-3",
+          "strategy": "combined",
+          "baseInitialStateHash": "a86abbe6d63bf74c9c1762e20194feb34cf1cd53dfbf293f1f9df83f6c72acd7",
+          "initialStateHash": "b96166caca003a840c1d7184c131ecb51aca887c91315c4bc9165e91bb1c6e8e",
+          "externalContextAssumption": {
+            "speedFactor": 0.72,
+            "dwellFactor": 1.25,
+            "demandFactor": 0.9,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 169375,
+          "bunchingEvents": 0,
+          "interventions": 0
+        }
+      ]
+    },
+    {
+      "scenario": "large_public_event",
+      "scenarioConfig": {
+        "trafficScale": 1,
+        "demandScale": 1,
+        "external": {
+          "speedFactor": 0.88,
+          "dwellFactor": 1.1,
+          "demandFactor": 1.3
+        }
+      },
+      "matchedExogenousWithinPolicyComparison": true,
+      "summary": [
+        {
+          "strategy": "none",
+          "averagePassengerWaitingTimeSec": {
+            "n": 3,
+            "mean": 261.7969208211144,
+            "sd": 15.403782314014096,
+            "min": 240.87878787878788,
+            "p10": 240.87878787878788,
+            "median": 266.98924731182797,
+            "p90": 266.98924731182797,
+            "max": 277.52272727272725
+          },
+          "totalPassengerTimeSec": {
+            "n": 3,
+            "mean": 194860,
+            "sd": 7266.48585401958,
+            "min": 184720,
+            "p10": 184720,
+            "median": 198485,
+            "p90": 198485,
+            "max": 201375
+          },
+          "averageOnboardDelaySec": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "headwayVarianceSec2": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          },
+          "bunchingEvents": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "interventions": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "averageHoldingDurationSec": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          },
+          "predictionMaeSec": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          }
+        },
+        {
+          "strategy": "holding",
+          "averagePassengerWaitingTimeSec": {
+            "n": 3,
+            "mean": 261.7969208211144,
+            "sd": 15.403782314014096,
+            "min": 240.87878787878788,
+            "p10": 240.87878787878788,
+            "median": 266.98924731182797,
+            "p90": 266.98924731182797,
+            "max": 277.52272727272725
+          },
+          "totalPassengerTimeSec": {
+            "n": 3,
+            "mean": 194860,
+            "sd": 7266.48585401958,
+            "min": 184720,
+            "p10": 184720,
+            "median": 198485,
+            "p90": 198485,
+            "max": 201375
+          },
+          "averageOnboardDelaySec": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "headwayVarianceSec2": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          },
+          "bunchingEvents": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "interventions": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "averageHoldingDurationSec": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          },
+          "predictionMaeSec": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          }
+        },
+        {
+          "strategy": "dispatch",
+          "averagePassengerWaitingTimeSec": {
+            "n": 3,
+            "mean": 261.7969208211144,
+            "sd": 15.403782314014096,
+            "min": 240.87878787878788,
+            "p10": 240.87878787878788,
+            "median": 266.98924731182797,
+            "p90": 266.98924731182797,
+            "max": 277.52272727272725
+          },
+          "totalPassengerTimeSec": {
+            "n": 3,
+            "mean": 194860,
+            "sd": 7266.48585401958,
+            "min": 184720,
+            "p10": 184720,
+            "median": 198485,
+            "p90": 198485,
+            "max": 201375
+          },
+          "averageOnboardDelaySec": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "headwayVarianceSec2": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          },
+          "bunchingEvents": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "interventions": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "averageHoldingDurationSec": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          },
+          "predictionMaeSec": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          }
+        },
+        {
+          "strategy": "combined",
+          "averagePassengerWaitingTimeSec": {
+            "n": 3,
+            "mean": 261.7969208211144,
+            "sd": 15.403782314014096,
+            "min": 240.87878787878788,
+            "p10": 240.87878787878788,
+            "median": 266.98924731182797,
+            "p90": 266.98924731182797,
+            "max": 277.52272727272725
+          },
+          "totalPassengerTimeSec": {
+            "n": 3,
+            "mean": 194860,
+            "sd": 7266.48585401958,
+            "min": 184720,
+            "p10": 184720,
+            "median": 198485,
+            "p90": 198485,
+            "max": 201375
+          },
+          "averageOnboardDelaySec": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "headwayVarianceSec2": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          },
+          "bunchingEvents": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "interventions": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "averageHoldingDurationSec": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          },
+          "predictionMaeSec": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          }
+        }
+      ],
+      "paired": [
+        {
+          "strategy": "holding",
+          "deltaPassengerTimeSec": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "improved": 0,
+          "worse": 0,
+          "unchanged": 3
+        },
+        {
+          "strategy": "dispatch",
+          "deltaPassengerTimeSec": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "improved": 0,
+          "worse": 0,
+          "unchanged": 3
+        },
+        {
+          "strategy": "combined",
+          "deltaPassengerTimeSec": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "improved": 0,
+          "worse": 0,
+          "unchanged": 3
+        }
+      ],
+      "results": [
+        {
+          "seed": "context-1",
+          "strategy": "none",
+          "baseInitialStateHash": "8cd7995e4a43d12243f9d622b6431dcf23b7d38e2bf4f10275b15dc1bb3f3400",
+          "initialStateHash": "d44e23163c1fba076a32789e2280e3a0428ee8d43d910154810a9b97ddd39b4e",
+          "externalContextAssumption": {
+            "speedFactor": 0.88,
+            "dwellFactor": 1.1,
+            "demandFactor": 1.3,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 198485,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-1",
+          "strategy": "holding",
+          "baseInitialStateHash": "8cd7995e4a43d12243f9d622b6431dcf23b7d38e2bf4f10275b15dc1bb3f3400",
+          "initialStateHash": "d44e23163c1fba076a32789e2280e3a0428ee8d43d910154810a9b97ddd39b4e",
+          "externalContextAssumption": {
+            "speedFactor": 0.88,
+            "dwellFactor": 1.1,
+            "demandFactor": 1.3,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 198485,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-1",
+          "strategy": "dispatch",
+          "baseInitialStateHash": "8cd7995e4a43d12243f9d622b6431dcf23b7d38e2bf4f10275b15dc1bb3f3400",
+          "initialStateHash": "d44e23163c1fba076a32789e2280e3a0428ee8d43d910154810a9b97ddd39b4e",
+          "externalContextAssumption": {
+            "speedFactor": 0.88,
+            "dwellFactor": 1.1,
+            "demandFactor": 1.3,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 198485,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-1",
+          "strategy": "combined",
+          "baseInitialStateHash": "8cd7995e4a43d12243f9d622b6431dcf23b7d38e2bf4f10275b15dc1bb3f3400",
+          "initialStateHash": "d44e23163c1fba076a32789e2280e3a0428ee8d43d910154810a9b97ddd39b4e",
+          "externalContextAssumption": {
+            "speedFactor": 0.88,
+            "dwellFactor": 1.1,
+            "demandFactor": 1.3,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 198485,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-2",
+          "strategy": "none",
+          "baseInitialStateHash": "08c804b8dfe8ced2aa06fff99c23b21e924d195e71e5e13305f1271a640ad25c",
+          "initialStateHash": "9086605a80cb6cbdee4e96ef4bdd01db78084a10bb15a28f9c474640cdfa6795",
+          "externalContextAssumption": {
+            "speedFactor": 0.88,
+            "dwellFactor": 1.1,
+            "demandFactor": 1.3,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 184720,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-2",
+          "strategy": "holding",
+          "baseInitialStateHash": "08c804b8dfe8ced2aa06fff99c23b21e924d195e71e5e13305f1271a640ad25c",
+          "initialStateHash": "9086605a80cb6cbdee4e96ef4bdd01db78084a10bb15a28f9c474640cdfa6795",
+          "externalContextAssumption": {
+            "speedFactor": 0.88,
+            "dwellFactor": 1.1,
+            "demandFactor": 1.3,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 184720,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-2",
+          "strategy": "dispatch",
+          "baseInitialStateHash": "08c804b8dfe8ced2aa06fff99c23b21e924d195e71e5e13305f1271a640ad25c",
+          "initialStateHash": "9086605a80cb6cbdee4e96ef4bdd01db78084a10bb15a28f9c474640cdfa6795",
+          "externalContextAssumption": {
+            "speedFactor": 0.88,
+            "dwellFactor": 1.1,
+            "demandFactor": 1.3,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 184720,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-2",
+          "strategy": "combined",
+          "baseInitialStateHash": "08c804b8dfe8ced2aa06fff99c23b21e924d195e71e5e13305f1271a640ad25c",
+          "initialStateHash": "9086605a80cb6cbdee4e96ef4bdd01db78084a10bb15a28f9c474640cdfa6795",
+          "externalContextAssumption": {
+            "speedFactor": 0.88,
+            "dwellFactor": 1.1,
+            "demandFactor": 1.3,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 184720,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-3",
+          "strategy": "none",
+          "baseInitialStateHash": "a86abbe6d63bf74c9c1762e20194feb34cf1cd53dfbf293f1f9df83f6c72acd7",
+          "initialStateHash": "587517a58885d0216174170dcc3a642dbb65f6ebc3984250adae008a2d68245a",
+          "externalContextAssumption": {
+            "speedFactor": 0.88,
+            "dwellFactor": 1.1,
+            "demandFactor": 1.3,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 201375,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-3",
+          "strategy": "holding",
+          "baseInitialStateHash": "a86abbe6d63bf74c9c1762e20194feb34cf1cd53dfbf293f1f9df83f6c72acd7",
+          "initialStateHash": "587517a58885d0216174170dcc3a642dbb65f6ebc3984250adae008a2d68245a",
+          "externalContextAssumption": {
+            "speedFactor": 0.88,
+            "dwellFactor": 1.1,
+            "demandFactor": 1.3,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 201375,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-3",
+          "strategy": "dispatch",
+          "baseInitialStateHash": "a86abbe6d63bf74c9c1762e20194feb34cf1cd53dfbf293f1f9df83f6c72acd7",
+          "initialStateHash": "587517a58885d0216174170dcc3a642dbb65f6ebc3984250adae008a2d68245a",
+          "externalContextAssumption": {
+            "speedFactor": 0.88,
+            "dwellFactor": 1.1,
+            "demandFactor": 1.3,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 201375,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-3",
+          "strategy": "combined",
+          "baseInitialStateHash": "a86abbe6d63bf74c9c1762e20194feb34cf1cd53dfbf293f1f9df83f6c72acd7",
+          "initialStateHash": "587517a58885d0216174170dcc3a642dbb65f6ebc3984250adae008a2d68245a",
+          "externalContextAssumption": {
+            "speedFactor": 0.88,
+            "dwellFactor": 1.1,
+            "demandFactor": 1.3,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 201375,
+          "bunchingEvents": 0,
+          "interventions": 0
+        }
+      ]
+    },
+    {
+      "scenario": "confirmed_road_closure",
+      "scenarioConfig": {
+        "trafficScale": 1,
+        "demandScale": 1,
+        "external": {
+          "speedFactor": 0.65,
+          "dwellFactor": 1.15,
+          "demandFactor": 1
+        }
+      },
+      "matchedExogenousWithinPolicyComparison": true,
+      "summary": [
+        {
+          "strategy": "none",
+          "averagePassengerWaitingTimeSec": {
+            "n": 3,
+            "mean": 276.47194525904206,
+            "sd": 21.452839730733196,
+            "min": 248.16129032258064,
+            "p10": 248.16129032258064,
+            "median": 281.1818181818182,
+            "p90": 281.1818181818182,
+            "max": 300.07272727272726
+          },
+          "totalPassengerTimeSec": {
+            "n": 3,
+            "mean": 173723.33333333334,
+            "sd": 5615.930218781411,
+            "min": 165785,
+            "p10": 165785,
+            "median": 177480,
+            "p90": 177480,
+            "max": 177905
+          },
+          "averageOnboardDelaySec": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "headwayVarianceSec2": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          },
+          "bunchingEvents": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "interventions": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "averageHoldingDurationSec": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          },
+          "predictionMaeSec": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          }
+        },
+        {
+          "strategy": "holding",
+          "averagePassengerWaitingTimeSec": {
+            "n": 3,
+            "mean": 276.47194525904206,
+            "sd": 21.452839730733196,
+            "min": 248.16129032258064,
+            "p10": 248.16129032258064,
+            "median": 281.1818181818182,
+            "p90": 281.1818181818182,
+            "max": 300.07272727272726
+          },
+          "totalPassengerTimeSec": {
+            "n": 3,
+            "mean": 173723.33333333334,
+            "sd": 5615.930218781411,
+            "min": 165785,
+            "p10": 165785,
+            "median": 177480,
+            "p90": 177480,
+            "max": 177905
+          },
+          "averageOnboardDelaySec": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "headwayVarianceSec2": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          },
+          "bunchingEvents": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "interventions": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "averageHoldingDurationSec": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          },
+          "predictionMaeSec": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          }
+        },
+        {
+          "strategy": "dispatch",
+          "averagePassengerWaitingTimeSec": {
+            "n": 3,
+            "mean": 276.47194525904206,
+            "sd": 21.452839730733196,
+            "min": 248.16129032258064,
+            "p10": 248.16129032258064,
+            "median": 281.1818181818182,
+            "p90": 281.1818181818182,
+            "max": 300.07272727272726
+          },
+          "totalPassengerTimeSec": {
+            "n": 3,
+            "mean": 173723.33333333334,
+            "sd": 5615.930218781411,
+            "min": 165785,
+            "p10": 165785,
+            "median": 177480,
+            "p90": 177480,
+            "max": 177905
+          },
+          "averageOnboardDelaySec": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "headwayVarianceSec2": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          },
+          "bunchingEvents": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "interventions": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "averageHoldingDurationSec": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          },
+          "predictionMaeSec": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          }
+        },
+        {
+          "strategy": "combined",
+          "averagePassengerWaitingTimeSec": {
+            "n": 3,
+            "mean": 276.47194525904206,
+            "sd": 21.452839730733196,
+            "min": 248.16129032258064,
+            "p10": 248.16129032258064,
+            "median": 281.1818181818182,
+            "p90": 281.1818181818182,
+            "max": 300.07272727272726
+          },
+          "totalPassengerTimeSec": {
+            "n": 3,
+            "mean": 173723.33333333334,
+            "sd": 5615.930218781411,
+            "min": 165785,
+            "p10": 165785,
+            "median": 177480,
+            "p90": 177480,
+            "max": 177905
+          },
+          "averageOnboardDelaySec": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "headwayVarianceSec2": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          },
+          "bunchingEvents": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "interventions": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "averageHoldingDurationSec": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          },
+          "predictionMaeSec": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          }
+        }
+      ],
+      "paired": [
+        {
+          "strategy": "holding",
+          "deltaPassengerTimeSec": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "improved": 0,
+          "worse": 0,
+          "unchanged": 3
+        },
+        {
+          "strategy": "dispatch",
+          "deltaPassengerTimeSec": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "improved": 0,
+          "worse": 0,
+          "unchanged": 3
+        },
+        {
+          "strategy": "combined",
+          "deltaPassengerTimeSec": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "improved": 0,
+          "worse": 0,
+          "unchanged": 3
+        }
+      ],
+      "results": [
+        {
+          "seed": "context-1",
+          "strategy": "none",
+          "baseInitialStateHash": "8cd7995e4a43d12243f9d622b6431dcf23b7d38e2bf4f10275b15dc1bb3f3400",
+          "initialStateHash": "5824223339bd25d54ac9c791858740968471f106b1ad9893dc11774459d25e81",
+          "externalContextAssumption": {
+            "speedFactor": 0.65,
+            "dwellFactor": 1.15,
+            "demandFactor": 1,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 177905,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-1",
+          "strategy": "holding",
+          "baseInitialStateHash": "8cd7995e4a43d12243f9d622b6431dcf23b7d38e2bf4f10275b15dc1bb3f3400",
+          "initialStateHash": "5824223339bd25d54ac9c791858740968471f106b1ad9893dc11774459d25e81",
+          "externalContextAssumption": {
+            "speedFactor": 0.65,
+            "dwellFactor": 1.15,
+            "demandFactor": 1,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 177905,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-1",
+          "strategy": "dispatch",
+          "baseInitialStateHash": "8cd7995e4a43d12243f9d622b6431dcf23b7d38e2bf4f10275b15dc1bb3f3400",
+          "initialStateHash": "5824223339bd25d54ac9c791858740968471f106b1ad9893dc11774459d25e81",
+          "externalContextAssumption": {
+            "speedFactor": 0.65,
+            "dwellFactor": 1.15,
+            "demandFactor": 1,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 177905,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-1",
+          "strategy": "combined",
+          "baseInitialStateHash": "8cd7995e4a43d12243f9d622b6431dcf23b7d38e2bf4f10275b15dc1bb3f3400",
+          "initialStateHash": "5824223339bd25d54ac9c791858740968471f106b1ad9893dc11774459d25e81",
+          "externalContextAssumption": {
+            "speedFactor": 0.65,
+            "dwellFactor": 1.15,
+            "demandFactor": 1,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 177905,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-2",
+          "strategy": "none",
+          "baseInitialStateHash": "08c804b8dfe8ced2aa06fff99c23b21e924d195e71e5e13305f1271a640ad25c",
+          "initialStateHash": "6bcc79da1e5847ca907d8616e74e3d1dd5951f8b7f5861c52da0d576136f4409",
+          "externalContextAssumption": {
+            "speedFactor": 0.65,
+            "dwellFactor": 1.15,
+            "demandFactor": 1,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 165785,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-2",
+          "strategy": "holding",
+          "baseInitialStateHash": "08c804b8dfe8ced2aa06fff99c23b21e924d195e71e5e13305f1271a640ad25c",
+          "initialStateHash": "6bcc79da1e5847ca907d8616e74e3d1dd5951f8b7f5861c52da0d576136f4409",
+          "externalContextAssumption": {
+            "speedFactor": 0.65,
+            "dwellFactor": 1.15,
+            "demandFactor": 1,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 165785,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-2",
+          "strategy": "dispatch",
+          "baseInitialStateHash": "08c804b8dfe8ced2aa06fff99c23b21e924d195e71e5e13305f1271a640ad25c",
+          "initialStateHash": "6bcc79da1e5847ca907d8616e74e3d1dd5951f8b7f5861c52da0d576136f4409",
+          "externalContextAssumption": {
+            "speedFactor": 0.65,
+            "dwellFactor": 1.15,
+            "demandFactor": 1,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 165785,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-2",
+          "strategy": "combined",
+          "baseInitialStateHash": "08c804b8dfe8ced2aa06fff99c23b21e924d195e71e5e13305f1271a640ad25c",
+          "initialStateHash": "6bcc79da1e5847ca907d8616e74e3d1dd5951f8b7f5861c52da0d576136f4409",
+          "externalContextAssumption": {
+            "speedFactor": 0.65,
+            "dwellFactor": 1.15,
+            "demandFactor": 1,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 165785,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-3",
+          "strategy": "none",
+          "baseInitialStateHash": "a86abbe6d63bf74c9c1762e20194feb34cf1cd53dfbf293f1f9df83f6c72acd7",
+          "initialStateHash": "9a96dd3e02361ba459350363252411fc2c8b8b6e1329152097aab98aef4d5ae1",
+          "externalContextAssumption": {
+            "speedFactor": 0.65,
+            "dwellFactor": 1.15,
+            "demandFactor": 1,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 177480,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-3",
+          "strategy": "holding",
+          "baseInitialStateHash": "a86abbe6d63bf74c9c1762e20194feb34cf1cd53dfbf293f1f9df83f6c72acd7",
+          "initialStateHash": "9a96dd3e02361ba459350363252411fc2c8b8b6e1329152097aab98aef4d5ae1",
+          "externalContextAssumption": {
+            "speedFactor": 0.65,
+            "dwellFactor": 1.15,
+            "demandFactor": 1,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 177480,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-3",
+          "strategy": "dispatch",
+          "baseInitialStateHash": "a86abbe6d63bf74c9c1762e20194feb34cf1cd53dfbf293f1f9df83f6c72acd7",
+          "initialStateHash": "9a96dd3e02361ba459350363252411fc2c8b8b6e1329152097aab98aef4d5ae1",
+          "externalContextAssumption": {
+            "speedFactor": 0.65,
+            "dwellFactor": 1.15,
+            "demandFactor": 1,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 177480,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-3",
+          "strategy": "combined",
+          "baseInitialStateHash": "a86abbe6d63bf74c9c1762e20194feb34cf1cd53dfbf293f1f9df83f6c72acd7",
+          "initialStateHash": "9a96dd3e02361ba459350363252411fc2c8b8b6e1329152097aab98aef4d5ae1",
+          "externalContextAssumption": {
+            "speedFactor": 0.65,
+            "dwellFactor": 1.15,
+            "demandFactor": 1,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 177480,
+          "bunchingEvents": 0,
+          "interventions": 0
+        }
+      ]
+    },
+    {
+      "scenario": "rain_public_event",
+      "scenarioConfig": {
+        "trafficScale": 1,
+        "demandScale": 1,
+        "external": {
+          "speedFactor": 0.68,
+          "dwellFactor": 1.3,
+          "demandFactor": 1.25
+        }
+      },
+      "matchedExogenousWithinPolicyComparison": true,
+      "summary": [
+        {
+          "strategy": "none",
+          "averagePassengerWaitingTimeSec": {
+            "n": 3,
+            "mean": 269.2116402116402,
+            "sd": 15.61208459524681,
+            "min": 248.74603174603175,
+            "p10": 248.74603174603175,
+            "median": 272.26984126984127,
+            "p90": 272.26984126984127,
+            "max": 286.6190476190476
+          },
+          "totalPassengerTimeSec": {
+            "n": 3,
+            "mean": 193251.66666666666,
+            "sd": 7579.8112700046095,
+            "min": 182600,
+            "p10": 182600,
+            "median": 197535,
+            "p90": 197535,
+            "max": 199620
+          },
+          "averageOnboardDelaySec": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "headwayVarianceSec2": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          },
+          "bunchingEvents": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "interventions": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "averageHoldingDurationSec": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          },
+          "predictionMaeSec": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          }
+        },
+        {
+          "strategy": "holding",
+          "averagePassengerWaitingTimeSec": {
+            "n": 3,
+            "mean": 269.2116402116402,
+            "sd": 15.61208459524681,
+            "min": 248.74603174603175,
+            "p10": 248.74603174603175,
+            "median": 272.26984126984127,
+            "p90": 272.26984126984127,
+            "max": 286.6190476190476
+          },
+          "totalPassengerTimeSec": {
+            "n": 3,
+            "mean": 193251.66666666666,
+            "sd": 7579.8112700046095,
+            "min": 182600,
+            "p10": 182600,
+            "median": 197535,
+            "p90": 197535,
+            "max": 199620
+          },
+          "averageOnboardDelaySec": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "headwayVarianceSec2": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          },
+          "bunchingEvents": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "interventions": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "averageHoldingDurationSec": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          },
+          "predictionMaeSec": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          }
+        },
+        {
+          "strategy": "dispatch",
+          "averagePassengerWaitingTimeSec": {
+            "n": 3,
+            "mean": 269.2116402116402,
+            "sd": 15.61208459524681,
+            "min": 248.74603174603175,
+            "p10": 248.74603174603175,
+            "median": 272.26984126984127,
+            "p90": 272.26984126984127,
+            "max": 286.6190476190476
+          },
+          "totalPassengerTimeSec": {
+            "n": 3,
+            "mean": 193251.66666666666,
+            "sd": 7579.8112700046095,
+            "min": 182600,
+            "p10": 182600,
+            "median": 197535,
+            "p90": 197535,
+            "max": 199620
+          },
+          "averageOnboardDelaySec": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "headwayVarianceSec2": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          },
+          "bunchingEvents": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "interventions": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "averageHoldingDurationSec": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          },
+          "predictionMaeSec": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          }
+        },
+        {
+          "strategy": "combined",
+          "averagePassengerWaitingTimeSec": {
+            "n": 3,
+            "mean": 269.2116402116402,
+            "sd": 15.61208459524681,
+            "min": 248.74603174603175,
+            "p10": 248.74603174603175,
+            "median": 272.26984126984127,
+            "p90": 272.26984126984127,
+            "max": 286.6190476190476
+          },
+          "totalPassengerTimeSec": {
+            "n": 3,
+            "mean": 193251.66666666666,
+            "sd": 7579.8112700046095,
+            "min": 182600,
+            "p10": 182600,
+            "median": 197535,
+            "p90": 197535,
+            "max": 199620
+          },
+          "averageOnboardDelaySec": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "headwayVarianceSec2": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          },
+          "bunchingEvents": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "interventions": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "averageHoldingDurationSec": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          },
+          "predictionMaeSec": {
+            "n": 0,
+            "mean": null,
+            "sd": null,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          }
+        }
+      ],
+      "paired": [
+        {
+          "strategy": "holding",
+          "deltaPassengerTimeSec": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "improved": 0,
+          "worse": 0,
+          "unchanged": 3
+        },
+        {
+          "strategy": "dispatch",
+          "deltaPassengerTimeSec": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "improved": 0,
+          "worse": 0,
+          "unchanged": 3
+        },
+        {
+          "strategy": "combined",
+          "deltaPassengerTimeSec": {
+            "n": 3,
+            "mean": 0,
+            "sd": 0,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "improved": 0,
+          "worse": 0,
+          "unchanged": 3
+        }
+      ],
+      "results": [
+        {
+          "seed": "context-1",
+          "strategy": "none",
+          "baseInitialStateHash": "8cd7995e4a43d12243f9d622b6431dcf23b7d38e2bf4f10275b15dc1bb3f3400",
+          "initialStateHash": "f7d12c0586806ae7cf119b265e00f5621a2f16a126223923f64fb45125bcb1f3",
+          "externalContextAssumption": {
+            "speedFactor": 0.68,
+            "dwellFactor": 1.3,
+            "demandFactor": 1.25,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 197535,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-1",
+          "strategy": "holding",
+          "baseInitialStateHash": "8cd7995e4a43d12243f9d622b6431dcf23b7d38e2bf4f10275b15dc1bb3f3400",
+          "initialStateHash": "f7d12c0586806ae7cf119b265e00f5621a2f16a126223923f64fb45125bcb1f3",
+          "externalContextAssumption": {
+            "speedFactor": 0.68,
+            "dwellFactor": 1.3,
+            "demandFactor": 1.25,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 197535,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-1",
+          "strategy": "dispatch",
+          "baseInitialStateHash": "8cd7995e4a43d12243f9d622b6431dcf23b7d38e2bf4f10275b15dc1bb3f3400",
+          "initialStateHash": "f7d12c0586806ae7cf119b265e00f5621a2f16a126223923f64fb45125bcb1f3",
+          "externalContextAssumption": {
+            "speedFactor": 0.68,
+            "dwellFactor": 1.3,
+            "demandFactor": 1.25,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 197535,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-1",
+          "strategy": "combined",
+          "baseInitialStateHash": "8cd7995e4a43d12243f9d622b6431dcf23b7d38e2bf4f10275b15dc1bb3f3400",
+          "initialStateHash": "f7d12c0586806ae7cf119b265e00f5621a2f16a126223923f64fb45125bcb1f3",
+          "externalContextAssumption": {
+            "speedFactor": 0.68,
+            "dwellFactor": 1.3,
+            "demandFactor": 1.25,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 197535,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-2",
+          "strategy": "none",
+          "baseInitialStateHash": "08c804b8dfe8ced2aa06fff99c23b21e924d195e71e5e13305f1271a640ad25c",
+          "initialStateHash": "d5082484c6b01a00ced314a7bbd2756dbef091ca8cbeebf119a47b28253a5139",
+          "externalContextAssumption": {
+            "speedFactor": 0.68,
+            "dwellFactor": 1.3,
+            "demandFactor": 1.25,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 182600,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-2",
+          "strategy": "holding",
+          "baseInitialStateHash": "08c804b8dfe8ced2aa06fff99c23b21e924d195e71e5e13305f1271a640ad25c",
+          "initialStateHash": "d5082484c6b01a00ced314a7bbd2756dbef091ca8cbeebf119a47b28253a5139",
+          "externalContextAssumption": {
+            "speedFactor": 0.68,
+            "dwellFactor": 1.3,
+            "demandFactor": 1.25,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 182600,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-2",
+          "strategy": "dispatch",
+          "baseInitialStateHash": "08c804b8dfe8ced2aa06fff99c23b21e924d195e71e5e13305f1271a640ad25c",
+          "initialStateHash": "d5082484c6b01a00ced314a7bbd2756dbef091ca8cbeebf119a47b28253a5139",
+          "externalContextAssumption": {
+            "speedFactor": 0.68,
+            "dwellFactor": 1.3,
+            "demandFactor": 1.25,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 182600,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-2",
+          "strategy": "combined",
+          "baseInitialStateHash": "08c804b8dfe8ced2aa06fff99c23b21e924d195e71e5e13305f1271a640ad25c",
+          "initialStateHash": "d5082484c6b01a00ced314a7bbd2756dbef091ca8cbeebf119a47b28253a5139",
+          "externalContextAssumption": {
+            "speedFactor": 0.68,
+            "dwellFactor": 1.3,
+            "demandFactor": 1.25,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 182600,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-3",
+          "strategy": "none",
+          "baseInitialStateHash": "a86abbe6d63bf74c9c1762e20194feb34cf1cd53dfbf293f1f9df83f6c72acd7",
+          "initialStateHash": "06f4046ce3d5a878e7f7044aa422c4b341921508f3793c778ee6aacf2872fee8",
+          "externalContextAssumption": {
+            "speedFactor": 0.68,
+            "dwellFactor": 1.3,
+            "demandFactor": 1.25,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 199620,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-3",
+          "strategy": "holding",
+          "baseInitialStateHash": "a86abbe6d63bf74c9c1762e20194feb34cf1cd53dfbf293f1f9df83f6c72acd7",
+          "initialStateHash": "06f4046ce3d5a878e7f7044aa422c4b341921508f3793c778ee6aacf2872fee8",
+          "externalContextAssumption": {
+            "speedFactor": 0.68,
+            "dwellFactor": 1.3,
+            "demandFactor": 1.25,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 199620,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-3",
+          "strategy": "dispatch",
+          "baseInitialStateHash": "a86abbe6d63bf74c9c1762e20194feb34cf1cd53dfbf293f1f9df83f6c72acd7",
+          "initialStateHash": "06f4046ce3d5a878e7f7044aa422c4b341921508f3793c778ee6aacf2872fee8",
+          "externalContextAssumption": {
+            "speedFactor": 0.68,
+            "dwellFactor": 1.3,
+            "demandFactor": 1.25,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 199620,
+          "bunchingEvents": 0,
+          "interventions": 0
+        },
+        {
+          "seed": "context-3",
+          "strategy": "combined",
+          "baseInitialStateHash": "a86abbe6d63bf74c9c1762e20194feb34cf1cd53dfbf293f1f9df83f6c72acd7",
+          "initialStateHash": "06f4046ce3d5a878e7f7044aa422c4b341921508f3793c778ee6aacf2872fee8",
+          "externalContextAssumption": {
+            "speedFactor": 0.68,
+            "dwellFactor": 1.3,
+            "demandFactor": 1.25,
+            "classification": "simulation_assumption",
+            "calibrated": false
+          },
+          "totalPassengerTimeSec": 199620,
+          "bunchingEvents": 0,
+          "interventions": 0
+        }
+      ]
+    }
+  ]
+}

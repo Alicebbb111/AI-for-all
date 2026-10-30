@@ -230,20 +230,18 @@
   }
 
   // ── แผนที่ — ไทล์คมชัดระดับสากล ฟรี ไม่มี Key ─────────────────────────────
-  // แผนที่: OpenStreetMap ผ่านไทล์ CARTO (Voyager/Positron-dark) รองรับจอ Retina ({r}=@2x)
+  // แผนที่: OpenStreetMap Standard ไม่ต้องใช้ API Key (ใช้พื้นหลังเดียวกันทั้งธีมสว่างและมืด)
   // ดาวเทียม: Esri World Imagery (สัญญาอนุญาตเผยแพร่ของ Esri สำหรับใช้งานสาธิต)
   const BASEMAPS = {
-    day: { url: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', subdomains: 'abcd', maxNativeZoom: 20, attr: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>' },
-    night: { url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', subdomains: 'abcd', maxNativeZoom: 20, attr: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>' },
+    streets: { url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', maxNativeZoom: 19, attr: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' },
     sat: { url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', subdomains: 'abc', maxNativeZoom: 19, attr: 'Tiles &copy; Esri — Source: Esri, Maxar, Earthstar Geographics' },
   };
   function basemapKey() { return localStorage.getItem('ot-basemap') === 'sat' ? 'sat' : 'streets'; }
   function applyMapTheme() {
-    const dark = document.documentElement.dataset.theme === 'dark';
-    const def = BASEMAPS[basemapKey() === 'sat' ? 'sat' : dark ? 'night' : 'day'];
+    const def = BASEMAPS[basemapKey()];
     if (baseLayer) map.removeLayer(baseLayer);
     baseLayer = L.tileLayer(def.url, {
-      subdomains: def.subdomains, maxNativeZoom: def.maxNativeZoom, maxZoom: 20,
+      maxNativeZoom: def.maxNativeZoom, maxZoom: 19,
       attribution: def.attr, crossOrigin: true, updateWhenIdle: false,
     }).addTo(map);
     if (basemapBtns) {
@@ -253,7 +251,7 @@
     }
   }
   function initMap() {
-    map = L.map('map', { zoomControl: true, attributionControl: false, maxZoom: 20 }).setView([13.7650, 100.5330], 13);
+    map = L.map('map', { zoomControl: true, attributionControl: false, maxZoom: 19 }).setView([13.7650, 100.5330], 13);
     L.control.attribution({ prefix: false, position: 'bottomright' }).addTo(map);
     L.control.scale({ metric: true, imperial: false, position: 'bottomleft' }).addTo(map);
     // แผงสรุปสถานะเส้นทาง (มุมซ้ายบน) — อัปเดตทุก tick จาก updateBusMarkers()

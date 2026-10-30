@@ -3,6 +3,15 @@
 > คู่มือฉบับเต็ม (ตั้งแต่ clone → รัน → ใส่ API Key → prompt สำหรับโยนให้ AI): **[GUIDE.md](GUIDE.md)**
 ระบบสาธิตจำลอง (simulation demo) สำหรับบริหารรถโดยสารนำร่อง 1 สาย — จตุจักร ↔ หัวลำโพง บนแนวถนนจริงในกรุงเทพฯ ตามหลัก "รถมาตามรอบ รู้ข้อมูลจริง ขึ้นรถได้อย่างเป็นธรรม"
 
+## Bus Bunching AI integration
+
+Telemetry Schema 1.0, GPS/passenger adapters, predictive headway, passenger-aware holding,
+dispatch, Digital Twin and Dispatcher integration: [API and testing guide](docs/BUS_BUNCHING_API.md).
+
+Weather-Aware (Open-Meteo), Event-Aware (GDELT + Manual Import), route impact, context scenarios and offline behavior: [External Context API](docs/EXTERNAL_CONTEXT_API.md).
+Run automated checks with `npm test`. All virtual data is labelled Simulation / Replay;
+live input is kept separate. No AWS credentials are required. Operator approval defaults to manual.
+
 ## เริ่มใช้งาน (Node.js 18+ — ไม่ต้องติดตั้งอะไรเพิ่ม)
 
 ```zsh

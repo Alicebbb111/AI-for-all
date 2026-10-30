@@ -1,0 +1,18 @@
+'use strict';
+const {CachedJsonProvider}=require('./http');
+const {buildPath,pointAtS}=require('../data');
+const HOURLY=['temperature_2m','precipitation','precipitation_probability','rain','weather_code','wind_speed_10m'];
+function samplePoints(route,count=3){const s=buildPath(route.ROUTE_POINTS);return Array.from({length:count},(_,i)=>{const p=pointAtS(s,s.totalLen*i/(count-1||1));return {latitude:+p.lat.toFixed(5),longitude:+p.lng.toFixed(5),sampleIndex:i};});}
+function parseHourly(raw){const h=raw?.hourly;if(!h||!Array.isArray(h.time))return [];return h.time.map((time,i)=>({forecastTime:time,temperatureC:h.temperature_2m?.[i]??null,precipitationMm:h.precipitation?.[i]??null,rainMm:h.rain?.[i]??null,precipitationProbability:h.precipitation_probability?.[i]??null,weatherCode:h.weather_code?.[i]??null,windSpeedKmh:h.wind_speed_10m?.[i]??null}));}
+function impact(row){if(!row)return {weatherCondition:'unknown',weatherImpactLevel:'unknown',reasons:['weather_unavailable']};const mm=row.precipitationMm??row.rainMm,code=row.weatherCode,prob=row.precipitationProbability;let condition=mm>0||[51,53,55,61,63,65,80,81,82,95,96,99].includes(code)?'rain':'no_rain_detected';let level='low';const reasons=[];if(mm==null&&code==null){level='unknown';reasons.push('precipitation_missing');}else if(mm>=7.5||[65,82,95,96,99].includes(code)){level='high';reasons.push('heavy_precipitation_signal');}else if(mm>=1||prob>=70){level='medium';reasons.push('rain_or_high_probability');}else reasons.push('limited_weather_signal');return {weatherCondition:condition,weatherImpactLevel:level,reasons};}
+class OpenMeteoProvider {
+  constructor(options={}){this.client=options.client||new CachedJsonProvider({ttlMs:15*60_000,timeoutMs:5000,retries:1,minIntervalMs:800,...options});this.endpoint=options.endpoint||'https://api.open-meteo.com/v1/forecast';}
+  url(p){const q=new URLSearchParams({latitude:p.latitude,longitude:p.longitude,current:'temperature_2m,precipitation,rain,weather_code,wind_speed_10m',hourly:HOURLY.join(','),forecast_days:'2',timezone:'Asia/Bangkok'});return `${this.endpoint}?${q}`;}
+  async route(routeId,route,{force=false}={}){
+    const points=samplePoints(route),observations=[];
+    for(const p of points){const r=await this.client.get(`${routeId}:${p.sampleIndex}`,this.url(p),{force}),raw=r.value,c=raw?.current||null,hourly=parseHourly(raw);const current=c?{forecastTime:c.time,temperatureC:c.temperature_2m??null,precipitationMm:c.precipitation??null,rainMm:c.rain??null,precipitationProbability:hourly.find(x=>x.forecastTime?.slice(0,13)===c.time?.slice(0,13))?.precipitationProbability??null,weatherCode:c.weather_code??null,windSpeedKmh:c.wind_speed_10m??null}:null;observations.push({...p,status:raw?(r.stale?'stale':'available'):'unavailable',stale:r.stale,error:r.error||null,lastUpdated:r.fetchedAt?new Date(r.fetchedAt).toISOString():null,source:'open-meteo',attribution:'Weather data by Open-Meteo.com',current,hourly,impact:impact(current)});}
+    const usable=observations.filter(x=>x.current),levels={unknown:-1,low:0,medium:1,high:2},representative=usable.sort((a,b)=>levels[b.impact.weatherImpactLevel]-levels[a.impact.weatherImpactLevel])[0]||null;
+    return {routeId,timezone:'Asia/Bangkok',source:'open-meteo',attribution:'Weather data by Open-Meteo.com',status:usable.length?(observations.some(x=>x.stale)?'stale':'available'):'unavailable',lastUpdated:representative?.lastUpdated||null,samplingNote:'Representative route points; not a street-level rain map',points:observations,current:representative?{...representative.current,...representative.impact}:null};
+  }
+}
+module.exports={OpenMeteoProvider,samplePoints,parseHourly,impact};

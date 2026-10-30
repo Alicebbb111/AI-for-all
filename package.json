@@ -4,7 +4,12 @@
   "description": "OmniTransit v5 — รถมาตามรอบ รู้ข้อมูลจริง ขึ้นรถได้อย่างเป็นธรรม (ระบบสาธิตจำลอง ศูนย์ dependency ฟรี 100%)",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "test": "node --test tests/*.test.js",
+    "benchmark:bunching": "node scripts/benchmark_bunching.js experiments/after.json",
+    "report:bunching": "node scripts/report_bunching.js",
+    "benchmark:context": "node scripts/benchmark_context.js",
+    "test:context-live": "node scripts/test_context_live.js"
   },
   "engines": { "node": ">=18" },
   "license": "MIT",

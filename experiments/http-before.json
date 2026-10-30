@@ -1,0 +1,8 @@
+{
+  "healthStatus": 200,
+  "healthLatencyMs": 13304.706400000001,
+  "maxSseGapMs": 13596.4248,
+  "sseFrames": 4,
+  "elapsedMs": 14525.2555,
+  "seeds": 30
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://omnitransit.local/schemas/weather-context-v1.schema.json",
+  "title": "OmniTransit Weather Context 1.0",
+  "type": "object",
+  "required": ["routeId", "source", "status", "points"],
+  "properties": {
+    "routeId": {"type": "string"},
+    "source": {"const": "open-meteo"},
+    "status": {"enum": ["not_loaded", "available", "stale", "unavailable"]},
+    "lastUpdated": {"type": ["string", "null"], "format": "date-time"},
+    "timezone": {"const": "Asia/Bangkok"},
+    "points": {"type": "array", "items": {"type": "object", "required": ["latitude", "longitude", "status"]}},
+    "current": {"type": ["object", "null"]}
+  },
+  "additionalProperties": true
+}

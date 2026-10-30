@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:omnitransit:telemetry:1.0",
+  "title": "OmniTransit Telemetry 1.0",
+  "type": "object",
+  "required": ["schemaVersion", "eventId", "sourceId", "mode", "observedAt", "busId", "routeId", "tripId", "direction"],
+  "properties": {
+    "schemaVersion": {"const": "1.0"},
+    "eventId": {"type": "string", "minLength": 1, "maxLength": 128},
+    "sourceId": {"type": "string", "minLength": 1, "maxLength": 128},
+    "sourceType": {"enum": ["camera", "apc", "manual", "mock"]},
+    "mode": {"enum": ["live", "simulation", "replay"]},
+    "observedAt": {"type": "string", "format": "date-time"},
+    "busId": {"type": "string", "minLength": 1, "maxLength": 128},
+    "routeId": {"type": "string", "minLength": 1, "maxLength": 128},
+    "tripId": {"type": "string", "minLength": 1, "maxLength": 128},
+    "direction": {"enum": [1, -1]},
+    "stopId": {"type": ["string", "null"]},
+    "simulationRunId": {"type": "string", "minLength": 1},
+    "simTimeSec": {"type": "number", "minimum": 0},
+    "measurementType": {"enum": ["flow", "occupancy"]},
+    "board": {"type": ["integer", "null"], "minimum": 0, "maximum": 1000},
+    "alight": {"type": ["integer", "null"], "minimum": 0, "maximum": 1000},
+    "onboard": {"type": ["integer", "null"], "minimum": 0, "maximum": 1000},
+    "capacity": {"type": ["integer", "null"], "minimum": 1, "maximum": 1000},
+    "crowdingLevel": {"enum": [0, 1, 2, null]},
+    "confidence": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+    "windowStart": {"type": "string", "format": "date-time"},
+    "windowEnd": {"type": "string", "format": "date-time"},
+    "latitude": {"type": "number", "minimum": -90, "maximum": 90},
+    "longitude": {"type": "number", "minimum": -180, "maximum": 180},
+    "speedKmh": {"type": ["number", "null"], "minimum": 0, "maximum": 150},
+    "bearingDeg": {"type": ["number", "null"], "minimum": 0, "maximum": 360},
+    "accuracyM": {"type": ["number", "null"], "minimum": 0, "maximum": 1000}
+  },
+  "allOf": [
+    {"if": {"properties": {"mode": {"enum": ["simulation", "replay"]}}}, "then": {"required": ["simulationRunId", "simTimeSec"]}}
+  ],
+  "oneOf": [
+    {"required": ["latitude", "longitude"], "not": {"required": ["measurementType"]}},
+    {"required": ["sourceType", "measurementType", "board", "alight", "windowStart", "windowEnd"], "properties": {"measurementType": {"const": "flow"}, "board": {"type": "integer"}, "alight": {"type": "integer"}, "onboard": {"type": "null"}}, "not": {"required": ["latitude"]}},
+    {"required": ["sourceType", "measurementType", "onboard"], "properties": {"measurementType": {"const": "occupancy"}, "onboard": {"type": "integer"}, "board": {"type": "null"}, "alight": {"type": "null"}}, "not": {"required": ["latitude"]}}
+  ],
+  "additionalProperties": false
+}

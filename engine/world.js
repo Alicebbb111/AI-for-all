@@ -97,26 +97,30 @@ function envPhase(tSec) {
 
 // ── คิวผู้โดยสารรายป้ายรายทิศ (FIFO — คนรอนานขึ้นก่อน ไม่มีการจองที่) ──────────
 class Queue {
-  constructor() { this.waiting = []; }
-  push(t) { this.waiting.push(t); }
-  take(n, now) { return this.waiting.splice(0, n).map((t) => now - t); }
-  get size() { return this.waiting.length; }
+  constructor() { this.waiting = []; this.now = Infinity; }
+  push(t) { this.waiting.push(t); this.waiting.sort((a,b)=>a-b); }
+  take(n, now) {
+    const eligible=this.waiting.filter(t=>t<=now).slice(0,n);
+    this.waiting.splice(0,eligible.length);
+    return eligible.map(t=>now-t);
+  }
+  get size() { return this.waiting.filter(t=>t<=this.now).length; }
 }
 
 class Bus {
-  constructor(plan, i, t0, loopLen) {
+  constructor(plan, i, t0, loopLen, seed = 'default') {
     this.id = plan.id; this.label = plan.label; this.driver = plan.driver;
     this.model = BUS_MODELS[plan.model];
     this.shiftStartSec = ROUTE.serviceStartSec + plan.offsetMin * MIN;
     this.shiftEndSec = this.shiftStartSec + 9 * 3600;
-    this.personalFactor = 0.92 + 0.16 * mulberry32(hashStr('pf' + plan.id))();
+    this.personalFactor = 0.92 + 0.16 * mulberry32(hashStr(seed + 'pf' + plan.id))();
     // กระจายรถรอบลูปสองทิศ — เปิดระบบแล้วเห็นรถวิ่งเต็มเส้นทางทันที
     const loopPos = (i * loopLen) / FLEET_PLAN.length;
     this.dir = loopPos < loopLen / 2 ? 1 : -1;
     this.pF = loopPos < loopLen / 2 ? loopPos : loopLen - loopPos; // พิกัดบนแกนเดินหน้า 0..L
     this.state = 'running';
     this.speedKmh = 0;
-    this.onboardTrue = Math.floor(6 + mulberry32(hashStr('ob' + plan.id))() * 14);
+    this.onboardTrue = Math.floor(6 + mulberry32(hashStr(seed + 'ob' + plan.id))() * 14);
     this.onboardEst = this.onboardTrue;
     this.countSource = 'apc';
     this.stopsSinceCount = 0;
@@ -162,25 +166,28 @@ class Bus {
 // ── เวิลด์ ───────────────────────────────────────────────────────────────────
 class World {
   /** policy: 'baseline' (ตารางตายตัว) | 'ai' (OmniTransit — ปรับจังหวะปล่อยรถในกรอบที่อนุมัติ) */
-  constructor(policy) {
+  constructor(policy, seed = 'default') {
+    this.seed = String(seed);
+    this.arrivalEvents = [];
+    this.departureEvents = [];
     this.policy = policy;
     this.t = 7 * 3600; // เริ่ม 07:00 ช่วงเร่งด่วน
     this.buses = FLEET_PLAN.map((p, i) => {
-      const b = new Bus(p, i, this.t, S.totalLen * 2);
+      const b = new Bus(p, i, this.t, S.totalLen * 2, this.seed);
       b._nowT = this.t;
       return b;
     });
     this.queues = new Map();
-    for (const st of STOPS) for (const d of [1, -1]) this.queues.set(st.id + ':' + d, new Queue());
+    for (const st of STOPS) for (const d of [1, -1]) { const q=new Queue();q.now=this.t;this.queues.set(st.id + ':' + d, q); }
     for (const st of STOPS) for (const d of [1, -1]) {
       const q = this.queues.get(st.id + ':' + d);
       // เมล็ดเดียวกันทั้งสองเวิลด์ (ไม่ผสม policy) — ให้เงื่อนไขเริ่มต้นเท่ากัน
-      const rnd = mulberry32(hashStr('warm' + st.id + d));
+      const rnd = mulberry32(hashStr(this.seed + 'warm' + st.id + d));
       const warm = Math.floor(st.baseRate * 3.0 * (0.4 + rnd() * 1.4));
       for (let k = 0; k < warm; k++) q.push(this.t - Math.floor(rnd() * 420));
     }
     // โมเดล AI: ความเร็ว EWMA รายโซนจราจร (~150 ม.) + เวลาจอดเฉลี่ย (เรียนรู้จากข้อมูลสด)
-    this.aiSegSpeed = Array.from({ length: ZONES }, (_, i) => histSpeedKmh(this.t) * (0.92 + 0.16 * mulberry32(hashStr('seg' + i + policy))()));
+    this.aiSegSpeed = Array.from({ length: ZONES }, (_, i) => histSpeedKmh(this.t) * (0.92 + 0.16 * mulberry32(hashStr(this.seed + 'seg' + i))()));
     this.aiDwellSec = 18;
     this.pendingEta = new Map();
     this.etaSamples = { hist: [], ai: [] };
@@ -205,6 +212,7 @@ class World {
   step(dt, env) {
     this.lastEnv = env || this.lastEnv || {};
     this.t += dt;
+    for(const q of this.queues.values())q.now=this.t;
     for (const b of this.buses) { b._nowT = this.t; this.stepBus(b, dt, env); }
   }
 
@@ -212,8 +220,10 @@ class World {
     let f = trafficMultiplier(this.t);
     if (env.rain) f *= 0.62;
     if (env.rush) f *= 0.78;
+    f *= env.trafficScale ?? 1;
+    f *= env.contextSpeedFactor ?? 1;
     if (this.slowZone && this.slowZone.untilT > this.t) {
-      if (b.pos >= this.slowZone.fromS && b.pos <= this.slowZone.toS) f *= 0.45;
+      if (b.pF >= this.slowZone.fromS && b.pF <= this.slowZone.toS) f *= 0.45;
     }
     return f;
   }
@@ -234,10 +244,12 @@ class World {
       return;
     }
     if (b.gpsOutUntil <= this.t) b.lastFixT = this.t;
+    if (b.operationHoldUntil > this.t) { b.speedKmh = 0; return; }
 
     if (b.state === 'running') {
       const v = b.model.baseKmh * this.trafficFactor(b, env) * b.personalFactor;
       b.speedKmh = Math.round(v * 10) / 10;
+      b.lastRunningSpeedKmh = b.speedKmh;
       b.pF += b.dir * (v * 1000 / 3600) * dt;
       b.stats.driveMin += dt / MIN;
       if (b.stats.driveMin >= ROUTE.maxDriveMin) {
@@ -272,10 +284,12 @@ class World {
     const stop = STOPS[stopIdx];
     const q = this.queues.get(stop.id + ':' + b.dir);
     const waiting = q.size;
-    const space = Math.max(0, b.model.legalMax - b.onboardTrue);
+    const alight = this.alightCount(b, stopIdx);
+    const space = Math.max(0, b.model.legalMax - b.onboardTrue + alight);
     const board = Math.min(waiting, space);
     const passUp = waiting - board;
-    const alight = this.alightCount(b, stopIdx);
+    this.arrivalEvents.push({busId:b.id,tripNo:b.tripNo,stopId:stop.id,dir:b.dir,t:this.t});
+    if(this.arrivalEvents.length>2000)this.arrivalEvents.shift();
     const waits = q.take(board, this.t);
     const estAtArrival = b.onboardEst; // ยอดประมาณก่อนเปิดประตู — ใช้เทียบกับพยากรณ์ N_hat ล่วงหน้า
 
@@ -318,7 +332,7 @@ class World {
       b.nextStopIdx = b.dir === 1 ? 1 : STOPS.length - 2;
       b.lastSegIdx = b.segIndexAt(); b.lastSegT = this.t;
     } else {
-      const dwell = Math.min(100, 8 + board * 1.3 + alight * 0.9) * (env.rain ? 1.25 : 1);
+      const dwell = Math.min(100, 8 + board * 1.3 + alight * 0.9) * (env.rain ? 1.25 : 1) * (env.contextDwellFactor ?? 1);
       b.dwellUntil = this.t + dwell;
       b.state = 'dwell';
       b.lastArrival = { stopIdx, t: this.t, board, alight, passUp, waitingAfter: q.size, onboardAfterEst: Math.round(b.onboardEst) };
@@ -329,7 +343,7 @@ class World {
   alightCount(b, stopIdx) {
     const progress = b.pos / S.totalLen;
     const base = progress < 0.15 ? 0.05 : progress < 0.5 ? 0.18 : progress < 0.8 ? 0.38 : 0.62;
-    const rnd = mulberry32(hashStr('al' + b.id + stopIdx + Math.floor(this.t / 300)));
+    const rnd = mulberry32(hashStr(this.seed + 'al' + b.id + ':' + b.tripNo + ':' + stopIdx));
     return Math.max(0, Math.min(b.onboardTrue, Math.round(b.onboardTrue * base * (0.7 + 0.6 * rnd()))));
   }
   nextStopAfter(stopIdx, dir) {
@@ -342,9 +356,10 @@ class World {
     if (b.state === 'terminal') return { board: 0, alight: 0 };
     if (b.manualHoldStops > 0) { b.manualHoldStops--; return { board: 0, alight: 0 }; }
     if (!b.apcFault && b.countSource !== 'none') {
-      const rnd = mulberry32(hashStr('apc' + b.id + Math.floor(this.t * 7)));
-      // กล้อง AI แม่นยำ 97%+ — แยกศีรษะ-ไหล่คนเดินคู่/ก้าวพร้อมกันได้ จึงจำลอง noise แค่ n*0.03 (เดิมลำแสง IR = n*0.08)
-      const noise = (n) => Math.max(0, Math.round(n + (rnd() - 0.5) * 2 * Math.max(1, n * 0.03)) + (rnd() < 0.01 ? 1 : 0));
+
+      const rnd = mulberry32(hashStr(this.seed + 'apc' + b.id + ':' + b.tripNo + ':' + b.nextStopIdx));
+      const noise = (n) => Math.max(0, Math.round(n + (rnd() - 0.5) * 2 * Math.max(1, n * 0.08)) + (rnd() < 0.03 ? 1 : 0));
+
       const na = noise(alightTrue), nb = noise(boardTrue);
       b.onboardEst = Math.max(0, b.onboardEst - na + nb);
       b.countSource = 'apc'; b.stopsSinceCount = 0; b.originDeclared = false;
@@ -369,9 +384,13 @@ class World {
   }
 
   departStop(b) {
+    const operationDelay = Math.max(0, (b.operationHoldUntil || 0) - (b.dwellUntil || 0));
     // สมการ 3: Bayesian Dwell Cross-Check — ตรวจยอดคนขึ้นซ้ำกับเวลาเปิดประตูจริง
-    // สมการ 3 (Bayesian Vision-Dwell Cross-Check): B_implied = (actualDwellSec − tau_0) / alpha → B_corrected = 0.85·B_cam + 0.15·B_implied
-    const actualDwellSec = Math.max(0, this.t - (b._arriveT || this.t));
+
+    // B_implied = (actualDwellSec − tau_0) / alpha → B_corrected = 0.75·B_apc + 0.25·B_implied
+    const actualDwellSec = Math.max(0, this.t - (b._arriveT || this.t) - operationDelay);
+    b.operationHoldUntil = 0;
+
     const bImplied = Math.max(0, (actualDwellSec - DWELL_TAU0_SEC) / (b.model.boardSec || 2.2));
     const bCorrected = Math.round(0.85 * (b._apcBoard || 0) + 0.15 * bImplied);
     const delta = bCorrected - (b._apcBoard || 0);
@@ -382,7 +401,7 @@ class World {
   }
 
   // ── อู่ปลายสาย: baseline ปล่อยตามสล็อตตายตัว / ai คุมระยะห่างจริง + ปรับในกรอบ ──
-  tryRelease(b) {
+  releaseTime(b, useOverride = true) {
     const d = String(b.dir);
     const prevDep = this.depTimes[d];
     const lastDep = prevDep.length ? prevDep[prevDep.length - 1] : this.t - HEADWAY;
@@ -399,9 +418,17 @@ class World {
       target = lastDep + HEADWAY + this.terminalShift[d];
     }
     // กันชนความปลอดภัยทั้งสองนโยบาย: ไม่ตัดเวลาพักขั้นต่ำ + ไม่ออกถี่กว่า 6 นาทีจากคันก่อนหน้า
-    const releaseAt = Math.max(target, layoverReady, lastDep + 6 * MIN);
+    return Math.max((useOverride ? b.operationReleaseAt : null) ?? target, layoverReady, lastDep + 6 * MIN, b.availableAfterSec || 0);
+  }
+
+  tryRelease(b) {
+    const d=String(b.dir),prevDep=this.depTimes[d];
+    const releaseAt=this.releaseTime(b);
     if (this.t >= releaseAt) {
       b.state = 'running';
+      this.departureEvents.push({busId:b.id,dir:b.dir,t:this.t,requestedAtSec:b.operationReleaseAt??null});
+      if(this.departureEvents.length>2000)this.departureEvents.shift();
+      b.operationReleaseAt = null;
       b.stats.layoverStartT = null;
       prevDep.push(this.t);
       if (prevDep.length > 50) prevDep.splice(0, prevDep.length - 50);
@@ -425,8 +452,8 @@ class World {
 
   // ── เวลาวิ่งบนลิงก์ถนน (สมการ 2 พจน์แรก): Sum_s(LinkLength / Speed_EMA) ──────
   runTimeSec(s0, s1) {
-    let x = Math.max(0, Math.min(S.totalLen, s0));
-    const end = Math.max(0, Math.min(S.totalLen, s1));
+    let x = Math.max(0, Math.min(S.totalLen, Math.min(s0, s1)));
+    const end = Math.max(0, Math.min(S.totalLen, Math.max(s0, s1)));
     let acc = 0, i = zoneIndexAt(x), guard = 0;
     while (x < end - 0.5 && guard++ < ZONES + 2) {
       const zEnd = Math.min(end, (i + 1) * ZONE_LEN);

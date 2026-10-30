@@ -22,14 +22,16 @@ function initRouteData(id) {
 initRouteData('R1');
 
 class Engine {
-  constructor() {
-    this.routeId = 'R1';
+  constructor({ seed = 'default', routeId = 'R1' } = {}) {
+    this.seed = String(seed);
+    initRouteData(routeId);
+    this.routeId = routeId;
     this.resetSim();
     this.mode = 'normal';            // normal | stopped (Kill Switch)
     this.degraded = false;           // จำลองเซิร์ฟเวอร์หลักขัดข้อง
     this.simSpeed = 1;               // 1 วินาทีจริง = 1 วินาทีจำลอง (เรียลไทม์ — รถเคลื่อนที่สมจริง)
     this.rain = false; this.rush = false;
-    this.autoApprove = true;
+    this.autoApprove = false;
     this.phaseOverride = null;       // null = auto ตามเวลาจำลอง
     this.audit = [];
     this.spotterLog = [];
@@ -63,9 +65,10 @@ class Engine {
     return Object.values(ROUTES).map((r) => ({ id: r.ROUTE.id, code: r.ROUTE.code, shortCode: r.ROUTE.shortCode, name: r.ROUTE.name, corridor: r.ROUTE.corridor, color: r.ROUTE.color, stops: r.STOPS.length, headwayMin: r.ROUTE.targetHeadwayMin }));
   }
   resetSim() {
-    this.baseline = new World('baseline');
-    this.ai = new World('ai');
-    this.lastMinute = Math.floor(this.ai.t / MIN);
+    this.baseline = new World('baseline', this.seed);
+    this.ai = new World('ai', this.seed);
+    if (this.operations) this.operations.reset();
+    this.lastMinute = Math.floor(this.ai.t / MIN) - 1;
     this.nextSlowZoneT = this.ai.t + 6 * MIN;
     this.nextCapacityCheckT = this.ai.t + 5 * MIN;
     this.env = { rain: this.rain, rush: this.rush, mode: this.mode };
@@ -73,21 +76,24 @@ class Engine {
 
   // ── Demand ชุดเดียวกันสำหรับทั้งสองเวิลด์ (วินาทีละเมล็ด ต่อนาที-ป้าย-ทิศ) ──
   generateDemand() {
-    const target = Math.floor(this.ai.t / MIN);
+    const target = Math.floor((this.ai.t + this.simSpeed) / MIN);
     while (this.lastMinute < target) {
       this.lastMinute++;
       const minute = this.lastMinute;
       for (const st of STOPS) {
         for (const dir of [1, -1]) {
-          const rnd = mulberry32(hashStr(`dm:${minute}:${st.id}:${dir}`));
+          const rnd = mulberry32(hashStr(`${this.seed}:dm:${minute}:${st.id}:${dir}`));
           const dirShare = dir === 1 ? 0.60 : 0.40;
           let lambda = st.baseRate * dirShare * demandMult(minute * 60);
           if (this.rush) lambda *= 1.5;
           if (this.rain) lambda *= 0.85;
+          lambda *= this.externalAssumptions?.demandFactor ?? 1;
+          lambda *= this.demandScale ?? 1;
           const n = poisson(lambda, rnd);
           for (let k = 0; k < n; k++) {
             const tArr = minute * MIN + Math.floor(rnd() * MIN);
             const evt = { stopId: st.id, dir, t: tArr };
+            if(this.onExogenous)this.onExogenous('arrival',evt);
             this.baseline.queues.get(st.id + ':' + dir).push(tArr);
             this.ai.queues.get(st.id + ':' + dir).push(tArr);
           }
@@ -99,11 +105,12 @@ class Engine {
   // ── จุดรถติดสุ่ม (เหมือนกันทั้งสองเวิลด์) ───────────────────────────────────
   maybeSlowZone() {
     if (this.ai.t < this.nextSlowZoneT) return;
-    const rnd = mulberry32(hashStr('slow' + Math.floor(this.ai.t)));
+    const rnd = mulberry32(hashStr(this.seed + 'slow' + Math.floor(this.ai.t)));
     const seg = Math.floor(rnd() * Math.max(1, ZONES - 2));
     const durMin = 5 + Math.floor(rnd() * 6);
     const zone = { fromS: seg * ZONE_LEN, toS: Math.min(S.totalLen, (seg + 2) * ZONE_LEN), untilT: this.ai.t + durMin * MIN };
     this.baseline.slowZone = zone; this.ai.slowZone = zone;
+    if(this.onExogenous)this.onExogenous('traffic',zone);
     this.nextSlowZoneT = this.ai.t + (8 + Math.floor(rnd() * 7)) * MIN;
     this.logEvent(`เกิดจุดรถติดช่วง ${STOPS.reduce((best, st) => Math.abs(S.stopS[st.id] - zone.fromS) < Math.abs(S.stopS[best.id] - zone.fromS) ? st : best).name} (นาน ~${durMin} นาที)`, 'info');
   }
@@ -129,7 +136,7 @@ class Engine {
   // ── วงจรหลัก ──────────────────────────────────────────────────────────────
   tick() {
     const dt = this.simSpeed; // วินาทีจำลองต่อการ tick หนึ่งครั้ง (1 วิจริง)
-    this.env = { rain: this.rain, rush: this.rush, mode: this.mode };
+    this.env = { rain: this.rain, rush: this.rush, mode: this.mode, trafficScale:this.trafficScale ?? 1,contextSpeedFactor:this.externalAssumptions?.speedFactor??1,contextDwellFactor:this.externalAssumptions?.dwellFactor??1,contextDemandFactor:this.externalAssumptions?.demandFactor??1,contextScenario:this.externalAssumptions?.scenario||null };
     this.generateDemand();
     this.maybeSlowZone();
     const sub = Math.max(1, Math.ceil(dt / 5));
@@ -157,6 +164,7 @@ class Engine {
 
   // ── คำตัดสินใจของนายท่า (อนุมัติ/ปฏิเสธ) พร้อม Audit Log ────────────────────
   decide(recId, decision, note) {
+    if (String(recId).startsWith('OPS')) return this.operations ? this.operations.decide(recId, decision, note) : { ok: false, error: 'operations unavailable' };
     const r = this.ai.recommendations.find((x) => x.id === recId);
     if (!r || r.status !== 'pending') return { ok: false, error: 'ไม่พบคำแนะนำ หรือถูกตัดสินใจไปแล้ว' };
     r.status = decision === 'approved' ? 'approved' : 'rejected';
@@ -321,6 +329,7 @@ class Engine {
     return { ok: true };
   }
   setKillSwitch(on, reason) {
+    if (on) for (const b of this.ai.buses) { b.operationHoldUntil = 0; b.operationReleaseAt = null; }
     this.killSwitch = { on: !!on, reason: String(reason || '').slice(0, 300), tReal: on ? new Date().toISOString() : null };
     if (on) {
       this.mode = 'stopped';
@@ -709,6 +718,7 @@ class Engine {
       busModels: Object.values(BUS_MODELS),
       fleetPlan: worldMod.routeCtx().FLEET_PLAN,
       timetableMeta: { headwayMin: ROUTE.targetHeadwayMin, start: '06:00', end: '22:00' },
+      operations: this.operations ? this.operations.snapshot('simulation') : null,
     };
     return payload;
   }

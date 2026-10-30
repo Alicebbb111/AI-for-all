@@ -9,6 +9,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="/css/app.css">
+  <link rel="stylesheet" href="/vendor/leaflet.css">
+  <link rel="stylesheet" href="/css/operations.css">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2316181d' stroke-width='2'%3E%3Cpath d='M5 3h14a1 1 0 0 1 1 1v13H4V4a1 1 0 0 1 1-1Z'/%3E%3C/svg%3E">
 </head>
 <body>
@@ -42,6 +44,7 @@
     </div>
 
     <div id="rec-area" data-tour="rec-area" aria-label="การแจ้งเตือนและคำแนะนำ"></div>
+    <section class="card" id="operations-panel" aria-label="Bus Bunching AI"></section>
 
     <section class="card" aria-label="สถานะรถทั้งสาย" data-tour="fleet-table" id="fleet-table">
       <div class="flex spread">
@@ -66,5 +69,7 @@
   <footer id="ot-footer"></footer>
   <script src="/js/common.js"></script>
   <script src="/js/dispatcher.js"></script>
+  <script src="/vendor/leaflet.js"></script>
+  <script src="/js/operations.js"></script>
 </body>
 </html>
