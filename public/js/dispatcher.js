@@ -121,7 +121,8 @@
         : b.state === 'broken' ? '<span class="tag bad"><span class="ico-dot"></span>รถเสีย</span>'
         : '<span class="tag bad"><span class="ico-dot"></span>ครบกะ</span>';
       const la = b.lastArrival;
-      const pct = Math.min(100, Math.round((b.onboardEst / b.model.legalMax) * 100));
+      const hasLoad = Number.isFinite(b.onboardEst);
+      const pct = hasLoad ? Math.min(100, Math.round((b.onboardEst / b.model.legalMax) * 100)) : 0;
       const col = pct >= 75 ? 'var(--crit-fill)' : pct >= 45 ? 'var(--warn-fill)' : 'var(--ok-fill)';
       const sig = b.nextSignalState || {};
       const sigTxt = sig.hasSignal
@@ -131,8 +132,8 @@
         <td><b>${OT.esc(b.id)}</b> <span class="chip small">${OT.esc(MODEL_SHORT[b.model.id] || b.model.name)}</span>
           <div class="muted small">${OT.esc(b.label)} · เที่ยว ${b.tripNo} · พัก ${b.restMin} นาที · ขับ ${(b.driveMin / 60).toFixed(1)} ชม.</div></td>
         <td>${tag}<div class="small">${OT.esc(b.nextStopName)} · ${OT.dirShort(b.dir)}</div></td>
-        <td><div class="cam-load"><div class="cam-bar"><div style="width:${pct}%; background:${col};"></div></div><span class="num small"><b>${b.onboardEst}</b>/${b.model.legalMax}</span></div>
-          <div class="muted small">${OT.crowdSimple(b.crowding ? b.crowding.level : -1).label}</div></td>
+        <td><div class="cam-load"><div class="cam-bar"><div style="width:${hasLoad ? pct : 0}%; background:${col};"></div></div><span class="num small"><b>${hasLoad ? b.onboardEst : '–'}</b>/${b.model.legalMax}</span></div>
+          <div class="muted small">${hasLoad ? OT.crowdSimple(b.crowding ? b.crowding.level : -1).label : 'ไม่มีข้อมูลสด (รอกล้องอ่านค่า)'}</div></td>
         <td class="num small">+${la ? la.board : 0} / -${la ? la.alight : 0}${la ? `<div class="muted" style="font-size:0.68rem;">ที่ ${OT.esc(la.stopName)}</div>` : ''}</td>
         <td class="num small">${b.actualDwellSec} วิ${b.remainingDwellSec ? `<div class="muted" style="font-size:0.68rem;">เหลือจอด ${b.remainingDwellSec} วิ</div>` : ''}</td>
         <td class="small">${sigTxt}</td>
@@ -546,70 +547,7 @@
     }
   }
 
-  async function renderHeadwayLoad(st) {
-    const host = document.getElementById('headway-load-chart');
-    let opsHeadways = null;
-    try {
-      const ops = await OT.get('/api/operations/state');
-      if (ops && ops.headways) opsHeadways = ops.headways;
-    } catch { /* ใช้ fallback จากตำแหน่งรถ */ }
-    const target = 480;
-    const buses = st.ai.buses.filter((b) => b.state === 'running' || b.state === 'dwell');
-    // Fallback: คำนวณช่องไฟหน้าจากตำแหน่งบนแกนเดินรถจริง (กันกราฟว่างช่วงต้น shift)
-    const hwOf = (b) => {
-      const fromOps = opsHeadways?.find((h) => h.busId === b.id)?.frontHeadwaySec;
-      if (Number.isFinite(fromOps)) return fromOps;
-      const group = buses.filter((x) => x.dir === b.dir).sort((a, z) => b.dir * (z.s - a.s));
-      const gi = group.indexOf(b);
-      const front = group[gi - 1];
-      if (!front) return null;
-      const gapM = Math.abs(front.s - b.s);
-      const spd = Math.max(4, ((front.speedKmh || 10) + (b.speedKmh || 10)) / 2);
-      return (gapM / 1000) / spd * 3600;
-    };
-    const hwAll = () => buses.map((b) => ({ b, hw: hwOf(b) })).filter((x) => Number.isFinite(x.hw) && x.hw > 0);
-    const W = 980, H = 320, padL = 46, padB = 34, padT = 14;
-    const colW = (W - padL - 10) / Math.max(1, buses.length);
-    const parts = [];
-    // ครึ่งบน: ช่องไฟหน้าต่อคัน (จาก operations headways) เทียบเป้า 480 วิ
-    const maxH = Math.max(600, ...hwAll().map((x) => x.hw));
-    parts.push(`<text x="${padL}" y="${padT + 8}" font-size="9" font-weight="600" fill="var(--ink-2)">ช่องไฟหน้า (วินาที) เทียบเป้าหมาย 480 วิ</text>`);
-    const chartTop = padT + 16, chartH = 100;
-    parts.push(`<line x1="${padL}" y1="${chartTop + chartH - (target / maxH) * chartH}" x2="${W - 10}" y2="${chartTop + chartH - (target / maxH) * chartH}" stroke="var(--warn-fill)" stroke-width="1" stroke-dasharray="4 3"/><text x="${W - 12}" y="${chartTop + chartH - (target / maxH) * chartH - 3}" font-size="8" text-anchor="end" fill="var(--warn)">เป้า 480 วิ</text>`);
-    const series = hwAll();
-    series.forEach(({ b, hw }, i) => {
-      const bh = (hw / maxH) * chartH;
-      const bx = padL + i * colW + colW * 0.2;
-      const col = hw < target * 0.5 ? 'var(--crit-fill)' : hw < target * 0.75 ? 'var(--warn-fill)' : 'var(--ok-fill)';
-      parts.push(`<rect x="${bx}" y="${chartTop + chartH - bh}" width="${colW * 0.6}" height="${bh}" fill="${col}" rx="2"><title>คัน ${b.id}: ช่องไฟหน้า ${Math.round(hw)} วินาที</title></rect>`);
-      parts.push(`<text x="${bx + colW * 0.3}" y="${chartTop + chartH - bh - 3}" font-size="8" text-anchor="middle" fill="var(--ink-2)">${Math.round(hw)}</text>`);
-    });
-    if (!series.length) parts.push(`<text x="${W / 2}" y="${chartTop + chartH / 2}" font-size="10" text-anchor="middle" fill="var(--muted)">กำลังรอรถออกจากอู่เพื่อวัดช่องไฟ…</text>`);
-    const meta = document.getElementById('hl-meta');
-    if (meta) {
-      const risky = series.filter((x) => x.hw < target * 0.5).length;
-      meta.textContent = series.length
-        ? `ติดตาม ${series.length} คัน${risky ? ` · เสี่ยงวิ่งชนกัน ${risky} คัน` : ' · ช่องไฟปกติทุกคัน'}`
-        : 'กำลังสะสมข้อมูล';
-      meta.className = 'chip ' + (risky ? 'fail' : 'pass');
-    }
-    // ครึ่งล่าง: ยอดคนจริงจากกล้อง AI เทียบความจุ + ขึ้น/ลงล่าสุด
-    const label2 = chartTop + chartH + 16;
-    parts.push(`<text x="${padL}" y="${label2}" font-size="9" font-weight="600" fill="var(--ink-2)">คนบนรถจริง (กล้อง AI) เทียบความจุตามกฎหมาย</text>`);
-    const loadTop = label2 + 6, loadH = 78;
-    buses.forEach((b, i) => {
-      const pct = Math.min(1, (b.onboardEst || 0) / b.model.legalMax);
-      const bx = padL + i * colW + colW * 0.2;
-      const col = pct >= 0.75 ? 'var(--crit-fill)' : pct >= 0.45 ? 'var(--warn-fill)' : 'var(--ok-fill)';
-      parts.push(`<rect x="${bx}" y="${loadTop}" width="${colW * 0.6}" height="${loadH}" fill="var(--grid)" rx="2"/>`);
-      parts.push(`<rect x="${bx}" y="${loadTop + loadH * (1 - pct)}" width="${colW * 0.6}" height="${loadH * pct}" fill="${col}" rx="2"><title>คัน ${b.id}: ${b.onboardEst}/${b.model.legalMax} คน</title></rect>`);
-      parts.push(`<text x="${bx + colW * 0.3}" y="${loadTop + 9}" font-size="7.5" text-anchor="middle" fill="var(--surface-1)" font-weight="700">${b.onboardEst}</text>`);
-      const la = b.lastArrival;
-      parts.push(`<text x="${bx + colW * 0.3}" y="${loadTop + loadH + 11}" font-size="7.5" text-anchor="middle" fill="var(--muted)" font-variant-numeric="tabular-nums">+${la ? la.board : 0} / -${la ? la.alight : 0}</text>`);
-      parts.push(`<text x="${bx + colW * 0.3}" y="${loadTop + loadH + 20}" font-size="8" text-anchor="middle" fill="var(--ink-2)" font-weight="600">${b.id}</text>`);
-    });
-    host.innerHTML = `<svg viewBox="0 0 ${W} ${H}" style="width:100%; height:auto;" font-family="inherit">${parts.join('')}</svg>`;
-  }
+
 
   // ── นักวิเคราะห์สถานการณ์สด (OpenAI — Hybrid: ไม่มี Key ใช้รายงานท้องถิ่น) ──
   let aaBusy = false;
@@ -650,7 +588,6 @@
     if (!audioFirstLoad && fresh.length && $('audio-alert').checked) alertBeep();
     audioFirstLoad = false;
     // กราฟช่องไฟ/คนจริง ทุก 5 วินาที · นักวิเคราะห์ AI ทุก 30 วินาที
-    if (mcChartTick % 5 === 0) renderHeadwayLoad(st);
     if (mcChartTick % 30 === 0) renderAIAnalyst();
     mcChartTick++;
   });

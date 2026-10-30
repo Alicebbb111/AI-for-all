@@ -1323,3 +1323,15 @@ table.data tbody tr:hover td { background: color-mix(in srgb, var(--accent) 4%, 
   transition: border-color 0.14s ease, box-shadow 0.14s ease, background 0.14s ease;
 }
 .banner { border-radius: 10px; }
+
+
+/* ── ตารางกองรถ: จำกัดความสูง เลื่อนแนวตั้ง หัวตารางตรึง ─────────────────── */
+.fleet-scroll { max-height: 430px; overflow-y: auto; overscroll-behavior: contain; }
+#fleet-table-el th {
+  position: sticky; top: 0; z-index: 2;
+  background: var(--surface-1);
+  box-shadow: 0 1px 0 var(--line);
+}
+#fleet-table-el td { padding: 7px 10px; line-height: 1.5; }
+#fleet-table-el .muted.small { font-size: 0.66rem; }
+#fleet-table-el .cam-bar { min-width: 52px; max-width: 96px; }

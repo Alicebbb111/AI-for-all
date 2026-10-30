@@ -75,18 +75,6 @@
       <div id="stop-inspector" class="mt" aria-live="polite"></div>
     </section>
 
-    <!-- โซน 4: กราฟวิศวกรรม -->
-    <section class="card" aria-label="กราฟวิเคราะห์การเดินรถ">
-      <div class="flex spread">
-        <div>
-          <span class="mc-kicker">วิศวกรรมการเดินรถ</span>
-          <h2 style="margin:0;">ช่องไฟเทียบเป้าหมาย & ยอดคนจริงจากกล้อง AI</h2>
-        </div>
-        <span class="chip" id="hl-meta">–</span>
-      </div>
-      <div id="headway-load-chart" class="mt"></div>
-    </section>
-
     <!-- โซน 4ข: แผงควบคุมช่องไฟสด & ป้องกันรถขาดระยะ (Anti-Bunching & Headway Control) -->
     <section class="card" aria-label="แผงควบคุมช่องไฟสดและป้องกันรถขาดระยะ">
       <div class="flex spread">
@@ -172,7 +160,7 @@
         </div>
         <span class="chip" id="fleet-adequacy">–</span>
       </div>
-      <div class="table-wrap mt">
+      <div class="table-wrap mt fleet-scroll">
         <table class="data" id="fleet-table-el">
           <thead><tr>
             <th>คัน</th><th>สถานะ · ป้ายถัดไป</th><th>คนบนรถจริง (กล้อง AI)</th><th class="num">ขึ้น/ลงล่าสุด</th><th class="num">เปิดประตูล่าสุด</th><th>ไฟแดงป้ายหน้า</th><th>GPS</th>
