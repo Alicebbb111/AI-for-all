@@ -76,7 +76,12 @@ module.exports = async (req, res) => {
   // Advance simulation time dynamically
   tickSimulation();
 
-  const url = new URL(req.url, `https://${req.headers.host || 'localhost'}`);
+  const originalUrl = req.headers['x-matched-path'] || req.url;
+  const url = new URL(originalUrl, `https://${req.headers.host || 'localhost'}`);
+  if (req.url && req.url.includes('?') && !url.search) {
+    const rawUrl = new URL(req.url, `https://${req.headers.host || 'localhost'}`);
+    rawUrl.searchParams.forEach((val, key) => url.searchParams.set(key, val));
+  }
   const p = url.pathname;
 
   // Enable CORS
