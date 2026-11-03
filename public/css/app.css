@@ -1599,6 +1599,7 @@ body { line-height: 1.62; }
 /* นักวิเคราะห์สถานการณ์สด (OpenAI) */
 .ai-analyst { border: 1.5px solid var(--accent); border-radius: var(--radius-sm); padding: 12px 14px; background: var(--accent-wash); width: 100%; box-sizing: border-box; }
 .ai-analyst .aa-head { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.ai-analyst #aa-text { white-space: pre-line; line-height: 1.65; }
 .ops-context-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; width: 100%; box-sizing: border-box; }
 
 /* ═══ Investor Pitch (Enterprise) ══════════════════════════════════════════ */
