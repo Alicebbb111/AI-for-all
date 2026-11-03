@@ -1,6 +1,6 @@
 'use strict';
 /**
- * OmniTransit v5 — server.js
+ * Evenflow v5 — server.js
  * เซิร์ฟเวอร์ HTTP แบบไม่พึ่งพาแพ็กเกจภายนอกเลย (ศูนย์ dependency — ไม่ต้อง npm install)
  * ให้บริการ: หน้าเว็บสแตติก + REST API + Server-Sent Events สำหรับข้อมูลสด
  */
@@ -255,7 +255,7 @@ server.listen(PORT, '0.0.0.0', () => {
   const lan = [];
   for (const list of Object.values(nets)) for (const n of list || []) if (n.family === 'IPv4' && !n.internal) lan.push(n.address);
   console.log('═══════════════════════════════════════════════════════');
-  console.log('  OmniTransit v5 — รถมาตามรอบ รู้ข้อมูลจริง ขึ้นรถได้อย่างเป็นธรรม');
+  console.log('  Evenflow v5 — รถมาตามรอบ รู้ข้อมูลจริง ขึ้นรถได้อย่างเป็นธรรม');
   console.log('  ────────────────────────────────────────────────────');
   console.log(`  หน้าผู้โดยสาร:        http://localhost:${PORT}/`);
   console.log(`  ป้ายประกาศ (Kiosk):   http://localhost:${PORT}/kiosk.html`);

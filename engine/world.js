@@ -1,6 +1,6 @@
 'use strict';
 /**
- * OmniTransit v5 — engine/world.js
+ * Evenflow v5 — engine/world.js
  * เวิลด์จำลองการเดินรถ 1 เส้นทาง: การเคลื่อนที่บนโพลีไลน์ถนนจริง, คิวผู้โดยสาร,
  * สมการสมดุล (คนบนรถหลังป้าย = ก่อนป้าย + ขึ้น − ลง), APC/ผู้สำรวจ, โมเดล ETA 2 แบบ,
  * การตรวจจับรถติดกัน (Bus Bunching), และตัวชี้วัด KPI แบบรายงานสด
@@ -165,7 +165,7 @@ class Bus {
 
 // ── เวิลด์ ───────────────────────────────────────────────────────────────────
 class World {
-  /** policy: 'baseline' (ตารางตายตัว) | 'ai' (OmniTransit — ปรับจังหวะปล่อยรถในกรอบที่อนุมัติ) */
+  /** policy: 'baseline' (ตารางตายตัว) | 'ai' (Evenflow — ปรับจังหวะปล่อยรถในกรอบที่อนุมัติ) */
   constructor(policy, seed = 'default') {
     this.seed = String(seed);
     this.arrivalEvents = [];

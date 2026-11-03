@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://omnitransit.local/schemas/event-context-v1.schema.json",
-  "title": "OmniTransit Traffic Event 1.0",
+  "$id": "https://evenflow.local/schemas/event-context-v1.schema.json",
+  "title": "Evenflow Traffic Event 1.0",
   "type": "object",
   "required": ["eventName", "eventType", "eventStatus", "verificationStatus"],
   "properties": {

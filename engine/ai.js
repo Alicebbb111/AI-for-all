@@ -1,6 +1,6 @@
 'use strict';
 /**
- * OmniTransit v5 — engine/ai.js
+ * Evenflow v5 — engine/ai.js
  * ตัวเชื่อม OpenAI API จริง (Real AI Crowding & ETA Forecaster)
  * - ศูนย์ dependency: ใช้โมดูล https ในตัวของ Node.js เท่านั้น
  * - อ่าน OPENAI_API_KEY / OPENAI_MODEL จากไฟล์ .env (ถ้ามี) หรือรับจากหน้าตั้งค่าแบบ runtime

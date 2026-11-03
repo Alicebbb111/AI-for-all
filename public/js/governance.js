@@ -1,5 +1,5 @@
 'use strict';
-/* OmniTransit v5 — governance.js (Roadmap 16 สัปดาห์ + Kill Switch + งบ + Charter) */
+/* Evenflow v5 — governance.js (Roadmap 16 สัปดาห์ + Kill Switch + งบ + Charter) */
 (function () {
   const $ = (id) => document.getElementById(id);
 
@@ -144,17 +144,17 @@
   });
   $('charter-download').addEventListener('click', () => {
     const s = OT.state;
-    let md = '# แบบเริ่มโครงการหนึ่งหน้า — OmniTransit v5 (สายนำร่อง 1)\n\n';
+    let md = '# แบบเริ่มโครงการหนึ่งหน้า — Evenflow v5 (สายนำร่อง 1)\n\n';
     if (s && s.charter && s.charter.savedAt) md += `_บันทึกเมื่อ: ${new Date(s.charter.savedAt).toLocaleString('th-TH')}_\n\n`;
     for (const [key, label] of CHARTER_FIELDS) {
       const v = ($( 'ch-' + key) || {}).value || s?.charter?.[key] || '';
       md += `**${label}:** ${v || '................................'}\n\n`;
     }
-    md += '---\n_สร้างจากระบบสาธิต OmniTransit v5 — ตัวเลขงบเป็นประมาณการ ต้องตรวจเอกสารจริงก่อนใช้_\n';
+    md += '---\n_สร้างจากระบบสาธิต Evenflow v5 — ตัวเลขงบเป็นประมาณการ ต้องตรวจเอกสารจริงก่อนใช้_\n';
     const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = 'omnitransit-project-charter.md';
+    a.download = 'evenflow-project-charter.md';
     a.click();
     URL.revokeObjectURL(a.href);
   });
@@ -184,7 +184,7 @@
     const rep = document.createElement('div');
     rep.id = 'ot-report';
     rep.innerHTML = `
-      <h1>รายงานกำกับโครงการ — OmniTransit v5</h1>
+      <h1>รายงานกำกับโครงการ — Evenflow v5</h1>
       <div class="meta">แผน 16 สัปดาห์ · งบประมาณ · Kill Switch · Charter | เวลาจำลอง ${st.ai.clock} น. · พิมพ์เมื่อ ${new Date().toLocaleString('th-TH')} · ระบบจำลองเพื่อการสาธิต</div>
 
       <h2>1) สถานะเกณฑ์ผ่านด่าน (Stage Gates) 16 สัปดาห์</h2>
@@ -201,8 +201,8 @@
       <h2>3) แบบเริ่มโครงการหนึ่งหน้า (1-Page Project Charter)</h2>
       <table><tr><th style="width:38%;">รายการ</th><th>ข้อมูล</th></tr>${charterRows}</table>
 
-      <div class="note"><b>ที่มากรอบงบ:</b> พิมพ์เขียว OmniTransit v5 บทที่ 13 (รวม 846,400 บาท ก่อนปรับค่า) — ไม่รวมรถใหม่ ค่าเดินรถประจำเดิม เซ็นเซอร์ใหม่ งานโยธา เงินอุดหนุนค่าโดยสาร · <b>เกณฑ์หยุด:</b> หยุดคำแนะนำทันทีเมื่อฝ่าฝืนเงื่อนไขบริการ/อันตราย/กีดกันผู้โดยสาร/ข้อมูลรั่ว — การหยุดซอฟต์แวร์ไม่ใช่การหยุดรถทั้งสาย</div>
-      <div class="meta">OmniTransit v5 — ศูนย์ dependency · "ผู้ควบคุมข้อมูลส่วนบุคคล" ≠ "เจ้าของข้อมูลส่วนบุคคล" — แยกบทบาทสองคำนี้ในเอกสารจริง</div>`;
+      <div class="note"><b>ที่มากรอบงบ:</b> พิมพ์เขียว Evenflow v5 บทที่ 13 (รวม 846,400 บาท ก่อนปรับค่า) — ไม่รวมรถใหม่ ค่าเดินรถประจำเดิม เซ็นเซอร์ใหม่ งานโยธา เงินอุดหนุนค่าโดยสาร · <b>เกณฑ์หยุด:</b> หยุดคำแนะนำทันทีเมื่อฝ่าฝืนเงื่อนไขบริการ/อันตราย/กีดกันผู้โดยสาร/ข้อมูลรั่ว — การหยุดซอฟต์แวร์ไม่ใช่การหยุดรถทั้งสาย</div>
+      <div class="meta">Evenflow v5 — ศูนย์ dependency · "ผู้ควบคุมข้อมูลส่วนบุคคล" ≠ "เจ้าของข้อมูลส่วนบุคคล" — แยกบทบาทสองคำนี้ในเอกสารจริง</div>`;
     document.body.appendChild(rep);
     document.body.classList.add('report-mode');
     const cleanup = () => { rep.remove(); document.body.classList.remove('report-mode'); window.removeEventListener('afterprint', cleanup); };

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>หน้าผู้โดยสาร · OmniTransit</title>
+  <title>หน้าผู้โดยสาร · Evenflow</title>
   <meta name="description" content="รถเมล์สายนำร่อง 1 จตุจักร–หัวลำโพง: ดูแผนที่รถสด เวลารถจะมาถึง ระดับความแน่น และค่าโดยสาร — ไม่ต้องสมัครสมาชิก ไม่มีการจองที่นั่ง">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,10 +12,9 @@
   <link rel="stylesheet" href="/css/app.css">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2316181d' stroke-width='2'%3E%3Cpath d='M5 3h14a1 1 0 0 1 1 1v13H4V4a1 1 0 0 1 1-1Z'/%3E%3C/svg%3E">
 </head>
-<body data-scope="public">
+<body data-scope="public" class="passenger-page">
   <div id="ot-nav"></div>
-  <main id="main" class="layout" style="grid-template-columns: 1.45fr 1fr;">
-    <style>@media (max-width: 1060px){ main.layout{grid-template-columns:1fr !important} }</style>
+  <main id="main" class="layout">
 
     <!-- แผนที่สด -->
     <section class="card map-card" aria-label="แผนที่รถสด">
@@ -47,7 +46,7 @@
     </section>
 
     <!-- คอลัมน์ขวา: เวลารถมาถึง + วางแผน + ตาราง -->
-    <section aria-label="ข้อมูลสำหรับผู้โดยสาร">
+    <section class="passenger-side" aria-label="ข้อมูลสำหรับผู้โดยสาร">
       <div id="alert-area" aria-live="polite"></div>
 
       <div class="card" data-tour="arrival">
@@ -97,6 +96,7 @@
         </div>
         <div id="schedule-box" class="mt"></div>
       </div>
+      <footer id="ot-footer" class="mt"></footer>
     </section>
   </main>
 
@@ -110,7 +110,6 @@
   </aside>
   <div id="drawer-scrim" class="drawer-scrim" hidden></div>
 
-  <footer id="ot-footer"></footer>
   <script src="/vendor/leaflet.js"></script>
   <script src="/js/common.js"></script>
   <script src="/js/passenger.js"></script>

@@ -1,6 +1,6 @@
 'use strict';
 /**
- * OmniTransit v5 — scripts/build_route.js
+ * Evenflow v5 — scripts/build_route.js
  * สร้างเรขาคณิตเส้นทางบน "แนวถนนจริง" ด้วย OSRM (Open Source Routing Machine — เซิร์ฟเวอร์สาธารณะ
  * ใช้ข้อมูล OpenStreetMap ODbL ฟรี ไม่ต้องมี Key) — เส้นทางที่ได้เป็นถนนเดียวกับที่แอปแผนที่ทั่วไปใช้
  *
@@ -221,7 +221,7 @@ async function main() {
   const file = path.join(__dirname, '..', 'engine', 'route_geo.js');
   const banner = `'use strict';
 /**
- * OmniTransit v5 — engine/route_geo.js  (ไฟล์ GENERATED — ห้ามแก้ไขด้วยมือ)
+ * Evenflow v5 — engine/route_geo.js  (ไฟล์ GENERATED — ห้ามแก้ไขด้วยมือ)
  * สร้างโดย scripts/build_route.js เมื่อ ${new Date().toISOString()}
  * เรขาคณิตเส้นทางบนแนวถนนจริงของกรุงเทพฯ จาก OSRM/OpenStreetMap:
  * ${out.meta.stops} ป้าย · ${out.meta.points} จุดยอด · ${out.meta.totalLenM} ม.

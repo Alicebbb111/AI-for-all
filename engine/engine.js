@@ -1,7 +1,7 @@
 'use strict';
 /**
- * OmniTransit v5 — engine/engine.js
- * ตัวควบคุมกลาง: รัน 2 เวิลด์คู่ขนาน (Baseline = "ก่อนทดลอง" / OmniTransit = "หลังทดลอง")
+ * Evenflow v5 — engine/engine.js
+ * ตัวควบคุมกลาง: รัน 2 เวิลด์คู่ขนาน (Baseline = "ก่อนทดลอง" / Evenflow = "หลังทดลอง")
  * ด้วยความต้องการเดินทางชุดเดียวกัน (seeded) เพื่อเทียบ KPI อย่างยุติธรรม
  * พร้อม Chaos Engine, GTFS-Realtime Feed, Audit Log, ระบบร้องเรียน, Roadmap/Budget/Charter
  */
@@ -417,7 +417,7 @@ class Engine {
           activePeriod: [{ start: Math.round(inc.tSec - 300) }],
           cause: inc.level === 'serious' ? 'OTHER_CAUSE' : 'UNKNOWN_CAUSE',
           effect: inc.level === 'serious' ? 'SIGNIFICANT_DELAYS' : 'OTHER_EFFECT',
-          headerText: { translation: [{ text: inc.msg, language: 'th' }, { text: 'OmniTransit service notice (demo)', language: 'en' }] },
+          headerText: { translation: [{ text: inc.msg, language: 'th' }, { text: 'Evenflow service notice (demo)', language: 'en' }] },
         },
       });
     }
@@ -694,7 +694,7 @@ class Engine {
     const baseOps = this.baseline.snapshot(true);
     const publicMasked = scope === 'public' && this.degraded;
     const payload = {
-      version: 'OmniTransit v5',
+      version: 'Evenflow v5',
       routeId: this.routeId,
       mode: this.mode,
       degraded: this.degraded,

@@ -1,5 +1,5 @@
 'use strict';
-/* OmniTransit v5 — kiosk.js (ป้ายประจำจุดจอด: ตัวใหญ่ + เสียงประกาศไทย + ตารางพิมพ์) */
+/* Evenflow v5 — kiosk.js (ป้ายประจำจุดจอด: ตัวใหญ่ + เสียงประกาศไทย + ตารางพิมพ์) */
 (function () {
   const params = new URLSearchParams(location.search);
   let stopId = params.get('stop') || localStorage.getItem('ot-stop') || 'S08';

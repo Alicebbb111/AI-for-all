@@ -1,5 +1,5 @@
 'use strict';
-/* OmniTransit v5 — charts.js
+/* Evenflow v5 — charts.js
  * กราฟ SVG แบบเบา: แท่งบาง (≤24px) มุมมน 4px ที่ปลายข้อมูล, เส้น 2px, กริดเส้นผม 1px ทึบ,
  * legend เสมอเมื่อ ≥2 ชุด, tooltip แบบ hover/focus, และตารางทวินสำหรับทุกกราฟ (ไม่กันค่าไว้ใน tooltip)
  */

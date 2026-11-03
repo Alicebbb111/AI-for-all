@@ -1,6 +1,6 @@
 'use strict';
 /**
- * OmniTransit v5 — Vercel Serverless API Handler
+ * Evenflow v5 — Vercel Serverless API Handler
  */
 const { Engine } = require('../engine/engine');
 const ai = require('../engine/ai');

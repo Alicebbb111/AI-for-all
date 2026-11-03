@@ -1,5 +1,5 @@
 'use strict';
-/* OmniTransit v5 — investor.js (หน้านำเสนอผู้ลงทุน: ดึงตัวเลขสดจากเอนจิน + โครงการใช้เงิน/Roadmap) */
+/* Evenflow v5 — investor.js (หน้านำเสนอผู้ลงทุน: ดึงตัวเลขสดจากเอนจิน + โครงการใช้เงิน/Roadmap) */
 (function () {
   const $ = (id) => document.getElementById(id);
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -97,9 +97,9 @@
       document.getElementById('inv-live').innerHTML = tiles.map((t) => `
         <div class="inv-tile"><div class="inv-tile-v">${esc(String(t.v))}</div><div class="inv-tile-u">${esc(t.u)}</div><div class="inv-tile-d">${esc(t.d)}</div></div>`).join('') + `
         <div class="inv-cmp">
-          <h3>ผลเทียบ Baseline vs OmniTransit (สดจากสองเวิลด์คู่ขนาน)</h3>
+          <h3>ผลเทียบ Baseline vs Evenflow (สดจากสองเวิลด์คู่ขนาน)</h3>
           <table class="data">
-            <thead><tr><th>ตัวชี้วัด</th><th class="num">Baseline</th><th class="num">OmniTransit</th><th class="num">เปลี่ยนแปลง</th><th>เป้าหมาย</th></tr></thead>
+            <thead><tr><th>ตัวชี้วัด</th><th class="num">Baseline</th><th class="num">Evenflow</th><th class="num">เปลี่ยนแปลง</th><th>เป้าหมาย</th></tr></thead>
             <tbody>
               <tr><td>เวลารอเฉลี่ย (นาที)</td><td class="num">${fmt(cmp.avgWait?.baseline, 2)}</td><td class="num">${fmt(cmp.avgWait?.ai, 2)}</td><td class="num">${pct(cmp.avgWait?.deltaPct)}</td><td>${cmp.avgWait?.targetPct != null ? pct(cmp.avgWait.targetPct) : '–'}</td></tr>
               <tr><td>อัตราขึ้นรถไม่ได้ (%)</td><td class="num">${cmp.passUpRate?.baseline != null ? (cmp.passUpRate.baseline * 100).toFixed(1) : '–'}</td><td class="num">${cmp.passUpRate?.ai != null ? (cmp.passUpRate.ai * 100).toFixed(1) : '–'}</td><td class="num">${pct(cmp.passUpRate?.deltaPct)}</td><td>${cmp.passUpRate?.targetPct != null ? pct(cmp.passUpRate.targetPct) : '–'}</td></tr>

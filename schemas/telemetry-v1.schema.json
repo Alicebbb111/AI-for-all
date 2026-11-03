@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "urn:omnitransit:telemetry:1.0",
-  "title": "OmniTransit Telemetry 1.0",
+  "$id": "urn:evenflow:telemetry:1.0",
+  "title": "Evenflow Telemetry 1.0",
   "type": "object",
   "required": ["schemaVersion", "eventId", "sourceId", "mode", "observedAt", "busId", "routeId", "tripId", "direction"],
   "properties": {

@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   OmniTransit v5 — Design System "Clean Transit Tech"
+   Evenflow v5 — Design System "Clean Transit Tech"
    หลักการ: พื้นขาวนวล/เทาอ่อน · หมึกดำ-เทา · สีเฉพาะสถานะ (เขียว/อำพัน/แดง โทนสุภาพ)
    ไอคอนเป็น SVG เส้น (Lucide-style) เท่านั้น — ไม่ใช้อีโมจิในระบบ
    โทนสีสถานะแสดงคู่กับข้อความและรูปทรงเสมอ (ไม่ใช้สีอย่างเดียว)
@@ -180,7 +180,8 @@ nav.mainnav a[aria-current='page'] { background: var(--surface-1); color: var(--
 .card .sub { color: var(--muted); font-size: 0.78rem; margin: 0 0 12px; }
 .card .hint { color: var(--muted); font-size: 0.76rem; margin-top: 10px; line-height: 1.6; }
 
-.layout { max-width: 1400px; margin: 0 auto; padding: 18px 20px 30px; display: grid; gap: 16px; }
+.layout { max-width: 1400px; width: 100%; box-sizing: border-box; margin: 0 auto; padding: 18px 20px 30px; display: grid; gap: 16px; }
+.layout > * { min-width: 0; max-width: 100%; }
 .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
 .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
@@ -228,7 +229,7 @@ table.data td { padding: 9px 10px; border-bottom: 1px solid var(--grid); vertica
 table.data tr:last-child td { border-bottom: none; }
 table.data td.num, table.data th.num { font-variant-numeric: tabular-nums; text-align: right; }
 table.data tbody tr:hover td { background: var(--accent-wash); }
-.table-wrap { overflow-x: auto; }
+.table-wrap { overflow-x: auto; width: 100%; max-width: 100%; box-sizing: border-box; -webkit-overflow-scrolling: touch; }
 
 /* แท็กสถานะในตาราง */
 .tag { display: inline-flex; align-items: center; gap: 6px; font-size: 0.75rem; font-weight: 600; padding: 3px 9px; border-radius: 6px; white-space: nowrap; }
@@ -249,8 +250,11 @@ table.data tbody tr:hover td { background: var(--accent-wash); }
 .delta.flat { color: var(--muted); }
 
 /* ── นายท่า: นับถอยหลัง + การ์ดแจ้งเตือน ────────────────────────────────── */
-.countdown-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-@media (max-width: 760px) { .countdown-wrap { grid-template-columns: 1fr; } }
+.countdown-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; width: 100%; box-sizing: border-box; }
+@media (max-width: 768px) {
+  .countdown-wrap { grid-template-columns: 1fr; gap: 10px; }
+  .countdown .cd-time { font-size: 2.4rem; }
+}
 .countdown { text-align: center; border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 12px; background: var(--page); }
 .countdown .cd-label { font-size: 0.76rem; font-weight: 600; color: var(--ink-2); }
 .countdown .cd-time { font-size: 2.9rem; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: 0.01em; line-height: 1.1; }
@@ -259,17 +263,140 @@ table.data tbody tr:hover td { background: var(--accent-wash); }
 .alert-bunch {
   border: 1.5px solid var(--warn-fill); background: var(--warn-wash);
   border-radius: var(--radius); padding: 16px 18px; margin-bottom: 12px;
+  width: 100%; box-sizing: border-box; word-break: break-word;
 }
-.alert-bunch .ab-title { display: flex; align-items: center; gap: 9px; font-weight: 700; font-size: 0.95rem; color: var(--warn); }
+.alert-bunch .ab-title { display: flex; align-items: center; gap: 9px; font-weight: 700; font-size: 0.95rem; color: var(--warn); flex-wrap: wrap; }
 .alert-bunch .ab-msg { margin: 8px 0 12px; font-size: 0.95rem; font-weight: 500; }
 .alert-bunch .ab-actions { display: flex; gap: 10px; flex-wrap: wrap; }
 
-/* ── แผนที่ ─────────────────────────────────────────────────────────────── */
-#map { height: 100%; min-height: 420px; border-radius: var(--radius); z-index: 1; background: var(--page); }
+/* ── แผนที่และเลย์เอาต์หน้าผู้โดยสาร (Modern App Shell) ─────────────────── */
+#map { height: 100%; min-height: 380px; border-radius: var(--radius); z-index: 1; background: var(--page); }
 .map-card { padding: 0; overflow: hidden; display: flex; flex-direction: column; }
-.map-card .map-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 12px 16px; border-bottom: 1px solid var(--line); }
-.map-card .map-body { flex: 1; min-height: 420px; }
+.map-card .map-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 12px 16px; border-bottom: 1px solid var(--line); flex: none; }
+.map-card .map-body { flex: 1; min-height: 380px; position: relative; }
+.map-card .quicksim { flex: none; }
+.map-card .map-attrib { flex: none; }
 .leaflet-container { background: var(--page); font: inherit; }
+
+@media (min-width: 1061px) {
+  html:has(body.passenger-page),
+  body.passenger-page {
+    height: 100vh;
+    max-height: 100vh;
+    overflow: hidden;
+  }
+  body.passenger-page {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+  }
+  body.passenger-page #ot-nav {
+    flex: 0 0 auto;
+    position: relative;
+    z-index: 100;
+  }
+  body.passenger-page main.layout {
+    flex: 1 1 auto;
+    height: calc(100vh - 63px);
+    max-height: calc(100vh - 63px);
+    min-height: 0;
+    overflow: hidden;
+    padding: 12px 18px 14px;
+    margin: 0;
+    max-width: 100%;
+    width: 100%;
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: 1.45fr 1fr;
+    gap: 16px;
+  }
+  body.passenger-page .map-card {
+    height: 100%;
+    max-height: 100%;
+    min-height: 0;
+    position: static;
+    display: flex;
+    flex-direction: column;
+  }
+  body.passenger-page .map-card .map-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    height: 100%;
+  }
+  body.passenger-page #map {
+    height: 100%;
+    min-height: 0;
+    width: 100%;
+    border-radius: 0;
+  }
+  body.passenger-page .passenger-side {
+    height: 100%;
+    max-height: 100%;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 6px;
+    padding-bottom: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    scroll-behavior: smooth;
+  }
+  body.passenger-page .passenger-side::-webkit-scrollbar {
+    width: 6px;
+  }
+  body.passenger-page .passenger-side::-webkit-scrollbar-thumb {
+    background: var(--line);
+    border-radius: 999px;
+  }
+  body.passenger-page .passenger-side::-webkit-scrollbar-thumb:hover {
+    background: var(--muted);
+  }
+  body.passenger-page .passenger-side #ot-footer {
+    min-height: auto;
+    margin-top: 10px;
+  }
+  body.passenger-page .passenger-side .footer {
+    padding: 14px 2px 28px;
+    font-size: 0.72rem;
+    line-height: 1.6;
+  }
+}
+
+@media (max-width: 1060px) {
+  body.passenger-page {
+    height: auto;
+    overflow: auto;
+  }
+  body.passenger-page main.layout {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    max-height: none;
+    overflow: visible;
+    padding: 14px;
+    gap: 16px;
+  }
+  body.passenger-page .map-card {
+    position: static;
+    height: auto;
+    max-height: none;
+  }
+  body.passenger-page .map-card .map-body,
+  body.passenger-page #map {
+    height: 420px;
+    min-height: 330px;
+  }
+  body.passenger-page .passenger-side {
+    height: auto;
+    max-height: none;
+    overflow: visible;
+    padding-right: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+}
 /* เปรียบเทียบคนบนรถขณะนี้ vs คาดการณ์เมื่อถึงป้าย (สมการที่ 1+3) */
 .load-cmp { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 10px 0 2px; padding: 9px 12px; border: 1px solid var(--line); border-radius: var(--radius-sm, 10px); background: var(--surface-2, var(--surface-1)); }
 .load-cmp .lc-cell { display: flex; flex-direction: column; gap: 1px; }
@@ -373,7 +500,181 @@ svg.chart text { font-family: inherit; fill: var(--muted); font-size: 11px; }
 svg.chart .gridline { stroke: var(--grid); stroke-width: 1; }
 svg.chart .baseline-line { stroke: var(--baseline); stroke-width: 1; }
 .chart-tooltip { position: absolute; pointer-events: none; z-index: 40; background: var(--surface-1); border: 1px solid var(--line); box-shadow: var(--shadow); border-radius: 8px; padding: 6px 10px; font-size: 0.75rem; color: var(--ink); display: none; max-width: 240px; }
-.chart-tooltip b { font-variant-numeric: tabular-nums; }
+/* ── Dumbbell Chart เปรียบเทียบเวลารอรายป้าย (Modern Table & Guidelines) ── */
+.db-legend { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; font-size: 0.76rem; color: var(--ink-2); margin: 6px 0 12px; }
+.db-leg-item { display: inline-flex; align-items: center; gap: 6px; }
+.db-swatch { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.db-swatch.before { background: var(--warn-fill); box-shadow: 0 0 0 1px var(--line); }
+.db-swatch.after { background: var(--accent); box-shadow: 0 0 0 1px var(--line); }
+.db-swatch.better { width: 14px; height: 4px; border-radius: 2px; background: var(--ok-fill); }
+.db-swatch.worse { width: 14px; height: 4px; border-radius: 2px; background: var(--crit-fill); }
+
+.dumbbell-table {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm, 8px);
+  background: var(--surface-1);
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+.db-head-row {
+  display: grid;
+  grid-template-columns: 140px 1fr 148px;
+  gap: 12px;
+  align-items: center;
+  padding: 8px 12px;
+  background: var(--page);
+  border-bottom: 1.5px solid var(--line);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: 0.02em;
+}
+.db-scale-axis {
+  position: relative;
+  height: 18px;
+  width: 100%;
+}
+.db-scale-tick {
+  position: absolute;
+  transform: translateX(-50%);
+  font-size: 0.68rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.db-scale-tick.first { transform: translateX(0); }
+.db-scale-tick.last { transform: translateX(-100%); }
+
+.db-th-vals {
+  display: grid;
+  grid-template-columns: 40px 40px 60px;
+  gap: 4px;
+  text-align: right;
+}
+
+.db-row {
+  display: grid;
+  grid-template-columns: 140px 1fr 148px;
+  gap: 12px;
+  align-items: center;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--grid);
+  transition: background 0.14s ease;
+  font-size: 0.8rem;
+}
+.db-row:last-child { border-bottom: none; }
+.db-row:hover { background: var(--accent-wash); }
+
+.db-stop-name {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1.35;
+  font-size: 0.78rem;
+}
+.db-stop-idx {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--grid);
+  color: var(--ink-2);
+  font-size: 0.65rem;
+  font-weight: 700;
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+}
+.db-stop-txt {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.db-track-wrap {
+  position: relative;
+  height: 24px;
+  display: flex;
+  align-items: center;
+}
+.db-grid-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  border-left: 1px dashed var(--line);
+  opacity: 0.6;
+  pointer-events: none;
+}
+.db-baseline {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--grid);
+  border-radius: 2px;
+}
+.db-connecting-bar {
+  position: absolute;
+  height: 6px;
+  border-radius: 3px;
+  transition: width 0.3s ease, left 0.3s ease;
+  z-index: 1;
+}
+.db-connecting-bar.good {
+  background: linear-gradient(90deg, var(--warn-fill), var(--ok-fill));
+  box-shadow: 0 1px 3px rgba(22, 163, 74, 0.25);
+}
+.db-connecting-bar.bad {
+  background: linear-gradient(90deg, var(--warn-fill), var(--crit-fill));
+  box-shadow: 0 1px 3px rgba(220, 38, 38, 0.25);
+}
+
+.db-dot {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid var(--surface-1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  z-index: 2;
+  transition: left 0.3s ease;
+}
+.db-dot-before { background: var(--warn-fill); }
+.db-dot-after { background: var(--accent); z-index: 3; }
+.db-dot-after.concentric {
+  border: 2px solid var(--warn-fill);
+  box-shadow: 0 0 0 1.5px var(--surface-1), 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+.db-val-group {
+  display: grid;
+  grid-template-columns: 40px 40px 60px;
+  gap: 4px;
+  align-items: center;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.78rem;
+}
+.db-val { font-weight: 600; }
+.db-val-b { color: var(--warn); }
+.db-val-a { color: var(--accent-ink); }
+.db-val-diff {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 5px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+.db-val-diff.good { color: var(--ok); background: var(--ok-wash); }
+.db-val-diff.bad { color: var(--crit); background: var(--crit-wash); }
+.db-val-diff.flat { color: var(--muted); background: var(--grid); }
+
+/* Compatibility for old dumbbell-row */
 .dumbbell-row { display: grid; grid-template-columns: 140px 1fr 96px; gap: 10px; align-items: center; margin: 6px 0; font-size: 0.79rem; }
 .dumbbell-track { position: relative; height: 22px; }
 .dumbbell-line { position: absolute; top: 10px; height: 2px; background: var(--grid); }
@@ -884,7 +1185,11 @@ body { line-height: 1.62; }
 .pillar .pl-head { font-size: 0.64rem; font-weight: 700; color: var(--muted); letter-spacing: 0.05em; margin-bottom: 3px; }
 
 /* เรดาร์เส้นทาง */
-#corridor-radar { margin-top: 8px; }
+#corridor-radar { margin-top: 8px; width: 100%; max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+#corridor-radar svg { min-width: 500px; width: 100%; height: auto; display: block; }
+@media (min-width: 768px) {
+  #corridor-radar svg { min-width: unset; }
+}
 .radar-bus { cursor: pointer; }
 .gap-alert { animation: gap-blink 1s steps(2, start) infinite; }
 @keyframes gap-blink { to { visibility: hidden; } }
@@ -905,6 +1210,14 @@ body { line-height: 1.62; }
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 10px;
+  width: 100%;
+  box-sizing: border-box;
+}
+@media (max-width: 480px) {
+  .headway-kpi-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
 }
 .hk-card {
   background: var(--surface-1);
@@ -940,6 +1253,10 @@ body { line-height: 1.62; }
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
   padding: 14px 16px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 .hv-header {
   display: flex;
@@ -951,9 +1268,19 @@ body { line-height: 1.62; }
   border-bottom: 1px solid var(--line);
   padding-bottom: 10px;
 }
+#headway-visual-corridor {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  box-sizing: border-box;
+}
 .hv-track {
   margin: 16px 0;
   position: relative;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 .hv-track-title {
   display: flex;
@@ -968,7 +1295,11 @@ body { line-height: 1.62; }
   align-items: center;
   gap: 4px;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   padding: 8px 4px 14px;
+  width: max-content;
+  min-width: 100%;
+  box-sizing: border-box;
 }
 .hv-bus-node {
   flex-shrink: 0;
@@ -1006,8 +1337,8 @@ body { line-height: 1.62; }
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 0 4px;
-  min-width: 96px;
+  padding: 0 6px;
+  min-width: 155px;
 }
 .hv-gap-badge {
   font-size: 0.72rem;
@@ -1052,6 +1383,79 @@ body { line-height: 1.62; }
   background: var(--line);
   margin: 3px 0;
   position: relative;
+}
+.hv-gap-action {
+  margin-top: 5px;
+  font-size: 0.67rem;
+  line-height: 1.2;
+  padding: 2.5px 8px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+.hv-act-tag {
+  font-size: 0.56rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  padding: 1.5px 5px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+.hv-act-msg {
+  font-weight: 600;
+}
+.hv-gap-action.ok {
+  background: var(--surface-2);
+  color: var(--ink-2);
+  border: 1px solid var(--line);
+}
+.hv-gap-action.ok .hv-act-tag {
+  background: var(--line);
+  color: var(--ink-2);
+}
+.hv-gap-action.warn {
+  background: rgba(217, 119, 6, 0.12);
+  color: #b45309;
+  border: 1px solid rgba(217, 119, 6, 0.35);
+}
+.hv-gap-action.warn .hv-act-tag {
+  background: #b45309;
+  color: #fff;
+}
+.hv-gap-action.danger {
+  background: rgba(229, 62, 62, 0.14);
+  color: #c53030;
+  border: 1px solid rgba(229, 62, 62, 0.4);
+  animation: gap-blink 1s steps(2, start) infinite;
+}
+.hv-gap-action.danger .hv-act-tag {
+  background: #c53030;
+  color: #fff;
+}
+.hv-gap-action.gap {
+  background: rgba(147, 51, 234, 0.14);
+  color: #7e22ce;
+  border: 1px solid rgba(147, 51, 234, 0.4);
+}
+.hv-gap-action.gap .hv-act-tag {
+  background: #7e22ce;
+  color: #fff;
+}
+.hv-bus-action-tag {
+  margin-top: 5px;
+  padding-top: 4px;
+  border-top: 1px dashed var(--line);
+  font-size: 0.64rem;
+  color: var(--ink-2);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .headway-explain-bar {
   display: flex;
@@ -1118,13 +1522,32 @@ body { line-height: 1.62; }
 .cam-bar > div { height: 100%; border-radius: 999px; transition: width 0.4s; }
 
 /* ═══ Mission Control — จัดระเบียบหน้านายท่า (Industrial Control Room) ═════ */
-.mc-page .mc-layout { max-width: 1500px; gap: 14px; }
+.mc-page { overflow-x: hidden; width: 100%; }
+.mc-page .mc-layout {
+  width: 100%;
+  max-width: 1500px;
+  box-sizing: border-box;
+  gap: 14px;
+  padding: 16px 20px 30px;
+}
+.mc-page .mc-layout > * {
+  min-width: 0;
+  max-width: 100%;
+}
 
 /* ตัวเรียงหัวข้อระดับแผง */
 .mc-kicker { display: block; font-size: 0.64rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 2px; }
 
 /* แถบเครื่องมือบาง */
-.mc-toolbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 8px 14px; }
+.mc-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 8px 14px;
+  width: 100%;
+  box-sizing: border-box;
+}
 .mc-toolbar .sb-title { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.06em; color: var(--muted); }
 .mc-toolbar .sb-sep { width: 1px; height: 20px; background: var(--line); margin: 0 2px; }
 .mc-toolbar .btn.small { min-height: 30px; padding: 4px 11px; font-size: 0.76rem; }
@@ -1153,15 +1576,30 @@ body { line-height: 1.62; }
 .mc-collapsible > summary:hover { color: var(--ink); }
 .mc-collapsible[open] > summary { margin-bottom: 10px; }
 
-/* จอเล็ก: ตารางรถเลื่อนแนวนอน, สมการเรียงตั้ง */
+/* จอเล็ก: ตารางรถเลื่อนแนวนอน, สมการเรียงตั้ง, แถบเครื่องมือตัดเส้นคั่น */
+@media (max-width: 900px) {
+  .mc-toolbar .grow { display: none; }
+  .mc-toolbar .sb-sep { display: none; }
+}
 @media (max-width: 720px) {
   .fx-table .fx-rowhead { width: auto; }
   .mc-toolbar .sb-title { display: none; }
 }
+@media (max-width: 680px) {
+  .mc-page .mc-layout { padding: 10px 12px 24px; gap: 12px; }
+  .mc-page .card .flex.spread { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .mc-page #dispatcher-alert { max-width: 100% !important; width: 100%; }
+  .mc-toolbar { padding: 8px 10px; gap: 6px; }
+  .mc-toolbar .btn.small { padding: 4px 8px; font-size: 0.72rem; min-height: 28px; }
+  .mc-toolbar .toggle { font-size: 0.72rem; }
+  .alert-bunch { padding: 12px 14px; }
+  .alert-bunch .ab-actions .btn.xl { width: 100%; min-height: 44px; }
+}
 
 /* นักวิเคราะห์สถานการณ์สด (OpenAI) */
-.ai-analyst { border: 1.5px solid var(--accent); border-radius: var(--radius-sm); padding: 12px 14px; background: var(--accent-wash); }
+.ai-analyst { border: 1.5px solid var(--accent); border-radius: var(--radius-sm); padding: 12px 14px; background: var(--accent-wash); width: 100%; box-sizing: border-box; }
 .ai-analyst .aa-head { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.ops-context-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; width: 100%; box-sizing: border-box; }
 
 /* ═══ Investor Pitch (Enterprise) ══════════════════════════════════════════ */
 .inv-page { background: var(--page); }
@@ -1266,6 +1704,17 @@ nav.mainnav a[aria-current='page'] {
   box-shadow: inset 0 0 0 1px var(--line), var(--shadow-1); font-weight: 600;
 }
 .top-actions { gap: 6px; }
+@media (max-width: 560px) {
+  .topbar-inner { padding: 8px 10px; gap: 8px; }
+  .brand-badge { width: 32px; height: 32px; border-radius: 8px; }
+  .brand-name { font-size: 0.88rem; }
+  nav.mainnav { gap: 2px; }
+  nav.mainnav a { padding: 6px 8px; font-size: 0.74rem; gap: 4px; }
+  nav.mainnav a .ico-svg { width: 0.9em; height: 0.9em; }
+  .top-actions { gap: 4px; }
+  .top-actions .btn.small { padding: 4px 8px; min-height: 30px; }
+  #gear-btn .nav-label { display: none; }
+}
 
 /* ── การ์ด: hairline + เงาเฉพาะ hover ──────────────────────────────────── */
 .card {

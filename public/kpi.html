@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>สรุปผลโครงการ · OmniTransit</title>
+  <title>สรุปผลโครงการ · Evenflow</title>
   <meta name="description" content="ตัวเลขวัดผลก่อน-หลังทดลอง ความเป็นธรรม 7 กลุ่ม และระบบร้องเรียนออกเลขรับเรื่องทันที — ในหน้าเดียวเข้าใจง่าย">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -53,13 +53,20 @@
 
     <div class="grid-2">
       <section class="card" aria-label="เวลารอรายป้าย">
-        <h2>เวลารอเฉลี่ยรายป้าย (นาที)</h2>
-        <p class="sub">วงกลมส้ม = ก่อนทดลอง · วงกลมน้ำเงิน = หลังทดลอง</p>
+        <div class="flex spread" style="margin-bottom:2px;">
+          <h2 style="margin:0;">เวลารอเฉลี่ยรายป้าย (นาที)</h2>
+        </div>
+        <div class="db-legend">
+          <span class="db-leg-item"><span class="db-swatch before"></span> ก่อนทดลอง (Baseline)</span>
+          <span class="db-leg-item"><span class="db-swatch after"></span> หลังทดลอง (AI Controller)</span>
+          <span class="db-leg-item"><span class="db-swatch better"></span> เวลารอลดลง</span>
+          <span class="db-leg-item"><span class="db-swatch worse"></span> เวลารอเพิ่มขึ้น</span>
+        </div>
         <div id="dumbbell-box"></div>
       </section>
       <section class="card" aria-label="โมเดลพยากรณ์">
         <h2>โมเดลพยากรณ์เวลาถึง</h2>
-        <p class="sub">เปิดใช้ AI ได้เมื่อพิสูจน์ว่าแม่นกว่าวิธีง่ายอย่างน้อย 10% บนข้อมูลเฟสทดสอบ</h2>
+        <p class="sub">เปิดใช้ AI ได้เมื่อพิสูจน์ว่าแม่นกว่าวิธีง่ายอย่างน้อย 10% บนข้อมูลเฟสทดสอบ</p>
         <div id="ai-gate"></div>
         <div class="flex mt">
           <button class="btn small" id="btn-shadow">ทดสอบเงียบ (Shadow)</button>
@@ -71,28 +78,18 @@
           <div class="stat-tile"><div class="label">ผิดร้ายแรง (บอกไม่แน่นแต่จริงแน่น)</div><div class="value" id="serious-value" style="font-size:1.5rem;">–</div><div class="delta flat" id="serious-ci">–</div></div>
           <div class="stat-tile"><div class="label">ตอบ "ไม่ทราบ" (ข้อมูลขาด)</div><div class="value" id="unknown-value" style="font-size:1.5rem;">–</div><div class="delta flat">ต้องรายงานกันการหลบตอบ</div></div>
         </div>
-      </section>
-      <section class="card" aria-label="ความแม่นพยากรณ์คนบนรถล่วงหน้า">
-        <h2>ความแม่นพยากรณ์คนบนรถล่วงหน้า (สมการไหลสะสมรายป้าย)</h2>
-        <p class="sub">เทียบพยากรณ์ N_hat กับยอดประมาณจริง ณ วินาทีรถถึงป้าย · ± sigma คือกรอบความไม่แน่นอนสะสมตามสมการที่ 3 (รีเซ็ตเมื่อผู้สำรวจ/อู่ปลายทางนับจริง)</p>
-        <div class="grid-3">
-          <div class="stat-tile"><div class="label">MAE พยากรณ์คนบนรถ</div><div class="value" id="prop-mae" style="font-size:1.5rem;">–</div><div class="delta flat" id="prop-mae-d">หน่วย: คน</div></div>
-          <div class="stat-tile"><div class="label">อยู่ในกรอบ ± sigma</div><div class="value" id="prop-sig" style="font-size:1.5rem;">–</div><div class="delta flat">เป้าหมาย ≥ 60%</div></div>
-          <div class="stat-tile"><div class="label">ตัวอย่างที่วัดแล้ว</div><div class="value" id="prop-n" style="font-size:1.5rem;">–</div><div class="delta flat">เหตุการณ์รถถึงป้าย</div></div>
+
+        <div style="border-top:1px solid var(--line); margin-top:20px; padding-top:16px;">
+          <h2 style="font-size:1.02rem; margin:0 0 4px;">ความแม่นพยากรณ์คนบนรถล่วงหน้า (สมการไหลสะสมรายป้าย)</h2>
+          <p class="sub" style="margin-bottom:12px;">เทียบพยากรณ์ N_hat กับยอดประมาณจริง ณ วินาทีรถถึงป้าย · ± sigma คือกรอบความไม่แน่นอนสะสมตามสมการที่ 3 (รีเซ็ตเมื่อผู้สำรวจ/อู่ปลายทางนับจริง)</p>
+          <div class="grid-3">
+            <div class="stat-tile"><div class="label">MAE พยากรณ์คนบนรถ</div><div class="value" id="prop-mae" style="font-size:1.5rem;">–</div><div class="delta flat" id="prop-mae-d">หน่วย: คน</div></div>
+            <div class="stat-tile"><div class="label">อยู่ในกรอบ ± sigma</div><div class="value" id="prop-sig" style="font-size:1.5rem;">–</div><div class="delta flat">เป้าหมาย ≥ 60%</div></div>
+            <div class="stat-tile"><div class="label">ตัวอย่างที่วัดแล้ว</div><div class="value" id="prop-n" style="font-size:1.5rem;">–</div><div class="delta flat">เหตุการณ์รถถึงป้าย</div></div>
+          </div>
         </div>
       </section>
     </div>
-
-    <section class="card" aria-label="ตารางตรวจความเป็นธรรม">
-      <h2>ผลกระทบต่อผู้เกี่ยวข้อง 7 กลุ่ม (ตรวจรายสัปดาห์จากข้อมูลสด)</h2>
-      <div class="table-wrap mt">
-        <table class="data" id="fairness-table">
-          <thead><tr><th style="min-width:140px;">กลุ่ม</th><th>มาตรการที่ระบบทำจริง</th><th style="min-width:200px;">ตรวจจากข้อมูลสด</th><th>สถานะ</th></tr></thead>
-          <tbody></tbody>
-        </table>
-      </div>
-      <div class="banner info mt"> <div><b>คุ้มครองพนักงานขับรถ:</b> ไม่ลงโทษจากคะแนน AI เพียงอย่างเดียว · แสดงรหัสผู้ขับเท่านั้น ไม่เปิดชื่อจริง · เวลาพักถูกบังคับในระบบ (พักอู่ขั้นต่ำ 6 นาที/เที่ยว ขับไม่เกิน 8 ชั่วโมง/กะ) และคำแนะนำทั้งหมดออกแบบให้ไม่ลดเวลาพัก</div></div>
-    </section>
 
     <div class="grid-2">
       <section class="card" aria-label="เรื่องร้องเรียน">

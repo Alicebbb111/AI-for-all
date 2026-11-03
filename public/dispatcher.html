@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ศูนย์บัญชาการนายท่า · OmniTransit v5</title>
+  <title>ศูนย์บัญชาการนายท่า · Evenflow v5</title>
   <meta name="description" content="ศูนย์บัญชาการควบคุมการปล่อยรถและป้องกันรถขาดระยะแบบเรียลไทม์ — ข้อมูลจริงจากกล้อง AI เหนือประตู">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -35,12 +35,12 @@
       <label class="toggle" title="ระบบกดอนุมัติแทนอัตโนมัติสำหรับสาธิต"><input type="checkbox" id="auto-approve"><span class="track" aria-hidden="true"></span> อนุมัติอัตโนมัติ</label>
     </div>
 
-    <!-- โซน 1: รอบปล่อยรถ + สมการสด -->
-    <section class="card" data-tour="countdown-area" id="countdown-area" aria-label="รอบปล่อยรถและสมการสด">
+    <!-- โซน 1: รอบปล่อยรถ -->
+    <section class="card" data-tour="countdown-area" id="countdown-area" aria-label="รอบปล่อยรถ">
       <div class="flex spread">
         <div>
           <span class="mc-kicker">ศูนย์ควบคุมการปล่อยรถต้นสาย</span>
-          <h2 style="margin:0;">รอบปล่อยคันถัดไป & สมการสด</h2>
+          <h2 style="margin:0;">รอบปล่อยคันถัดไป</h2>
         </div>
         <div id="dispatcher-alert" aria-live="polite" style="max-width:46%;"></div>
       </div>
@@ -56,7 +56,6 @@
           <div class="cd-sub" id="cd--1-sub">คำนวณจากเที่ยวล่าสุด + รอบ 8 นาที</div>
         </div>
       </div>
-      <div id="dispatch-formula" class="mt" aria-label="สมการคำนวณการปล่อยรถสด"></div>
     </section>
 
     <!-- โซน 2: การ์ดตัดสินใจนายท่า -->
@@ -120,27 +119,6 @@
         <div id="headway-visual-corridor" class="mt"></div>
       </div>
 
-      <!-- ตารางสรุปช่องไฟรายคู่ -->
-      <div class="table-wrap mt">
-        <div class="flex spread" style="margin-bottom:8px;">
-          <div>
-            <b>ตารางวิเคราะห์ระยะห่างระหว่างรถรายคู่ (Live Headway & Spacing)</b>
-            <div class="muted small">แสดงเวลาที่คันหลังวิ่งตามหลังคันหน้า คำนวณจาก GPS ถนนจริง + ยอดคนจริงจากกล้อง AI</div>
-          </div>
-          <span class="chip small" style="background:var(--surface-2);">รอบปกติของสาย: 12–18 นาที</span>
-        </div>
-
-        <!-- แถบอธิบายความหมายสีสำหรับนายท่า -->
-        <div class="headway-explain-bar">
-          <span class="heb-item"><span class="badge-dot ok"></span> <b>สม่ำเสมอ (10–22 นาที):</b> วิ่งทิ้งช่วงกำลังดี ผู้โดยสารไม่ต้องรอนาน</span>
-          <span class="heb-item"><span class="badge-dot warn"></span> <b>เริ่มทิ้งช่วง (22–28 นาที):</b> เริ่มห่าง ให้คันหลังเร่งความเร็วตามรอบ</span>
-          <span class="heb-item"><span class="badge-dot gap"></span> <b>ขาดระยะ (&gt;28 นาที):</b> ทิ้งช่วงนานเกินไป แนะนำปล่อยรถเสริมแทรกด่วน</span>
-          <span class="heb-item"><span class="badge-dot danger"></span> <b>จี้ท้าย (&lt;5 นาที):</b> รถวิ่งติดกันเกินไป เสี่ยงตามก้น แนะนำหน่วงคันหลัง</span>
-        </div>
-
-        <div id="headway-pair-table"></div>
-      </div>
-
       <!-- AI Tactical Co-Pilot -->
       <div class="ai-analyst mt" id="ai-analyst" aria-live="polite">
         <div class="aa-head">
@@ -151,15 +129,12 @@
       </div>
     </section>
 
-    <!-- โซน 5: ตารางรถ -->
-    <section class="card" aria-label="สถานะรถทั้งสาย" data-tour="fleet-table" id="fleet-table">
-      <div class="flex spread">
-        <div>
-          <span class="mc-kicker">กองรถ</span>
-          <h2 style="margin:0;">สถานะรถทั้งสาย — ข้อมูลจริงจากกล้อง AI เหนือประตู</h2>
-        </div>
-        <span class="chip" id="fleet-adequacy">–</span>
-      </div>
+    <!-- โซน 5: ตารางรถ (พับเก็บได้) -->
+    <details class="card mc-collapsible" data-tour="fleet-table" id="fleet-table">
+      <summary>
+        <span>สถานะรถทั้งสาย — ข้อมูลจริงจากกล้อง AI เหนือประตู</span>
+        <span class="chip" id="fleet-adequacy" style="margin-inline-start: 10px; vertical-align: middle;">–</span>
+      </summary>
       <div class="table-wrap mt fleet-scroll">
         <table class="data" id="fleet-table-el">
           <thead><tr>
@@ -168,7 +143,7 @@
           <tbody></tbody>
         </table>
       </div>
-    </section>
+    </details>
 
     <!-- แผงหนัก: พับเก็บไว้เปิดเมื่อต้องการเจาะลึก -->
     <details class="card mc-collapsible" id="ops-details">

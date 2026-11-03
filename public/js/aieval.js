@@ -1,5 +1,5 @@
 'use strict';
-/* OmniTransit v5 — aieval.js (ห้องทดสอบโมเดล AI: shadow / approve / rollback) */
+/* Evenflow v5 — aieval.js (ห้องทดสอบโมเดล AI: shadow / approve / rollback) */
 (function () {
   const $ = (id) => document.getElementById(id);
   const PHASE_TH = { train: 'ฝึก (train)', tune: 'ปรับค่า (tune)', test: 'ทดสอบ (test)' };

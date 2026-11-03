@@ -1,6 +1,6 @@
 'use strict';
 /**
- * OmniTransit v5 — engine/data.js
+ * Evenflow v5 — engine/data.js
  * ข้อมูลตั้งต้นของเส้นทางนำร่อง: แนวถนนจริงในกรุงเทพฯ (พหลโยธิน  พญาไท  เพชรบุรี/ราชปรารภ  ราชดำริ/พระราม 1  พระราม 4  สี่พระยา–จรัสเมือง)
  * เรขาคณิตโพลีไลน์มาจากไฟล์ generated engine/route_geo.js (สร้างด้วย scripts/build_route.js จาก OSRM/OpenStreetMap)
  * พิกัดอ้างอิงระบบพิกัดสาธารณะ WGS84 เพื่อแสดงบนแผนที่ OpenStreetMap (ODbL) — ใช้เพื่อการสาธิต

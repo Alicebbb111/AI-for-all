@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://omnitransit.local/schemas/weather-context-v1.schema.json",
-  "title": "OmniTransit Weather Context 1.0",
+  "$id": "https://evenflow.local/schemas/weather-context-v1.schema.json",
+  "title": "Evenflow Weather Context 1.0",
   "type": "object",
   "required": ["routeId", "source", "status", "points"],
   "properties": {

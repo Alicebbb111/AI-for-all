@@ -1,5 +1,5 @@
 'use strict';
-/* OmniTransit v5 — common.js
+/* Evenflow v5 — common.js
  * ไลบรารีกลาง: ข้อมูลสด (SSE), ธีม, ไอคอน SVG (Lucide-style — ไม่ใช้อีโมจิ),
  * เมนู 3 แท็บหลัก + เมนูตั้งค่า (ฟันเฟือง), มิเตอร์ความแน่น, บทพูด 45 วินาที, ทัวร์สาธิต
  */
@@ -189,7 +189,7 @@
         <div class="topbar-inner">
           <a class="brand" href="index.html">
             <span class="brand-badge">${OT.icon('bus')}</span>
-            <span><span class="brand-name">OmniTransit</span>
+            <span><span class="brand-name">Evenflow</span>
             <span class="brand-sub">รถมาตามรอบ · รู้ข้อมูลจริง · ขึ้นรถได้อย่างเป็นธรรม</span></span>
           </a>
           <nav class="mainnav" aria-label="เมนูหลัก">
@@ -281,7 +281,7 @@
     if (!host) return;
     host.innerHTML = `
       <div class="footer">
-        <div><strong>OmniTransit v5</strong> — ระบบสาธิตจำลองเพื่อการออกแบบและทดสอบ ยังไม่ใช่บริการเดินรถจริง ตัวเลขทั้งหมดเกิดจากการจำลอง</div>
+        <div><strong>Evenflow v5</strong> — ระบบสาธิตจำลองเพื่อการออกแบบและทดสอบ ยังไม่ใช่บริการเดินรถจริง ตัวเลขทั้งหมดเกิดจากการจำลอง</div>
         <div>แผนที่ © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors (ODbL) · ฟอนต์ IBM Plex Sans Thai (SIL OFL)</div>
         <div>ความเป็นส่วนตัว (PDPA 100%): กล้อง AI มุมกดเหนือประตูประมวลผลเฉพาะจำนวนคนขึ้น-ลงในชิปบนรถ ไม่บันทึกภาพใบหน้า ไม่เก็บพิกัดโทรศัพท์ผู้โดยสาร · ผู้ขับใช้รหัส · ไม่มีการจองที่นั่งหรือเก็บมัดจำ — ขึ้นรถได้เท่าเทียมโดยไม่ต้องมีสมาร์ทโฟน</div>
       </div>`;
@@ -315,7 +315,7 @@
           <h2 id="pitch-title">บทพูดนำเสนอ 45 วินาที</h2>
           <div class="pitch-progress" aria-hidden="true"><div id="pitch-bar"></div></div>
           <blockquote style="font-size:1.02rem; line-height:1.9; margin:10px 0; border-inline-start:4px solid var(--accent); padding-inline-start:14px;">“${PITCH}”</blockquote>
-          <p class="muted small">ที่มา: เอกสารแผนงาน OmniTransit v5 หัวข้อข้อความนำเสนอ</p>
+          <p class="muted small">ที่มา: เอกสารแผนงาน Evenflow v5 หัวข้อข้อความนำเสนอ</p>
           <div class="flex">
             <button class="btn primary" id="pitch-speak">${OT.icon('speaker')} อ่านออกเสียงภาษาไทย</button>
             <button class="btn" onclick="document.getElementById('ot-pitch').classList.remove('open')">ปิด</button>

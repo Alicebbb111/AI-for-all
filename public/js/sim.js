@@ -1,5 +1,5 @@
 'use strict';
-/* OmniTransit v5 — sim.js (Chaos Simulator + GTFS-RT JSON สด) */
+/* Evenflow v5 — sim.js (Chaos Simulator + GTFS-RT JSON สด) */
 (function () {
   const $ = (id) => document.getElementById(id);
   let gtfsTab = 'all';

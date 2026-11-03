@@ -1,7 +1,7 @@
 {
-  "name": "omnitransit-v5",
+  "name": "evenflow-v5",
   "version": "5.0.0",
-  "description": "OmniTransit v5 — รถมาตามรอบ รู้ข้อมูลจริง ขึ้นรถได้อย่างเป็นธรรม (ระบบสาธิตจำลอง ศูนย์ dependency ฟรี 100%)",
+  "description": "Evenflow v5 — รถมาตามรอบ รู้ข้อมูลจริง ขึ้นรถได้อย่างเป็นธรรม (ระบบสาธิตจำลอง ศูนย์ dependency ฟรี 100%)",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

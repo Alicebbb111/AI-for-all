@@ -1,4 +1,4 @@
-# เอกสารสรุปสถาปัตยกรรมระบบและโครงสร้างโค้ดฉบับสมบูรณ์ (OmniTransit v5)
+# เอกสารสรุปสถาปัตยกรรมระบบและโครงสร้างโค้ดฉบับสมบูรณ์ (Evenflow v5)
 > **สำหรับใช้งานเป็นพิมพ์เขียวบริบท (Context Blueprint) ในการเริ่มแชทใหม่หรือส่งมอบงานวิศวกรรม**  
 > *โครงการวิจัยและพัฒนานวัตกรรมระบบขนส่งมวลชนอัจฉริยะ (AI for All: Public Transit Dynamic Crowding & Coupled ETA Prediction System)*
 
@@ -21,8 +21,8 @@
 - **ไดเรกทอรีโปรเจกต์ในเครื่อง Local:**  
   `/Users/bowornnan/work space/antigarvity/ai-forall`
 - **รายงานสรุปเชิงเทคนิควิศวกรรม (PDF Report 4 หน้ามาตรฐาน A4):**  
-  - โฟลเดอร์โปรเจกต์: `/Users/bowornnan/work space/antigarvity/ai-forall/OmniTransit_Prediction_System_Report.pdf`
-  - โฟลเดอร์ Downloads: `/Users/bowornnan/Downloads/OmniTransit_Prediction_System_Report.pdf`
+  - โฟลเดอร์โปรเจกต์: `/Users/bowornnan/work space/antigarvity/ai-forall/Evenflow_Prediction_System_Report.pdf`
+  - โฟลเดอร์ Downloads: `/Users/bowornnan/Downloads/Evenflow_Prediction_System_Report.pdf`
 
 ---
 
@@ -187,7 +187,7 @@ ai-forall/
 │   │   ├── passenger.js     # Leaflet Map, Live Bus Markers, Drawer รถ, ค้นหาเส้นทาง
 │   │   ├── dispatcher.js    # หน้านายท่า, การอนุมัติหน่วงปล่อยรถ, แจ้งเตือน Bunching
 │   │   ├── spotter.js       # หน้าจำลองกล้อง AI มุมสูง (Virtual Tripwire) & ผู้สำรวจ
-│   │   ├── kpi.js           # คำนวณตารางเปรียบเทียบ Baseline vs OmniTransit (ลด Pass-up ≥15%)
+│   │   ├── kpi.js           # คำนวณตารางเปรียบเทียบ Baseline vs Evenflow (ลด Pass-up ≥15%)
 │   │   ├── kiosk.js         # ป้ายประกาศสถานีตัวอักษรใหญ่ คมชัด เข้าถึงง่าย
 │   │   └── sim.js           # Chaos Injection: สั่งฝนตก, ชั่วโมงเร่งด่วน, กล้องเสีย, GPS ดับ
 │   ├── index.html           # หน้าหลักประชาชนผู้โดยสาร
@@ -202,7 +202,7 @@ ai-forall/
 │   └── generate_pdf_report.py # สคริปต์คอมไพล์ PDF รายงานวิชาการ 4 หน้าผ่าน Headless Chrome
 ├── server.js                # Native Node.js HTTP/SSE Server สำหรับ Local รันพอร์ต 8787
 ├── package.json             # กำหนด Node >= 18 (Zero Dependency)
-├── OmniTransit_Prediction_System_Report.pdf # ไฟล์รายงาน PDF 4 หน้าฉบับสมบูรณ์
+├── Evenflow_Prediction_System_Report.pdf # ไฟล์รายงาน PDF 4 หน้าฉบับสมบูรณ์
 └── README.md                # คู่มือการใช้งานเบื้องต้น
 ```
 
@@ -224,7 +224,7 @@ ai-forall/
 หากต้องการนำโปรเจกต์นี้ไปคุยต่อกับ AI ตัวใหม่ (Claude Code, ChatGPT หรืออื่นๆ) ให้ก็อปปี้ข้อความด้านล่างนี้ไปวางเป็นข้อความแรกได้เลยครับ:
 
 ```markdown
-สวัสดีครับ ฉันกำลังพัฒนาโปรเจกต์ชื่อ "OmniTransit v5" ซึ่งเป็นระบบคาดการณ์ความหนาแน่นและเวลาถึงรถโดยสารสาธารณะอัจฉริยะ (Public Transit Dynamic Crowding & Coupled ETA Prediction System) เพื่อแก้ปัญหารถขาดระยะและการกระจุกตัวของผู้โดยสาร (Bus Bunching & Pass-Up) ในกรุงเทพมหานคร
+สวัสดีครับ ฉันกำลังพัฒนาโปรเจกต์ชื่อ "Evenflow v5" ซึ่งเป็นระบบคาดการณ์ความหนาแน่นและเวลาถึงรถโดยสารสาธารณะอัจฉริยะ (Public Transit Dynamic Crowding & Coupled ETA Prediction System) เพื่อแก้ปัญหารถขาดระยะและการกระจุกตัวของผู้โดยสาร (Bus Bunching & Pass-Up) ในกรุงเทพมหานคร
 
 โปรเจกต์นี้ตั้งอยู่ที่ไดเรกทอรี: `/Users/bowornnan/work space/antigarvity/ai-forall`
 GitHub Repository: https://github.com/Alicebbb111/AI-for-all
@@ -246,7 +246,7 @@ GitHub Repository: https://github.com/Alicebbb111/AI-for-all
 4. สถานะปัจจุบัน:
    - ซอร์สโค้ดผ่านการทดสอบไวยากรณ์ 100% ไม่มี Error
    - เว็บบน Vercel ออนไลน์พร้อมใช้งาน
-   - มีเอกสารรายงาน PDF 4 หน้า A4 ฉบับสมบูรณ์อยู่ที่ `/Users/bowornnan/work space/antigarvity/ai-forall/OmniTransit_Prediction_System_Report.pdf`
+   - มีเอกสารรายงาน PDF 4 หน้า A4 ฉบับสมบูรณ์อยู่ที่ `/Users/bowornnan/work space/antigarvity/ai-forall/Evenflow_Prediction_System_Report.pdf`
 
 กรุณาศึกษาบริบทนี้เพื่อช่วยฉันพัฒนาและต่อยอดระบบในขั้นตอนต่อไป
 ```

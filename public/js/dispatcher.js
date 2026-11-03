@@ -1,5 +1,5 @@
 'use strict';
-/* OmniTransit v5 — dispatcher.js
+/* Evenflow v5 — dispatcher.js
  * หน้านายท่าแบบทำงานเร็ว: นับถอยหลังรอบปล่อยรถ, การ์ดแจ้งเตือนรถติดกันแบบกดปุ่มเดียว,
  * ตารางรถบรรทัดเดียวต่อคัน, เสียงเตือนสังเคราะห์ และบันทึกการตัดสินใจ
  */
@@ -31,27 +31,109 @@
   const seenRecs = new Set();
   let audioFirstLoad = true;
 
+  // ── ข้อมูลตรวจวัดและสมการปล่อยรถ (สดจากคันรออู่ หรือประเมินจากคันที่กำลังเข้าอู่) ──
+  function getCorridorTelemetry(st, dir) {
+    const hr = st.ai.holdRec && st.ai.holdRec[String(dir)];
+    if (hr) return { ...hr, isEstimate: false };
+
+    // เมื่อยังไม่มีคันจอดรอที่อู่: คำนวณ telemetry และประมาณการสมการปล่อยรถสดจากขบวนรถบนเส้นทาง
+    const stops = st.ai.stops || [];
+    const totalLen = stops.length ? stops[stops.length - 1].s : 19479;
+    const buses = st.ai.buses || [];
+    const zs = st.ai.zoneSpeeds || [];
+    const corridorAvg = zs.length ? zs.reduce((a, c) => a + c.speedKmh, 0) / zs.length : 15;
+
+    // คันหน้าบนเส้นทางทิศเดียวกัน (วิ่งนำหน้าอยู่)
+    const aheadBuses = buses.filter((b) => b.dir === dir && (b.state === 'running' || b.state === 'dwell'))
+      .map((b) => ({ b, gapM: dir === 1 ? b.s : totalLen - b.s }))
+      .sort((p, q) => p.gapM - q.gapM);
+    const front = aheadBuses[0];
+
+    // คันถัดไปที่จะวิ่งกลับมาถึงอู่ต้นทางนี้ (วิ่งทิศตรงข้ามมุ่งหน้าเข้าอู่)
+    const returningBuses = buses.filter((b) => b.dir === -dir)
+      .map((b) => ({ b, distM: dir === 1 ? b.s : totalLen - b.s }))
+      .sort((p, q) => p.distM - q.distM);
+    const incoming = returningBuses[0];
+
+    const Ht = 8;
+    const spdKmh = Math.max(8, corridorAvg);
+    const Hf = front ? +((front.gapM / 1000) / spdKmh * 60).toFixed(1) : 16;
+    const Hb = incoming ? +((incoming.distM / 1000) / spdKmh * 60).toFixed(1) : 16;
+    const rawHold = +(0.5 * (Ht - Hf) + 0.25 * (Hb - Hf)).toFixed(2);
+    const frontLoad = front ? (front.b.onboardEst ?? 0) : 0;
+    const frontCap = front ? (front.b.model?.legalMax ?? 72) : 72;
+    const loadWeighted = +(rawHold * (1 / (1 + 0.5 * (frontLoad / frontCap)))).toFixed(2);
+
+    const originStop = dir === 1 ? stops[0] : stops[stops.length - 1];
+    const originQueue = originStop ? (dir === 1 ? originStop.wait1 : originStop.waitN1) : 0;
+    const redLights = stops.filter((s) => s.signalState && s.signalState.color === 'red').length;
+    const signalStops = stops.filter((s) => s.signal).length || 8;
+
+    return {
+      isEstimate: true,
+      busId: incoming ? incoming.b.id : null,
+      dir,
+      H_frontMin: Hf,
+      H_backMin: Hb,
+      H_targetMin: Ht,
+      rawHoldMin: rawHold,
+      holdMin: Math.max(0, Math.min(5, Math.round(rawHold))),
+      frontBusId: front ? front.b.id : null,
+      backBusId: incoming ? incoming.b.id : null,
+      incomingDistM: incoming ? Math.round(incoming.distM) : null,
+      incomingEtaMin: incoming ? Math.max(1, Math.round(Hb)) : null,
+      frontGapMeters: front ? Math.round(front.gapM) : null,
+      backGapMeters: incoming ? Math.round(incoming.distM) : null,
+      frontBusLoad: front ? front.b.onboardEst : null,
+      frontBusCapacity: frontCap,
+      frontBusSpeedKmh: front ? +(front.b.speedKmh || 0).toFixed(1) : null,
+      corridorAvgSpeedKmh: +corridorAvg.toFixed(1),
+      redLightsActiveCount: redLights,
+      totalSignalStops: signalStops,
+      originQueuePax: originQueue,
+      loadWeightedHoldMin: loadWeighted,
+    };
+  }
+
   // ── นับถอยหลังรอบปล่อยรถคันถัดไป ─────────────────────────────────────────
   function renderCountdown(st) {
+    const cycle = 480; // รอบปล่อยมาตรฐาน 8 นาที (480 วินาที)
+    const serviceStartSec = 6 * 3600; // 06:00
     for (const dir of [1, -1]) {
       const arr = st.ai.departures[String(dir)] || [];
-      const last = arr.length ? arr[arr.length - 1] : st.ai.tSec - 480;
       const shift = st.ai.terminalShift[String(dir)] || 0;
-      const next = last + 480 + shift;
+      let next;
+      if (arr.length > 0) {
+        next = arr[arr.length - 1] + cycle + shift;
+        while (next <= st.ai.tSec) next += cycle;
+      } else {
+        const elapsed = ((st.ai.tSec - serviceStartSec) % cycle + cycle) % cycle;
+        next = st.ai.tSec + (cycle - elapsed) + shift;
+      }
       const remain = Math.max(0, next - st.ai.tSec);
       const mm = String(Math.floor(remain / 60)).padStart(2, '0');
       const ss = String(Math.floor(remain % 60)).padStart(2, '0');
       $('cd-' + dir).textContent = `${mm}:${ss}`;
-      const waiting = st.ai.buses.filter((b) => b.state === 'terminal' && b.dir === dir).length;
+
+      const waitingBuses = st.ai.buses.filter((b) => b.state === 'terminal' && b.dir === dir);
+      const waiting = waitingBuses.length;
       // สมการ 4: แนะนำจากช่องไฟหน้า-หลังของคันที่รออยู่ที่อู่ (แสดงก่อนนายท่ากดตัดสินใจ)
       const hr = st.ai.holdRec && st.ai.holdRec[String(dir)];
       const hint = hr && waiting
         ? hr.holdMin >= 1 ? ` · สมการช่องไฟแนะนำหน่วง ${hr.holdMin} นาที (หน้า ${hr.H_frontMin} / หลัง ${hr.H_backMin} นาที)`
         : hr.rawHoldMin <= -1 ? ` · สมการช่องไฟแนะนำปล่อยเร็วขึ้น (${hr.H_frontMin} / ${hr.H_backMin} นาที)` : ''
         : '';
-      $('cd-' + dir + '-sub').textContent = waiting
-        ? `คันรอปล่อยที่อู่ ${waiting} คัน · ปรับจากคำแนะนำ ${Math.round(shift / 60)} นาที${hint}`
-        : `รอรถวิ่งกลับถึงอู่ · ปรับจากคำแนะนำ ${Math.round(shift / 60)} นาที`;
+
+      if (waiting > 0) {
+        const busLabels = waitingBuses.map((b) => b.id).join(', ');
+        $('cd-' + dir + '-sub').textContent =
+          `คันรอปล่อยที่อู่ ${waiting} คัน (${busLabels}) · ปรับจากคำแนะนำ ${Math.round(shift / 60)} นาที${hint}`;
+      } else {
+        const t = getCorridorTelemetry(st, dir);
+        const incText = t && t.backBusId ? ` · คันถัดไปเข้าอู่ ${t.backBusId} (อีก ~${t.incomingEtaMin} น.)` : '';
+        $('cd-' + dir + '-sub').textContent =
+          `รอรถวิ่งกลับถึงอู่${incText} · ปรับจากคำแนะนำ ${Math.round(shift / 60)} นาที`;
+      }
     }
   }
 
@@ -162,6 +244,75 @@
     $('dispatcher-alert').innerHTML = html;
   }
 
+  // ── (พิมพ์เขียว ข้อ 4ก) Marey Space-Time: เส้นทึบ = ประวัติจอดจริง 10 นาที ·
+  // เส้นประ = คาดการณ์ ≤10 นาที · วงแดงกะพริบ = จุดที่รถ 2 คันคาดว่าจะวิ่งตามทันกัน <4 นาที ──
+  function renderMarey(st) {
+    const host = document.getElementById('marey-chart');
+    if (!host) return;
+    const stops = st.ai.stops, total = st.route.totalLenM;
+    const now = st.ai.tSec, W = 560, H = 330, padL = 38, padR = 12, padT = 14, padB = 24;
+    const t0 = now - 600, t1 = now + 600;
+    const xT = (t) => padL + ((Math.max(t0, Math.min(t1, t)) - t0) / (t1 - t0)) * (W - padL - padR);
+    const yS = (m) => padT + (Math.max(0, Math.min(total, m)) / total) * (H - padT - padB);
+    const parts = [];
+    parts.push(`<rect x="${padL}" y="${padT}" width="${W - padL - padR}" height="${H - padT - padB}" fill="var(--page)" stroke="var(--line)"/>`);
+    stops.forEach((s, i) => {
+      const y = yS(s.s);
+      parts.push(`<line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="var(--grid)"/>`);
+      parts.push(`<text x="${padL - 4}" y="${y + 3}" font-size="8" text-anchor="end" fill="var(--ink-2)">${s.id}</text>`);
+    });
+    for (let m = Math.ceil(t0 / 300) * 300; m <= t1; m += 300) {
+      parts.push(`<line x1="${xT(m)}" y1="${padT}" x2="${xT(m)}" y2="${H - padB}" stroke="var(--grid)" stroke-width="0.5"/>`);
+      parts.push(`<text x="${xT(m)}" y="${H - 8}" font-size="8" text-anchor="middle" fill="var(--muted)">${OT.simSecToClock(m)}</text>`);
+    }
+    const byBus = new Map();
+    for (const e of (st.ai.recentArrivals || [])) {
+      if (e.t < t0) continue;
+      const key = e.busId + ':' + e.dir;
+      if (!byBus.has(key)) byBus.set(key, []);
+      byBus.get(key).push(e);
+    }
+    for (const [, events] of byBus) {
+      events.sort((a, z) => a.t - z.t);
+      const pts = events.map((e) => {
+        const idx = stops.findIndex((s) => s.id === e.stopId);
+        return { t: e.t, y: yS(stops[idx] ? stops[idx].s : 0) };
+      }).filter((p) => Number.isFinite(p.y));
+      for (let i = 0; i < pts.length - 1; i++) parts.push(`<line x1="${xT(pts[i].t)}" y1="${pts[i].y}" x2="${xT(pts[i + 1].t)}" y2="${pts[i + 1].y}" stroke="var(--accent)" stroke-width="1.3" opacity="0.7"/>`);
+      for (const p of pts) parts.push(`<circle cx="${xT(p.t)}" cy="${p.y}" r="1.8" fill="var(--accent)"/>`);
+    }
+    const forecasts = [];
+    for (const b of st.ai.buses) {
+      if (b.state !== 'running' || !b.gpsOk || !b.speedKmh) continue;
+      const sEnd = b.dir === 1 ? total : 0;
+      const etaSec = Math.abs(sEnd - b.s) / (b.speedKmh / 3.6);
+      if (etaSec <= 0 || etaSec > 600) continue;
+      forecasts.push({ busId: b.id, dir: b.dir, etaSec, sEnd });
+    }
+    let risks = 0;
+    for (let i = 0; i < forecasts.length; i++) {
+      for (let k = i + 1; k < forecasts.length; k++) {
+        const a = forecasts[i], b = forecasts[k];
+        if (a.dir !== b.dir) continue;
+        const diff = Math.abs(a.etaSec - b.etaSec);
+        if (diff < 240) {
+          risks++;
+          const hitMin = Math.round(Math.min(a.etaSec, b.etaSec) / 60);
+          const hitStop = a.dir === 1 ? stops[stops.length - 1] : stops[0];
+          const cx = xT(now + Math.min(a.etaSec, b.etaSec)), cy = yS(hitStop.s);
+          parts.push(`<circle cx="${cx}" cy="${cy}" r="6" fill="none" stroke="var(--crit-fill)" stroke-width="1.5" class="gap-alert"><title>${a.busId} และ ${b.busId} คาดว่าจะวิ่งตามทันกันที่ป้าย ${hitStop.id} (${esc(hitStop.name)}) อีก ~${hitMin} นาที</title></circle>`);
+        }
+      }
+    }
+    parts.push(`<text x="${padL}" y="${padT - 3}" font-size="8" fill="var(--muted)">บน = ปลายสาย · ล่าง = ต้นสาย · เส้นทึบ = จอดจริง · เส้นประ = คาดการณ์ ≤10 นาที · วงแดง = จุดเสี่ยงชนกัน</text>`);
+    host.innerHTML = `<svg viewBox="0 0 ${W} ${H}" style="width:100%; height:auto;" font-family="inherit">${parts.join('')}</svg>`;
+    const meta = document.getElementById('marey-meta');
+    if (meta) {
+      meta.textContent = risks ? `จุดเสี่ยงรถชนกัน ${risks} จุด` : 'ไม่มีจุดเสี่ยงชนกันในกรอบ 10 นาที';
+      meta.className = 'chip ' + (risks ? 'fail' : 'pass');
+    }
+  }
+
   $('auto-approve').addEventListener('change', (e) => OT.post('/api/control', { action: 'auto_approve', value: e.target.checked }));
 
   // ════════════════════════════════════════════════════════════════════════
@@ -193,27 +344,50 @@
   }
 
   // ── โซน 1: เครื่องคิดเลขสมการปล่อยรถสด (Live Dispatch Formula Telemetry) ──
-  function verdictOf(hr) {
-    if (!hr) return { label: 'รอคันวิ่งกลับอู่', cls: '' };
-    if (hr.holdMin >= 1) return { label: `หน่วงปล่อย +${hr.holdMin} นาที`, cls: 'warn' };
-    if (hr.rawHoldMin <= -1) return { label: `ดึงปล่อยเร็ว ${Math.min(5, Math.round(-hr.rawHoldMin))} นาที`, cls: 'pass' };
-    return { label: 'ปล่อยตามรอบเดิม', cls: '' };
-  }
-  function dirRow(hr) {
-    if (!hr) {
-      return `<td class="fx-empty">รอคันวิ่งกลับถึงอู่ — เริ่มคำนวณเมื่อมีคันรอปล่อย</td>`;
+  let wxCache = { at: 0, label: null };
+  async function weatherLabel() {
+    if (Date.now() - wxCache.at > 10 * 60 * 1000) {
+      wxCache.at = Date.now();
+      try {
+        const w = await OT.get('/api/context/weather');
+        const cur = w && w.current;
+        wxCache.label = cur && cur.weatherCondition && cur.weatherCondition !== 'clear'
+          ? `Open-Meteo: ${cur.weatherCondition}` : 'Open-Meteo: อากาศปกติ';
+      } catch { wxCache.label = null; }
     }
-    const loadPct = hr.frontBusCapacity ? Math.round((hr.frontBusLoad / hr.frontBusCapacity) * 100) : 0;
-    const hfCls = hr.H_frontMin < hr.H_targetMin * 0.6 ? 'fx-bad' : hr.H_frontMin >= hr.H_targetMin ? 'fx-ok' : 'fx-warn';
+    return wxCache.label;
+  }
+  function verdictOf(t) {
+    if (!t) return { label: 'ไม่มีข้อมูล', cls: '' };
+    if (t.isEstimate) {
+      if (t.holdMin >= 1) return { label: `แนวโน้มหน่วงปล่อย +${t.holdMin} นาที (${t.backBusId || 'คันถัดไป'})`, cls: 'warn' };
+      if (t.rawHoldMin <= -1) return { label: `แนวโน้มปล่อยเร็ว (${t.backBusId || 'คันถัดไป'})`, cls: 'pass' };
+      return { label: `รอปล่อยตามรอบ (${t.backBusId || 'คันถัดไป'})`, cls: '' };
+    }
+    if (t.holdMin >= 1) return { label: `หน่วงปล่อย +${t.holdMin} นาที (${t.busId})`, cls: 'warn' };
+    if (t.rawHoldMin <= -1) return { label: `ดึงปล่อยเร็ว ${Math.min(5, Math.round(-t.rawHoldMin))} นาที (${t.busId})`, cls: 'pass' };
+    return { label: `ปล่อยตามรอบเดิม (${t.busId})`, cls: '' };
+  }
+  function dirRow(t) {
+    if (!t) {
+      return `<td class="fx-empty">ไม่มีข้อมูลเส้นทาง</td>`;
+    }
+    const loadPct = t.frontBusCapacity ? Math.round(((t.frontBusLoad || 0) / t.frontBusCapacity) * 100) : 0;
+    const hfCls = t.H_frontMin < t.H_targetMin * 0.6 ? 'fx-bad' : t.H_frontMin >= t.H_targetMin ? 'fx-ok' : 'fx-warn';
+    const estPill = t.isEstimate
+      ? `<span class="chip small" style="margin-left:6px; background:var(--surface-3); font-size:10px;">คันเข้าอู่ ${t.backBusId || ''}</span>`
+      : `<span class="chip small ok" style="margin-left:6px; font-size:10px;">รอที่อู่ ${t.busId}</span>`;
     return `<td>
-      <div class="fx-line"><span class="fx-k">H_front</span><b class="${hfCls}">${hr.H_frontMin}</b><span class="fx-u">นาที · ${hr.frontGapMeters != null ? hr.frontGapMeters.toLocaleString() + ' ม.' : '-'}</span></div>
-      <div class="fx-line"><span class="fx-k">H_back</span><b>${hr.H_backMin}</b><span class="fx-u">นาที · ${hr.backGapMeters != null ? hr.backGapMeters.toLocaleString() + ' ม.' : '-'}</span></div>
-      <div class="fx-line"><span class="fx-k">กล้อง AI</span><b class="${loadPct >= 75 ? 'fx-bad' : ''}">${hr.frontBusLoad ?? '-'}/${hr.frontBusCapacity ?? '-'}</b><span class="fx-u">คน · คิวอู่ ${hr.originQueuePax}</span></div>
-      <div class="fx-line"><span class="fx-k">ถนน/ไฟ</span><b>${hr.corridorAvgSpeedKmh}</b><span class="fx-u">กม./ชม. · ไฟแดง ${hr.redLightsActiveCount}/${hr.totalSignalStops} แยก</span></div>
-      <div class="fx-line fx-eqline"><span class="fx-k">Δt</span><b>${hr.rawHoldMin} → ${hr.loadWeightedHoldMin}</b><span class="fx-u">นาที (raw → load-weighted)</span></div>
+      <div class="fx-line"><span class="fx-k">H_front</span><b class="${hfCls}">${t.H_frontMin}</b><span class="fx-u">นาที · คันหน้า ${t.frontBusId || '-'}${t.frontGapMeters != null ? ' (' + t.frontGapMeters.toLocaleString() + ' ม.)' : ''}</span></div>
+      <div class="fx-line"><span class="fx-k">H_back</span><b>${t.H_backMin}</b><span class="fx-u">นาที · ${t.isEstimate ? `คันเข้าอู่ ${t.backBusId || '-'} (อีก ~${t.incomingEtaMin || '-'} น.)` : `คันหลัง ${t.backBusId || '-'}`}</span></div>
+      <div class="fx-line"><span class="fx-k">กล้อง AI</span><b class="${loadPct >= 75 ? 'fx-bad' : ''}">${t.frontBusLoad != null ? t.frontBusLoad : 0}/${t.frontBusCapacity ?? '-'}</b><span class="fx-u">คนบนคันหน้า · คิวรอที่อู่ ${t.originQueuePax} คน</span></div>
+      <div class="fx-line"><span class="fx-k">ถนน/ไฟ</span><b>${t.corridorAvgSpeedKmh}</b><span class="fx-u">กม./ชม. · ไฟแดง ${t.redLightsActiveCount}/${t.totalSignalStops} แยก</span></div>
+      <div class="fx-line fx-eqline"><span class="fx-k">${t.isEstimate ? 'Δt (คาดการณ์)' : 'Δt'}</span><b>${t.rawHoldMin} → ${t.loadWeightedHoldMin}</b><span class="fx-u">นาที (raw → load-weighted)${estPill}</span></div>
     </td>`;
   }
   function renderFormula(st) {
+    const host = document.getElementById('dispatch-formula');
+    if (!host) return;
     const rows = [
       ['', 'ขาไป · จตุจักร ไป หัวลำโพง', 'ขากลับ · หัวลำโพง ไป จตุจักร'],
       ['H_front · H_back', null, null],
@@ -221,21 +395,27 @@
       ['ถนน & สัญญาณไฟ', null, null],
       ['ผลสมการ Δt (Daganzo + Load-weighted)', null, null],
     ];
-    const hr1 = st.ai.holdRec && st.ai.holdRec['1'];
-    const hr2 = st.ai.holdRec && st.ai.holdRec['-1'];
-    const v1 = verdictOf(hr1), v2 = verdictOf(hr2);
-    document.getElementById('dispatch-formula').innerHTML = `
+    const t1 = getCorridorTelemetry(st, 1);
+    const t2 = getCorridorTelemetry(st, -1);
+    const v1 = verdictOf(t1), v2 = verdictOf(t2);
+    host.innerHTML = `
       <table class="data fx-table">
         <thead><tr><th></th><th>${rows[0][1]}</th><th>${rows[0][2]}</th></tr></thead>
         <tbody>
-          <tr><td class="fx-rowhead">ข้อมูลสด / ผลสมการ</td>${dirRow(hr1)}${dirRow(hr2)}</tr>
+          <tr><td class="fx-rowhead">ข้อมูลสด / ผลสมการ</td>${dirRow(t1)}${dirRow(t2)}</tr>
         </tbody>
       </table>
       <div class="fx-verdicts">
-        <span class="chip ${v1.cls}">ขาไป: ${v1.label} · Δt ${hr1 ? hr1.rawHoldMin + ' → ' + hr1.loadWeightedHoldMin + ' นาที' : '-'}</span>
-        <span class="chip ${v2.cls}">ขากลับ: ${v2.label} · Δt ${hr2 ? hr2.rawHoldMin + ' → ' + hr2.loadWeightedHoldMin + ' นาที' : '-'}</span>
+        <span class="chip ${v1.cls}">ขาไป: ${v1.label} · Δt ${t1.rawHoldMin} → ${t1.loadWeightedHoldMin} นาที</span>
+        <span class="chip ${v2.cls}">ขากลับ: ${v2.label} · Δt ${t2.rawHoldMin} → ${t2.loadWeightedHoldMin} นาที</span>
         <span class="chip">สมการ: Δt = 0.5·(Ht − Hf) + 0.25·(Hb − Hf) · กรอบอนุมัติ 0–5 นาที · ห้ามตัดพักขั้นต่ำ 6 นาที</span>
+        <span class="chip" id="fx-weather">สภาพอากาศ (Open-Meteo): กำลังตรวจ…</span>
       </div>`;
+
+    weatherLabel().then((label) => {
+      const wxEl = document.getElementById('fx-weather');
+      if (wxEl && label) wxEl.textContent = label;
+    });
   }
 
   // ── โซน 2: หลักฐาน 4 เสา (4-Pillar Evidence Chips) ในการ์ดตัดสินใจ ────────
@@ -244,6 +424,11 @@
     if (!h) return '';
     const loadPct = h.frontBusCapacity ? Math.round((h.frontBusLoad / h.frontBusCapacity) * 100) : 0;
     return `
+      <div class="impact-bar" role="img" aria-label="เปรียบเทียบความเบี่ยงเบนช่องไฟก่อนและหลังอนุมัติ">
+        <div class="ib-col"><div class="ib-title">ก่อนอนุมัติ (ตอนนี้)</div><div class="ib-bars"><div class="ib-bar" style="width:${Math.min(100, Math.round((h.H_frontMin / (h.H_targetMin * 2)) * 100))}%; background:var(--crit-fill);"></div><div class="ib-bar" style="width:${Math.min(100, Math.round((h.H_backMin / (h.H_targetMin * 2)) * 100))}%; background:var(--warn-fill);"></div></div><div class="ib-cap">เบี่ยงเบนรวม ${Math.round(Math.abs(h.H_frontMin - h.H_targetMin) + Math.abs(h.H_backMin - h.H_targetMin))} นาที</div></div>
+        <div class="ib-arrow">${OT.icon('arrow')}</div>
+        <div class="ib-col"><div class="ib-title">หลังอนุมัติ (คาดการณ์)</div><div class="ib-bars"><div class="ib-bar" style="width:${Math.min(100, Math.round((Math.max(0, h.H_frontMin + r.shiftMin) / (h.H_targetMin * 2)) * 100))}%; background:var(--ok-fill);"></div><div class="ib-bar" style="width:${Math.min(100, Math.round((Math.max(0, h.H_backMin - r.shiftMin) / (h.H_targetMin * 2)) * 100))}%; background:var(--ok-fill);"></div></div><div class="ib-cap">ช่องไฟสมดุลขึ้น · ผู้โดยสารที่ได้ประโยชน์ ~${(h.frontBusLoad || 0) + h.originQueuePax} คน</div></div>
+      </div>
       <div class="pillar-grid">
         <div class="pillar"><div class="pl-head">ระยะห่าง & ช่องไฟ</div><div>H_front ${h.H_frontMin} นาที (${h.frontGapMeters != null ? h.frontGapMeters.toLocaleString() + ' ม.' : '-'}) · เป้า ${h.H_targetMin} นาที · H_back ${h.H_backMin} นาที</div></div>
         <div class="pillar"><div class="pl-head">กล้อง AI นับคนจริง</div><div>คันหน้า ${h.frontBusLoad ?? '-'}/${h.frontBusCapacity ?? '-'} คน (${loadPct}%) · คิวอู่ ${h.originQueuePax} คน</div></div>
@@ -344,6 +529,12 @@
         <div class="insp-grid">
           <div><span class="fx-label">สัญญาณไฟจราจร</span><div>${sigTxt}</div></div>
           <div><span class="fx-label">คนรอขณะนี้</span><div>ขาไป <b>${s.wait1} คน</b> · ขากลับ <b>${s.waitN1} คน</b></div></div>
+          <div><span class="fx-label">เปิดประตูเฉลี่ยที่ป้ายนี้ (รถล่าสุด)</span><div>${(() => {
+            const dwellers = st.ai.buses.filter((x) => x.lastArrival && x.lastArrival.stopId === s.id);
+            return dwellers.length
+              ? `<b>${Math.round(dwellers.reduce((a, x) => a + (x.actualDwellSec || 0), 0) / dwellers.length)} วินาที</b> (จาก ${dwellers.length} คันล่าสุด)`
+              : 'ยังไม่มีรถแวะสถิติล่าสุด';
+          })()}</div></div>
           <div><span class="fx-label">รถกำลังมุ่งหน้ามา</span><div>${etaTxt}</div></div>
         </div>
       </div>`;
@@ -355,7 +546,7 @@
     const visualHost = document.getElementById('headway-visual-corridor');
     const tableHost = document.getElementById('headway-pair-table');
     const chip = document.getElementById('bunching-status-chip');
-    if (!visualHost || !tableHost) return;
+    if (!visualHost) return;
 
     const buses = st.ai.buses;
     const activeBuses = buses.filter((b) => b.state === 'running' || b.state === 'dwell');
@@ -373,7 +564,7 @@
 
     for (const dir of ['1', '-1']) {
       const isOutbound = dir === '1';
-      const dirTitle = isOutbound ? 'ขาไป · จตุจักร ➔ หัวลำโพง' : 'ขากลับ · หัวลำโพง ➔ จตุจักร';
+      const dirTitle = isOutbound ? 'ขาไป · จตุจักร ไป หัวลำโพง' : 'ขากลับ · หัวลำโพง ไป จตุจักร';
       const dirBadgeCls = isOutbound ? 'pass' : 'warn';
       const list = byDir[dir];
 
@@ -381,12 +572,73 @@
       if (!list.length) {
         trackCards.push('<span class="muted small" style="padding:10px;">ไม่มีรถที่กำลังให้บริการในทิศทางนี้</span>');
       } else {
+        // คำนวณคำสั่งการนายท่าและระยะห่างระหว่างรถล่วงหน้า
+        const actionsByBusId = {};
+        const gapData = [];
+
+        for (let i = 0; i < list.length - 1; i++) {
+          const leader = list[i];
+          const follower = list[i + 1];
+          const followerPax = follower.onboardEst ?? 0;
+          const followerMax = follower.model?.legalMax || 72;
+          const paxCount = leader.onboardEst ?? 0;
+          const maxPax = leader.model?.legalMax || 72;
+          const gapM = Math.abs(leader.s - follower.s);
+          const avgSpeed = Math.max(6, ((leader.speedKmh || 15) + (follower.speedKmh || 15)) / 2);
+          const gapMin = (gapM / 1000) / avgSpeed * 60;
+          allGapsMin.push(gapMin);
+
+          let status = 'ok';
+          let statusColor = 'var(--ok)';
+          let chipHtml = `<span class="chip pass">สม่ำเสมอ (ระยะกำลังดี)</span>`;
+          let advice = 'เดินรถตามความเร็วปกติ';
+          let adviceShort = 'ความเร็วปกติ';
+
+          if (gapMin < 5) {
+            status = 'danger';
+            statusColor = 'var(--crit)';
+            bunchingCount++;
+            chipHtml = `<span class="chip fail" style="animation:gap-blink 1s steps(2,start) infinite;">จี้ท้าย (&lt;5 น.)</span>`;
+            advice = `หน่วงคัน ${follower.id} ไว้ 2-3 นาทีเพื่อดึงระยะ`;
+            adviceShort = 'หน่วงรถ 2-3 น.';
+          } else if (gapMin < 10) {
+            status = 'warn';
+            statusColor = 'var(--warn)';
+            chipHtml = `<span class="chip warn">เริ่มชิด (5-10 น.)</span>`;
+            advice = 'เฝ้าระวังการจอดแช่ป้ายของคันหน้า';
+            adviceShort = 'ระวังจอดแช่';
+          } else if (gapMin <= 22) {
+            status = 'ok';
+            statusColor = 'var(--ok)';
+            chipHtml = `<span class="chip pass">สม่ำเสมอ (10-22 น.)</span>`;
+            advice = 'เดินรถตามความเร็วปกติ';
+            adviceShort = 'ความเร็วปกติ';
+          } else if (gapMin <= 28) {
+            status = 'warn';
+            statusColor = 'var(--warn)';
+            chipHtml = `<span class="chip warn">เริ่มทิ้งช่วง (&gt;22 น.)</span>`;
+            advice = `กำชับคัน ${follower.id} เร่งความเร็วตามรอบ`;
+            adviceShort = 'เร่งตามรอบ';
+          } else {
+            status = 'gap';
+            statusColor = '#9333ea';
+            gapCount++;
+            chipHtml = `<span class="chip" style="color:#9333ea; border-color:#9333ea; background:rgba(147,51,234,0.12); font-weight:700;">ขาดระยะ (&gt;28 น.)</span>`;
+            advice = 'เตรียมปล่อยรถเสริมแทรกช่องว่างด่วน';
+            adviceShort = 'ปล่อยรถเสริม';
+          }
+
+          actionsByBusId[follower.id] = { status, advice, adviceShort };
+          gapData.push({ leader, follower, followerPax, followerMax, paxCount, maxPax, gapM, gapMin, avgSpeed, status, statusColor, chipHtml, advice });
+        }
+
         for (let i = 0; i < list.length; i++) {
           const b = list[i];
           const paxCount = b.onboardEst ?? 0;
           const maxPax = b.model?.legalMax || 72;
           const loadPct = maxPax ? Math.round((paxCount / maxPax) * 100) : 0;
           const loadCol = loadPct >= 75 ? 'var(--crit)' : loadPct >= 45 ? 'var(--warn)' : 'var(--ok)';
+          const bAction = actionsByBusId[b.id] || { status: 'ok', advice: 'เดินรถตามความเร็วปกติ', adviceShort: 'หัวขบวน (ปกติ)' };
 
           const busCard = `
             <div class="hv-bus-node radar-bus" data-bus="${b.id}">
@@ -397,78 +649,44 @@
               <div class="hv-bus-pax">คนจริง: <b style="color:${loadCol};">${paxCount}</b>/${maxPax} คน</div>
               <div class="cam-bar" style="margin:4px 0 5px; height:5px;"><div style="width:${Math.min(100, loadPct)}%; background:${loadCol};"></div></div>
               <div class="hv-bus-speed">${b.speedKmh || 0} กม./ชม. · ${b.nextStopName ? OT.esc(b.nextStopName.split(' ')[0]) : '-'}</div>
+              <div class="hv-bus-action-tag" title="ACTION: ${OT.esc(bAction.advice)}">
+                <span class="badge-dot ${bAction.status}"></span> <span>ACTION: <b>${bAction.adviceShort}</b></span>
+              </div>
             </div>`;
           trackCards.push(busCard);
 
-          if (i < list.length - 1) {
-            const follower = list[i + 1];
-            const followerPax = follower.onboardEst ?? 0;
-            const followerMax = follower.model?.legalMax || 72;
-            const gapM = Math.abs(b.s - follower.s);
-            const avgSpeed = Math.max(6, ((b.speedKmh || 15) + (follower.speedKmh || 15)) / 2);
-            const gapMin = (gapM / 1000) / avgSpeed * 60;
-            allGapsMin.push(gapMin);
-
-            let status = 'ok';
-            let statusColor = 'var(--ok)';
-            let chipHtml = `<span class="chip pass">สม่ำเสมอ (ระยะกำลังดี)</span>`;
-            let advice = 'เดินรถตามความเร็วปกติ';
-
-            if (gapMin < 5) {
-              status = 'danger';
-              statusColor = 'var(--crit)';
-              bunchingCount++;
-              chipHtml = `<span class="chip fail" style="animation:gap-blink 1s steps(2,start) infinite;">จี้ท้าย (&lt;5 น.)</span>`;
-              advice = `หน่วงคัน ${follower.id} ไว้ 2-3 นาทีเพื่อดึงระยะ`;
-            } else if (gapMin < 10) {
-              status = 'warn';
-              statusColor = 'var(--warn)';
-              chipHtml = `<span class="chip warn">เริ่มชิด (5-10 น.)</span>`;
-              advice = 'เฝ้าระวังการจอดแช่ป้ายของคันหน้า';
-            } else if (gapMin <= 22) {
-              status = 'ok';
-              statusColor = 'var(--ok)';
-              chipHtml = `<span class="chip pass">สม่ำเสมอ (10-22 น.)</span>`;
-              advice = 'เดินรถตามความเร็วปกติ';
-            } else if (gapMin <= 28) {
-              status = 'warn';
-              statusColor = 'var(--warn)';
-              chipHtml = `<span class="chip warn">เริ่มทิ้งช่วง (&gt;22 น.)</span>`;
-              advice = `กำชับคัน ${follower.id} เร่งความเร็วตามรอบ`;
-            } else {
-              status = 'gap';
-              statusColor = '#9333ea';
-              gapCount++;
-              chipHtml = `<span class="chip" style="color:#9333ea; border-color:#9333ea; background:rgba(147,51,234,0.12); font-weight:700;">ขาดระยะ (&gt;28 น.)</span>`;
-              advice = 'เตรียมปล่อยรถเสริมแทรกช่องว่างด่วน';
-            }
-
-            const badgeText = status === 'ok' ? 'ปกติ' : status === 'danger' ? 'จี้ท้าย' : status === 'gap' ? 'ขาดระยะ' : 'เริ่มห่าง';
+          if (i < gapData.length) {
+            const g = gapData[i];
+            const badgeText = g.status === 'ok' ? 'ปกติ' : g.status === 'danger' ? 'จี้ท้าย' : g.status === 'gap' ? 'ขาดระยะ' : 'เริ่มห่าง';
             const linkHtml = `
               <div class="hv-gap-link">
-                <span class="hv-gap-badge ${status}">↔ ${gapMin.toFixed(1)} นาที (${badgeText})</span>
+                <span class="hv-gap-badge ${g.status}">↔ ${g.gapMin.toFixed(1)} นาที (${badgeText})</span>
                 <div class="hv-gap-line"></div>
-                <span class="hv-gap-dist">${gapM.toLocaleString()} ม.</span>
+                <span class="hv-gap-dist">${g.gapM.toLocaleString()} ม.</span>
+                <div class="hv-gap-action ${g.status}" title="ACTION: ${OT.esc(g.advice)}">
+                  <span class="hv-act-tag">ACTION</span>
+                  <span class="hv-act-msg">${OT.esc(g.advice)}</span>
+                </div>
               </div>`;
             trackCards.push(linkHtml);
 
             tableRows.push(`
               <tr>
-                <td><b>${follower.id}</b> ตามหลัง <b>${b.id}</b></td>
+                <td><b>${g.follower.id}</b> ตามหลัง <b>${g.leader.id}</b></td>
                 <td><span class="chip small ${dirBadgeCls}">${isOutbound ? 'ขาไป' : 'ขากลับ'}</span></td>
                 <td class="num">
                   <div class="hw-time-cell">
-                    <span class="hw-time-val" style="color:${statusColor};">${gapMin.toFixed(1)} <small style="font-size:0.72rem; font-weight:normal;">นาที</small></span>
-                    <span class="hw-time-sub">${gapM.toLocaleString()} ม.</span>
+                    <span class="hw-time-val" style="color:${g.statusColor};">${g.gapMin.toFixed(1)} <small style="font-size:0.72rem; font-weight:normal;">นาที</small></span>
+                    <span class="hw-time-sub">${g.gapM.toLocaleString()} ม.</span>
                   </div>
                 </td>
-                <td>${chipHtml}</td>
+                <td>${g.chipHtml}</td>
                 <td>
-                  <div style="font-size:0.8rem;"><b>${followerPax}</b>/${followerMax} คน vs <b>${paxCount}</b>/${maxPax} คน</div>
+                  <div style="font-size:0.8rem;"><b>${g.followerPax}</b>/${g.followerMax} คน vs <b>${g.paxCount}</b>/${g.maxPax} คน</div>
                   <div class="muted small" style="font-size:0.68rem;">(คันหลัง vs คันหน้า)</div>
                 </td>
-                <td class="num font-num">${avgSpeed.toFixed(1)} <small>กม./ชม.</small></td>
-                <td><b>${advice}</b></td>
+                <td class="num font-num">${g.avgSpeed.toFixed(1)} <small>กม./ชม.</small></td>
+                <td><b>${OT.esc(g.advice)}</b></td>
               </tr>`);
           }
         }
@@ -488,23 +706,25 @@
 
     visualHost.innerHTML = visualHtmlParts.join('');
 
-    tableHost.innerHTML = `
-      <table class="data headway-pair-table">
-        <thead>
-          <tr>
-            <th>คู่รถที่วิ่งตามกัน</th>
-            <th>ทิศทาง</th>
-            <th class="num">เวลาที่คันหลังตามอยู่ (ระยะห่าง)</th>
-            <th>สถานะระยะห่าง</th>
-            <th>คนจริงบนรถ (กล้อง AI)</th>
-            <th class="num">ความเร็วเฉลี่ย</th>
-            <th>คำสั่งการนายท่า (Action)</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${tableRows.join('') || '<tr><td colspan="7" class="muted">ไม่มีรถที่กำลังวิ่งคู่กันในสาย</td></tr>'}
-        </tbody>
-      </table>`;
+    if (tableHost) {
+      tableHost.innerHTML = `
+        <table class="data headway-pair-table">
+          <thead>
+            <tr>
+              <th>คู่รถที่วิ่งตามกัน</th>
+              <th>ทิศทาง</th>
+              <th class="num">เวลาที่คันหลังตามอยู่ (ระยะห่าง)</th>
+              <th>สถานะระยะห่าง</th>
+              <th>คนจริงบนรถ (กล้อง AI)</th>
+              <th class="num">ความเร็วเฉลี่ย</th>
+              <th>คำสั่งการนายท่า (Action)</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${tableRows.join('') || '<tr><td colspan="7" class="muted">ไม่มีรถที่กำลังวิ่งคู่กันในสาย</td></tr>'}
+          </tbody>
+        </table>`;
+    }
 
     const avgHeadwayEl = document.getElementById('kpi-avg-headway');
     const cvEl = document.getElementById('kpi-headway-cv');
@@ -574,6 +794,7 @@
     renderFormula(st);
     renderRadar(st);
     renderInspector(st);
+    renderMarey(st);
     renderHeadwayControl(st);
     $('disp-clock').textContent = st.ai.clock + ' น.';
     $('auto-approve').checked = st.autoApprove;

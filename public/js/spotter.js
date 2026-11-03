@@ -1,5 +1,5 @@
 'use strict';
-/* OmniTransit v5 — spotter.js (จำลองกล้อง AI มุมสูงเหนือประตู Overhead Edge-AI Vision + แผงผู้สำรวจภาคสนาม) */
+/* Evenflow v5 — spotter.js (จำลองกล้อง AI มุมสูงเหนือประตู Overhead Edge-AI Vision + แผงผู้สำรวจภาคสนาม) */
 (function () {
   let busId = 'B03';
 
@@ -139,13 +139,13 @@
     rows.push(['== สรุปรวมรายป้าย ==', '', '', '', 'รวมขึ้น', 'รวมลง', 'รวมขึ้นไม่ได้', 'จำนวนรายการ']);
     for (const [id, a] of agg) rows.push(['สรุป', id, '', a.name, a.b, a.al, a.p, a.n]);
     rows.push([]);
-    rows.push(['หมายเหตุ', 'ข้อมูลจากระบบจำลอง OmniTransit v5 เวลา ' + st.ai.clock + ' น. (จำลอง) — Pass-up = คนที่พยายามขึ้นแต่รถเต็ม']);
+    rows.push(['หมายเหตุ', 'ข้อมูลจากระบบจำลอง Evenflow v5 เวลา ' + st.ai.clock + ' น. (จำลอง) — Pass-up = คนที่พยายามขึ้นแต่รถเต็ม']);
     const csv = '﻿' + rows.map((r) => r.map(esc).join(',')).join('\r\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
     const a = document.createElement('a');
     const d = new Date();
     a.href = URL.createObjectURL(blob);
-    a.download = `omnitransit-spotter-${d.toISOString().slice(0, 10)}.csv`;
+    a.download = `evenflow-spotter-${d.toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(a.href);
     $('btn-csv').textContent = ' ส่งออกแล้ว';

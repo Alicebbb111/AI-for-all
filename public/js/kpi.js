@@ -1,5 +1,5 @@
 'use strict';
-/* OmniTransit v5 — kpi.js (สรุปผลโครงการ: ตัวเลขใหญ่ โมเดล AI ความเป็นธรรม 7 กลุ่ม ร้องเรียน) */
+/* Evenflow v5 — kpi.js (สรุปผลโครงการ: ตัวเลขใหญ่ โมเดล AI ความเป็นธรรม 7 กลุ่ม ร้องเรียน) */
 (function () {
   const $ = (id) => document.getElementById(id);
 
@@ -38,22 +38,67 @@
     const byStopA = st.ai.metrics.byStop, byStopB = st.baseline.metrics.byStop;
     const ids = Object.keys(byStopB).filter((id) => byStopA[id]).slice(0, 9);
     if (!ids.length) { box.innerHTML = '<p class="muted small">ยังไม่มีข้อมูลเพียงพอ — รอเวลาจำลองเดินหน้าสักครู่</p>'; return; }
-    const maxV = Math.max(...ids.flatMap((id) => [byStopB[id].avgMin, byStopA[id].avgMin])) * 1.15;
-    box.innerHTML = ids.map((id) => {
+    const maxData = Math.max(...ids.flatMap((id) => [byStopB[id].avgMin, byStopA[id].avgMin]));
+    const maxV = Math.max(16, Math.ceil(maxData / 4) * 4);
+    const ticks = [0, Math.round(maxV * 0.25), Math.round(maxV * 0.5), Math.round(maxV * 0.75), maxV];
+    const P = (v) => Math.min(100, Math.max(0, (v / maxV) * 100));
+
+    const headHtml = `
+      <div class="db-head-row">
+        <div class="db-col-stop">ป้ายหยุดรถ</div>
+        <div class="db-col-track">
+          <div class="db-scale-axis">
+            ${ticks.map((t, i) => `
+              <span class="db-scale-tick ${i === 0 ? 'first' : i === ticks.length - 1 ? 'last' : ''}" style="left:${P(t)}%;">
+                ${t}${i === ticks.length - 1 ? ' น.' : ''}
+              </span>`).join('')}
+          </div>
+        </div>
+        <div class="db-th-vals">
+          <span title="เวลารอก่อนทดลอง (นาที)">ก่อน</span>
+          <span title="เวลารอหลังทดลอง (นาที)">หลัง</span>
+          <span title="ผลต่างเวลารอ">ผลต่าง</span>
+        </div>
+      </div>`;
+
+    const rowsHtml = ids.map((id, idx) => {
       const b = byStopB[id].avgMin, a = byStopA[id].avgMin;
       const lo = Math.min(b, a), hi = Math.max(b, a);
-      const P = (v) => (v / maxV) * 100;
+      const diff = +(a - b).toFixed(2);
       const good = a <= b;
-      return `<div class="dumbbell-row">
-        <span style="font-size:0.76rem;">${OT.esc(st.route.stopCoords.find((s) => s.id === id)?.name || id)}</span>
-        <div class="dumbbell-track">
-          <div class="dumbbell-line" style="left:${P(lo)}%; width:${Math.max(1.5, P(hi) - P(lo))}%;"></div>
-          <div class="dumbbell-dot" style="left:calc(${P(b)}% - 6px); background:var(--warn-fill);" title="ก่อนทดลอง ${b} นาที"></div>
-          <div class="dumbbell-dot" style="left:calc(${P(a)}% - 6px); background:var(--accent);" title="หลังทดลอง ${a} นาที"></div>
-        </div>
-        <span class="num small" style="color:${good ? 'var(--ok)' : 'var(--crit)'}; font-weight:600;">${b}  ${a}</span>
-      </div>`;
+      let diffBadge = 'เท่าเดิม';
+      let diffCls = 'flat';
+      if (diff < -0.01) {
+        diffBadge = `${diff} น.`;
+        diffCls = 'good';
+      } else if (diff > 0.01) {
+        diffBadge = `+${diff} น.`;
+        diffCls = 'bad';
+      }
+      const stopName = st.route.stopCoords.find((s) => s.id === id)?.name || id;
+
+      return `
+        <div class="db-row">
+          <div class="db-stop-name" title="${OT.esc(stopName)}">
+            <span class="db-stop-idx">${idx + 1}</span>
+            <span class="db-stop-txt">${OT.esc(stopName)}</span>
+          </div>
+          <div class="db-track-wrap">
+            ${ticks.map((t) => `<div class="db-grid-line" style="left:${P(t)}%;"></div>`).join('')}
+            <div class="db-baseline"></div>
+            ${b !== a ? `<div class="db-connecting-bar ${good ? 'good' : 'bad'}" style="left:${P(lo)}%; width:${Math.max(2, P(hi) - P(lo))}%;"></div>` : ''}
+            <div class="db-dot db-dot-before" style="left:calc(${P(b)}% - 6px);" title="ก่อนทดลอง: ${b} นาที"></div>
+            <div class="db-dot db-dot-after ${b === a ? 'concentric' : ''}" style="left:calc(${P(a)}% - 6px);" title="หลังทดลอง: ${a} นาที"></div>
+          </div>
+          <div class="db-val-group">
+            <span class="db-val db-val-b" title="ก่อนทดลอง: ${b} นาที">${b}</span>
+            <span class="db-val db-val-a" title="หลังทดลอง: ${a} นาที">${a}</span>
+            <span class="db-val-diff ${diffCls}" title="ผลต่างเวลารอ">${diffBadge}</span>
+          </div>
+        </div>`;
     }).join('');
+
+    box.innerHTML = `<div class="dumbbell-table">${headHtml}${rowsHtml}</div>`;
   }
 
   // ── โมเดล AI (กระชับ) ────────────────────────────────────────────────────
@@ -102,6 +147,8 @@
 
   // ── 7 กลุ่ม ──────────────────────────────────────────────────────────────
   function renderFairness(st) {
+    const ft = $('fairness-table');
+    if (!ft) return;
     const m = st.ai.metrics, c = st.comparison;
     const passUpRate = ((m.passUpRate || 0) * 100).toFixed(1);
     const restBad = st.ai.buses.filter((b) => b.layoverActive && b.layoverSec != null && b.layoverSec < 359).length;
@@ -205,7 +252,7 @@
     const rep = document.createElement('div');
     rep.id = 'ot-report';
     rep.innerHTML = `
-      <h1>รายงานสรุปผู้บริหาร — OmniTransit v5</h1>
+      <h1>รายงานสรุปผู้บริหาร — Evenflow v5</h1>
       <div class="meta">สายนำร่อง 1: จตุจักร ↔ หัวลำโพง · เวลาจำลอง ${st.ai.clock} น. · พิมพ์ ${new Date().toLocaleString('th-TH')} · ระบบจำลองเพื่อการสาธิต</div>
       <h2>1) ผลเทียบเป้าหมายโครงการ</h2>
       <table>
@@ -228,7 +275,7 @@
       <h2>4) ผลกระทบ 7 กลุ่มผู้เกี่ยวข้อง</h2>
       <table><tr><th>กลุ่ม</th><th>ตรวจจากข้อมูลสด</th><th>สถานะ</th></tr>${fairnessRows}</table>
       <div class="note"><b>วิธีการ:</b> สองสภาพแวดล้อมจำลองวิ่งคู่กันด้วย demand ชุดเดียวกัน ต่างกันเฉพาะนโยบายจัดรอบ · <b>ข้อจำกัด:</b> ตัวอย่างน้อย = รายงานว่ายังสรุปไม่ได้ ห้ามประกาศความสำเร็จจากค่าเฉลี่ยเดียว</div>
-      <div class="meta">แผนที่ © OpenStreetMap contributors · ไม่มีกล้อง/พิกัดผู้โดยสาร/ชื่อจริงคนขับ · OmniTransit v5 ศูนย์ dependency</div>`;
+      <div class="meta">แผนที่ © OpenStreetMap contributors · ไม่มีกล้อง/พิกัดผู้โดยสาร/ชื่อจริงคนขับ · Evenflow v5 ศูนย์ dependency</div>`;
     document.body.appendChild(rep);
     document.body.classList.add('report-mode');
     const cleanup = () => { rep.remove(); document.body.classList.remove('report-mode'); window.removeEventListener('afterprint', cleanup); };

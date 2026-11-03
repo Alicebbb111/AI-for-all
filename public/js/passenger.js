@@ -1,5 +1,5 @@
 'use strict';
-/* OmniTransit v5 — passenger.js
+/* Evenflow v5 — passenger.js
  * หน้าผู้โดยสาร: การ์ดเวลารถมาถึงตัวเลขใหญ่ + มิเตอร์ความแน่นภาษาง่าย
  * + ค้นหาป้ายแบบ Instant Autocomplete + สลับต้นทาง-ปลายทาง (Swap)
  * + แผนที่สดเคลื่อนที่ลื่นไหล + Drawer ข้อมูลสดตัวรถ (แพนนุ่มนวล ผังที่นั่งเรียลไทม์)
@@ -283,6 +283,8 @@
     trafficLayer = L.layerGroup().addTo(map);
     busLayer = L.layerGroup().addTo(map);
     stopLayer = L.layerGroup().addTo(map);
+    window.addEventListener('resize', () => { if (map) map.invalidateSize(); });
+    setTimeout(() => { if (map) map.invalidateSize(); }, 200);
     window.OTPage = { onTheme: () => { applyMapTheme(); refreshThemeColors(); } };
   }
 

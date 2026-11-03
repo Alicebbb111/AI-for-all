@@ -11,7 +11,7 @@ class CachedJsonProvider {
     const wait=Math.max(0,this.minIntervalMs-(this.now()-this.lastRequestAt));if(wait)await new Promise(r=>setTimeout(r,wait));
     let error;
     for(let attempt=0;attempt<=this.retries;attempt++)try{
-      this.lastRequestAt=this.now();const response=await this.fetch(url,{headers:{Accept:'application/json','User-Agent':'OmniTransit-Hackathon/1.0'},signal:AbortSignal.timeout(this.timeoutMs)});
+      this.lastRequestAt=this.now();const response=await this.fetch(url,{headers:{Accept:'application/json','User-Agent':'Evenflow-Hackathon/1.0'},signal:AbortSignal.timeout(this.timeoutMs)});
       if(!response.ok)throw new Error(`upstream HTTP ${response.status}`);const value=await response.json(),entry={value,fetchedAt:this.now(),sourceUrl:url};this.cache.set(key,entry);return {...entry,cache:'miss',stale:false};
     }catch(e){error=e;if(attempt<this.retries)await new Promise(r=>setTimeout(r,150*(attempt+1)));}
     if(cached)return {...cached,cache:'stale',stale:true,error:error.message};
